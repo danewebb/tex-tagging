@@ -62,8 +62,7 @@ class Label_Text_Builder():
     
     
     """
-    # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
-    doc = dict()
+
 
 
 
@@ -83,6 +82,9 @@ class Label_Text_Builder():
         self.sec_tags = []
         self.sub_tags = []
 
+        # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
+        self.doc = dict()
+
 
     def main(self):
         self.build_codex()
@@ -94,6 +96,7 @@ class Label_Text_Builder():
                 if '\\section{' in line:
                     heading = self.is_begin(line)
                     if heading == 'sec':
+                        tagsec = []
                         self.sec_num += 1
 
                     # add section key
@@ -102,6 +105,7 @@ class Label_Text_Builder():
                 elif '\\subsection{' in line:
                     heading = self.is_begin(line)
                     if heading == 'sub':
+                        tagsub = []
                         self.sub_num += 1
 
                 ###########################################
@@ -110,18 +114,32 @@ class Label_Text_Builder():
                 elif '\\tag{' in line: # if \tag{ is in line
                     tagcheck = self.tag_begins_line(line)
 
-                    if tagcheck == True:
-                        self.para_num += 1
-                        tag = []
-                        para = []  # empty para
-                        while self.codex[kk] != '\n': # reverse through lines until empty line
-                            # grab paragraph above tag
-                            para.append(self.codex[kk])
-                            kk -= 1
-                        tag = self.grab_tagname(line)
 
-                        # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
-                        doc[str(self.para_num)] = [[tag], [para], self.sec_num, self.sub_num]
+                    if tagcheck == True:
+                        if '\\section{' in self.codex[kk-1]:
+
+                            # assuming section/subsection tags are in the line directly below
+                            tagsec = self.grab_tagname(line)
+
+                        elif '\\subsection{' in self.codex[kk-1]:
+
+                            tagsub = self.grab_tagname(line)
+                        else:
+                            # assuming tags are the line right after a paragraph
+                            self.para_num += 1
+                            tag = []
+                            para = []  # empty para
+                            while self.codex[kk] != '\n': # reverse through lines until empty line
+                                # grab paragraph above tag
+                                para.append(self.codex[kk])
+                                kk -= 1
+                            tagpara = self.grab_tagname(line)
+                            tag = tagpara + tagsec + tagsub
+                            # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
+                            self.doc[str(self.para_num)] = [[tag], [para], self.sec_num, self.sub_num]
+
+
+                            tag = tagpara = []
 
 
 
@@ -149,7 +167,9 @@ class Label_Text_Builder():
                 tagchar.append(line[ii])
 
             ii += 1
-        tag[tagnum] = ''.join(tagchar)
+        if tagchar == []:
+            tagchar = ''
+        tag.append(''.join(tagchar))
         return tag
 
     def tag_begins_line(self, line):
@@ -187,10 +207,11 @@ class Label_Text_Builder():
                 return heading
 
 
-    def section_tags(self, line):
-        tagcheck = False
-        tagcheck = self.tag_begins_line()
-        if tagcheck == True:
+    # def section_tags(self, line):
+    #     tagcheck = False
+    #     tagcheck = self.tag_begins_line()
+    #     if tagcheck == True:
+
 
 
 
