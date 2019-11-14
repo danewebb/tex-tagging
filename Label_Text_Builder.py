@@ -88,18 +88,19 @@ class Label_Text_Builder():
 
     def main(self):
         self.build_codex()
-
+        tagsec = []
+        tagsub = []
+        tagpara = []
         with open(self.file, 'r') as f:
             for kk, line in enumerate(f):
                 ###########################################
                 ################ SECTION ##################
                 if '\\section{' in line:
-                    heading = self.is_begin(line)
+                    heading = self.is_begin(line) # check if \\section{ is at the beginning
                     if heading == 'sec':
                         tagsec = []
                         self.sec_num += 1
 
-                    # add section key
                 ###########################################
                 ############### SUBSECTION ################
                 elif '\\subsection{' in line:
@@ -114,32 +115,37 @@ class Label_Text_Builder():
                 elif '\\tag{' in line: # if \tag{ is in line
                     tagcheck = self.tag_begins_line(line)
 
-
                     if tagcheck == True:
                         if '\\section{' in self.codex[kk-1]:
-
+                            # it it a section tag???
                             # assuming section/subsection tags are in the line directly below
                             tagsec = self.grab_tagname(line)
 
                         elif '\\subsection{' in self.codex[kk-1]:
-
+                            # is it a subsection tag?
                             tagsub = self.grab_tagname(line)
                         else:
                             # assuming tags are the line right after a paragraph
                             self.para_num += 1
-                            tag = []
+                            tag = [] # empty tag
                             para = []  # empty para
-                            while self.codex[kk] != '\n': # reverse through lines until empty line
+                            while self.codex[kk-1] != '\n': # reverse through lines until empty line
                                 # grab paragraph above tag
-                                para.append(self.codex[kk])
+                                para.append(self.codex[kk-1])
                                 kk -= 1
+
+                            # grab the tag name for the paragraph
                             tagpara = self.grab_tagname(line)
+
+                            tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
                             tag = tagpara + tagsec + tagsub
+
+                            # handles duplicate tags and (bad tags not implemented!)
+
                             # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
                             self.doc[str(self.para_num)] = [[tag], [para], self.sec_num, self.sub_num]
 
-
-                            tag = tagpara = []
+                            tagpara = []
 
 
 
@@ -205,6 +211,34 @@ class Label_Text_Builder():
                 # section
                 heading = 'sec'
                 return heading
+
+
+    def tag_clash(self, tagsec, tagsub, tagpara):
+        """
+        check for tag clashes. Trying to use List Comprehensions. Hierarchy is as follows.
+        :param tagsec:
+        :param tagsub:
+        :param tagpara:
+        :return:
+        """
+        # haven't figured out list comprehension yet, will try again tomorrow
+        # tagsub = [ii for ii in tagsec if ii in tagsub]
+        # tagpara = [ii for ii in tagsec if ii in tagpara]
+        # tagpara = [ii for ii in tagsub if ii in tagpara]
+
+
+
+        return tagsec, tagsub, tagpara
+
+        # for ii, tsec in enumerate(tagsec):
+        #     if tsec in tagsub:
+        #
+        #     if tsec in tagpara:
+        #
+        # for ii, tsub in enumerate(tagsub):
+        #     if tsub in tagpara:
+
+
 
 
     # def section_tags(self, line):
