@@ -138,7 +138,7 @@ class Label_Text_Builder():
                             tagpara = self.grab_tagname(line)
 
                             tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
-                            tag = tagpara + tagsec + tagsub
+                            tag = tagsec + tagsub + tagpara
 
                             # handles duplicate tags and (bad tags not implemented!)
 
@@ -222,13 +222,19 @@ class Label_Text_Builder():
         :return:
         """
         # haven't figured out list comprehension yet, will try again tomorrow
-        # tagsub = [ii for ii in tagsec if ii in tagsub]
-        # tagpara = [ii for ii in tagsec if ii in tagpara]
-        # tagpara = [ii for ii in tagsub if ii in tagpara]
+        for tsub in tagsub:
+            if tsub in tagsec:
+                tagsub = [ii for ii in tagsub if ii in tagsec]
+
+        for tpara in tagpara:
+            if tpara in tagsec:
+                tagpara = [ii for ii in tagpara if ii in tagsec]
+            elif tpara in tagsub:
+                tagpara = [ii for ii in tagpara if ii in tagsub]
 
 
 
-        return tagsec, tagsub, tagpara
+        return tagsub, tagpara
 
         # for ii, tsec in enumerate(tagsec):
         #     if tsec in tagsub:
