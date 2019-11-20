@@ -88,11 +88,12 @@ class Label_Text_Builder():
         self.sec_tags = []
         self.sub_tags = []
 
+        self.counter = 0
         # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
         self.doc = dict()
 
 
-    def main(self):
+    def main(self, the_count=False):
         self.build_codex()
         tagsec = []
         tagsub = []
@@ -149,17 +150,20 @@ class Label_Text_Builder():
                             # grab the tag name for the paragraph
                             tagpara = self.grab_tagname(line)
 
-                            tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
+                            tagsec, tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
                             tag = tagsec + tagsub + tagpara
 
                             # handles duplicate tags and (bad tags not implemented!)
 
                             # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
                             self.doc[self.para_num] = [[tag], [para], self.sec_num, self.sub_num]
-
+                            if the_count == True:
+                                self.word_count(para)
                             tagpara = []
 
                 if '\\end{document}' in line:
+                    if the_count == True:
+                        self.word_count([], the_count=True)
                     with open('doc_dict.pkl', 'wb') as pickle_file:
                         pickle.dump(self.doc, pickle_file)
 
@@ -171,6 +175,15 @@ class Label_Text_Builder():
             for line in f:
                 self.codex.append(line)
 
+
+    def word_count(self, para, the_count=False):
+        # very simple word counter
+        for line in para:
+            for char in line:
+                if char == ' ':
+                    self.counter += 1
+        if the_count == True:
+            print(f'The word count for file {self.file} is {self.counter} words')
 
     def grab_tagname(self, line):
         ii = 0
@@ -235,12 +248,17 @@ class Label_Text_Builder():
 
     def tag_clash(self, tagsec, tagsub, tagpara):
         """
-        check for tag clashes. Hierarchy is as follows.
+        check for same tags showing up more than once. Hierarchy is as follows.
         :param tagsec:
         :param tagsub:
         :param tagpara:
         :return:
         """
+        # ignore empty tags in sections and subsections
+        if '' in tagsec:
+            tagsec.remove('')
+        if '' in tagsub:
+            tagsub.remove('')
 
         for tsub in tagsub:
             if tsub in tagsec:
@@ -253,7 +271,7 @@ class Label_Text_Builder():
                 tagpara.remove(tpara)
 
 
-        return tagsub, tagpara
+        return tagsec, tagsub, tagpara
 
 
     # def clean_para(self, para):
@@ -293,61 +311,10 @@ class Label_Text_Builder():
 
 
 
-
-
-
-
-        # for ii, tsec in enumerate(tagsec):
-        #     if tsec in tagsub:
-        #
-        #     if tsec in tagpara:
-        #
-        # for ii, tsub in enumerate(tagsub):
-        #     if tsub in tagpara:
-
-
-
-
-    # def section_tags(self, line):
-    #     tagcheck = False
-    #     tagcheck = self.tag_begins_line()
-    #     if tagcheck == True:
-
-
-
-
-
 if __name__ == '__main__':
     LTB = Label_Text_Builder('ch01_00.tex')
-    LTB.main()
+    LTB.main(the_count=True)
     with open('doc_dict.pkl', 'rb') as pickle_file:
         data = pickle.load(pickle_file)
     for key, value in data.items():
         print(f'key: {key}\nvalue: {value}')
-
-
-
-
-
-
-
-    # def grab_name(self, line, heading):
-    #     ii = 0
-    #     char = []
-    #     word = []
-    #     wordnum = 0
-    #     while line[ii] == ' ' or line[ii] == '\\t':
-    #         ii += 1
-    #
-    #     if heading == 'sec':
-    #         ii += len('\\section{')
-    #     elif heading == 'sub':
-    #         ii += len('\\subsection{')
-    #     else:
-    #         raise AssertionError
-    #
-    #     while line[ii] != '}':
-    #         char.append(line(ii))
-    #
-    #
-    #     return ''.join(char)
