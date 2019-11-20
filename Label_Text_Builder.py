@@ -1,5 +1,5 @@
 import numpy as np
-
+import pickle
 """
 QUESTIONS
 - non alpha-numeric text (delete/ignore/clean)
@@ -39,6 +39,12 @@ QUESTIONS
 
 """
 NOTES
+- pickle to save dictionary
+    - need pickle to unpack as well
+    
+- electronics library is split into chapters
+- add chapters to the dictionary
+    - if multiple files given how do we handle that
 
 """
 class Label_Text_Builder():
@@ -93,13 +99,16 @@ class Label_Text_Builder():
         tagpara = []
         with open(self.file, 'r') as f:
             for kk, line in enumerate(f):
+
                 ###########################################
                 ################ SECTION ##################
                 if '\\section{' in line:
                     heading = self.is_begin(line) # check if \\section{ is at the beginning
-                    if heading == 'sec':
-                        tagsec = []
-                        self.sec_num += 1
+                    if heading == 'sec': # confirm this is a true instance of \\section{}
+                        tagsec = [] # open list for section tags
+                        self.sec_num += 1 # increment section number
+                        if '\\tags{' not in self.codex[kk+1]:
+                            print(f'Untagged section in line {kk+2} of {self.file}')
 
                 ###########################################
                 ############### SUBSECTION ################
@@ -108,11 +117,13 @@ class Label_Text_Builder():
                     if heading == 'sub':
                         tagsub = []
                         self.sub_num += 1
+                        if '\\tags{' not in self.codex[kk+1]:
+                            print(f'Untagged subsection in line {kk+2} of {self.file}')
 
                 ###########################################
                 ################### TAG ###################
 
-                elif '\\tag{' in line: # if \tag{ is in line
+                elif '\\tags{' in line: # if \tag{ is in line
                     tagcheck = self.tag_begins_line(line)
 
                     if tagcheck == True:
@@ -134,6 +145,7 @@ class Label_Text_Builder():
                                 para.append(self.codex[kk-1])
                                 kk -= 1
 
+
                             # grab the tag name for the paragraph
                             tagpara = self.grab_tagname(line)
 
@@ -143,9 +155,13 @@ class Label_Text_Builder():
                             # handles duplicate tags and (bad tags not implemented!)
 
                             # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
-                            self.doc[str(self.para_num)] = [[tag], [para], self.sec_num, self.sub_num]
+                            self.doc[self.para_num] = [[tag], [para], self.sec_num, self.sub_num]
 
                             tagpara = []
+
+                if '\\end{document}' in line:
+                    with open('doc_dict.pkl', 'wb') as pickle_file:
+                        pickle.dump(self.doc, pickle_file)
 
 
 
@@ -158,19 +174,23 @@ class Label_Text_Builder():
 
     def grab_tagname(self, line):
         ii = 0
+        char_pad = 0
         tagnum = 0
         tagchar = []
         tag = []
         while line[ii] != '}':
             # grab name of tags
-            if ii >= 5:
+            if ii >= 6:
+
                 if line[ii] == ',' and line[ii + 1] != '}':
                     # if there is multiple tags
-                    tag[tagnum] = ''.join(tagchar)
+                    tag.append(''.join(tagchar))
                     tagchar = []
                     tagnum += 1
-
-                tagchar.append(line[ii])
+                elif line[ii] == ' ':
+                    pass
+                else:
+                    tagchar.append(line[ii])
 
             ii += 1
         if tagchar == []:
@@ -180,14 +200,14 @@ class Label_Text_Builder():
 
     def tag_begins_line(self, line):
         tagcheck = False
-        assert '\\tag{' in line
+        assert '\\tags{' in line
 
 
         # check if \tag{ is at the beginning of the line
         ii = 0
         while line[ii] == ' ' or line[ii] == '\t':
             ii += 1
-        if line[ii] == '\\' and line[ii+1] == 't' and line[ii+2] == 'a' and line[ii+4] == '{':
+        if line[ii] == '\\' and line[ii+1] == 't' and line[ii+2] == 'a' and line[ii+5] == '{':
             tagcheck = True
         return tagcheck
 
@@ -215,26 +235,67 @@ class Label_Text_Builder():
 
     def tag_clash(self, tagsec, tagsub, tagpara):
         """
-        check for tag clashes. Trying to use List Comprehensions. Hierarchy is as follows.
+        check for tag clashes. Hierarchy is as follows.
         :param tagsec:
         :param tagsub:
         :param tagpara:
         :return:
         """
-        # haven't figured out list comprehension yet, will try again tomorrow
+
         for tsub in tagsub:
             if tsub in tagsec:
-                tagsub = [ii for ii in tagsub if ii in tagsec]
-
+                tagsub.remove(tsub)
         for tpara in tagpara:
             if tpara in tagsec:
-                tagpara = [ii for ii in tagpara if ii in tagsec]
+                # tag_para = [ii for ii in tagpara if ii in tagsec]
+                tagpara.remove(tpara)
             elif tpara in tagsub:
-                tagpara = [ii for ii in tagpara if ii in tagsub]
-
+                tagpara.remove(tpara)
 
 
         return tagsub, tagpara
+
+
+    # def clean_para(self, para):
+    #     for line in para:
+    #         char_store = []
+    #
+    #         word = []
+    #         for ii, char in enumerate(line):
+    #             char_store.append(char)
+    #             if char == '{':
+    #                 # might be a word command
+    #                 command = False
+    #                 char_count = ii
+    #                 start_idx = ii
+    #                 while char_store(char_count) != ' ' or char_count != 0 or command == False:
+    #                     # while characters remain constant, not the beginning of the line or a command is not detected
+    #                     char_count -= 1
+    #                     if char_store(char_count) == '\\':
+    #                         # we know its a word command
+    #                         char_want = []
+    #                         command = True
+    #                         char_count = start_idx+1
+    #                         jj = 0
+    #                         while char_store[char_count] != '}':
+    #                             char_want[jj] = char_store[char_count]
+    #
+    #                             jj += 1
+    #                             char_count += 1
+    #                         word.append(''.join(char_want))
+    #
+    #
+    #
+    #
+    #
+    #             elif char == '$':
+    #                 pass
+
+
+
+
+
+
 
         # for ii, tsec in enumerate(tagsec):
         #     if tsec in tagsub:
@@ -257,9 +318,12 @@ class Label_Text_Builder():
 
 
 if __name__ == '__main__':
-    LTB = Label_Text_Builder('report.tex')
+    LTB = Label_Text_Builder('ch01_00.tex')
     LTB.main()
-
+    with open('doc_dict.pkl', 'rb') as pickle_file:
+        data = pickle.load(pickle_file)
+    for key, value in data.items():
+        print(f'key: {key}\nvalue: {value}')
 
 
 
