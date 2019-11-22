@@ -1,6 +1,8 @@
 import numpy as np
 import pickle
+# import pypandoc as pandoc
 """
+
 QUESTIONS
 - non alpha-numeric text (delete/ignore/clean)
     - \\emph{}, \\textit{}, \\keyword{}?
@@ -153,7 +155,11 @@ class Label_Text_Builder():
                             tagsec, tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
                             tag = tagsec + tagsub + tagpara
 
-                            # handles duplicate tags and (bad tags not implemented!)
+                            para_clean = []
+
+                            # for aa in range(0, len(para)):
+                            #     para_clean.append(pandoc.convert_text(para[aa], 'plain', format='latex'))
+                            # para = self.clean_para(para)
 
                             # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
                             self.doc[self.para_num] = [[tag], [para], self.sec_num, self.sub_num]
@@ -214,10 +220,9 @@ class Label_Text_Builder():
     def tag_begins_line(self, line):
         tagcheck = False
         assert '\\tags{' in line
-
-
-        # check if \tag{ is at the beginning of the line
         ii = 0
+        # check if \tag{ is at the beginning of the line
+
         while line[ii] == ' ' or line[ii] == '\t':
             ii += 1
         if line[ii] == '\\' and line[ii+1] == 't' and line[ii+2] == 'a' and line[ii+5] == '{':
@@ -229,7 +234,8 @@ class Label_Text_Builder():
         begincheck = False
         ii = 0
         heading = ''
-        while line[ii] == ' ' or line[ii] == '\\t':
+
+        while line[ii] == ' ' or line[ii] == '\t':
             ii += 1
         if '\\subsection{' in line:
             if line[ii+3] == 'b' and line[ii+4] == 's' and line[ii+5] == 'e':
@@ -275,39 +281,92 @@ class Label_Text_Builder():
 
 
     # def clean_para(self, para):
+    #     """
+    #     Ideally gets rid of latex word commands and inline math. IMPORTANT: commands/inline math must
+    #     begin and end in the same line.
+    #
+    #     :param para: dirty paragraph
+    #     :return: clean paragraph
+    #     """
+    #     clean = ''
+    #     clean_line = []
+    #     clean_para = []
+    #
     #     for line in para:
-    #         char_store = []
     #
-    #         word = []
+    #         char_store = [] # storage for all characters in line
+    #
+    #         word = [] # word in command
     #         for ii, char in enumerate(line):
-    #             char_store.append(char)
-    #             if char == '{':
-    #                 # might be a word command
-    #                 command = False
-    #                 char_count = ii
-    #                 start_idx = ii
-    #                 while char_store(char_count) != ' ' or char_count != 0 or command == False:
-    #                     # while characters remain constant, not the beginning of the line or a command is not detected
-    #                     char_count -= 1
-    #                     if char_store(char_count) == '\\':
-    #                         # we know its a word command
-    #                         char_want = []
-    #                         command = True
-    #                         char_count = start_idx+1
-    #                         jj = 0
-    #                         while char_store[char_count] != '}':
-    #                             char_want[jj] = char_store[char_count]
+    #             master_idx = []
     #
-    #                             jj += 1
-    #                             char_count += 1
-    #                         word.append(''.join(char_want))
+    #             if char == '\\':
+    #                 jj = ii
+    #                 master_idx.append(ii)
     #
+    #                 while line[jj] != ' ':
     #
+    #                     master_idx.append(jj)
+    #                     jj += 1
+    #                     if line[jj] == '{':
+    #                         kk = jj
+    #                         indices = []
+    #                         char_store = []
     #
+    #                         while line[kk+1] != '}':
+    #                             char_store.append(line[kk+1])
+    #                             indices.append(kk+1)
+    #                             kk += 1
     #
+    #                         if char_store != []:
+    #                             # if we have a word in a command
     #
-    #             elif char == '$':
-    #                 pass
+    #                             for ch in char_store:
+    #                                 line[jj+1] = str(ch)
+    #                                 jj += 1
+    #     return para
+
+
+
+    def clean_para_inception(self, para):
+        level1 = []
+        level2 = []
+        level3 = []
+        clean_char = []
+        ii = 0
+        for line1 in para:
+            codex.append(line)
+
+        for line2 in codex:
+            for jj, char1 in enumerate(codex):
+                level1.append(char1)
+
+                if char1 == '\\':
+                    char2 = ''
+
+                    while char2 != ' ' or char2 != '\n':
+                        level2.append()
+
+                        if char2 == '{':
+                            char3 == []
+
+                            while char3 != ' ' or char3 != '\n':
+                                level3.append(char3)
+
+                                if char3 == '}':
+                                    words.append(''.join(level3))
+
+
+
+            ii += 1
+    def macro_check(self, line):
+        char_hold = []
+        for char in line:
+            char_hold.append(char)
+
+
+
+    def inline_check(self, line):
 
 
 
