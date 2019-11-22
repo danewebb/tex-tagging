@@ -328,45 +328,45 @@ class Label_Text_Builder():
 
 
 
-    def clean_para_inception(self, para):
-        level1 = []
-        level2 = []
-        level3 = []
-        clean_char = []
-        ii = 0
-        for line1 in para:
-            codex.append(line)
+#     def clean_para_inception(self, para):
+#         level1 = []
+#         level2 = []
+#         level3 = []
+#         clean_char = []
+#         ii = 0
+#         for line1 in para:
+#             codex.append(line)
 
-        for line2 in codex:
-            for jj, char1 in enumerate(codex):
-                level1.append(char1)
+#         for line2 in codex:
+#             for jj, char1 in enumerate(codex):
+#                 level1.append(char1)
 
-                if char1 == '\\':
-                    char2 = ''
+#                 if char1 == '\\':
+#                     char2 = ''
 
-                    while char2 != ' ' or char2 != '\n':
-                        level2.append()
+#                     while char2 != ' ' or char2 != '\n':
+#                         level2.append()
 
-                        if char2 == '{':
-                            char3 == []
+#                         if char2 == '{':
+#                             char3 == []
 
-                            while char3 != ' ' or char3 != '\n':
-                                level3.append(char3)
+#                             while char3 != ' ' or char3 != '\n':
+#                                 level3.append(char3)
 
-                                if char3 == '}':
-                                    words.append(''.join(level3))
-
-
-
-            ii += 1
-    def macro_check(self, line):
-        char_hold = []
-        for char in line:
-            char_hold.append(char)
+#                                 if char3 == '}':
+#                                     words.append(''.join(level3))
 
 
 
-    def inline_check(self, line):
+#             ii += 1
+#     def macro_check(self, line):
+#         char_hold = []
+#         for char in line:
+#             char_hold.append(char)
+
+
+
+#     def inline_check(self, line):
 
 
 
