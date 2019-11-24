@@ -1,5 +1,6 @@
 import numpy as np
 import pickle
+import re
 # import pypandoc as pandoc
 """
 
@@ -48,6 +49,21 @@ NOTES
 - add chapters to the dictionary
     - if multiple files given how do we handle that
 
+
+- definately add chapters into this dictionary
+- change current value to a dictionary
+    - Dictionary(keys: para #, value: dictionaries)
+        - keys: tags, values: "tags"
+        - keys: para, values: "paragraphs"
+        - keys: section, values: section #
+        - keys: subsection, values: sub #
+        - keys: chapter, values: chap #
+        
+        
+- look into python based utilities for text processing
+    - regular expressions? regx?
+    - allows searches and replacements based on matching strings
+
 """
 class Label_Text_Builder():
     """
@@ -66,7 +82,7 @@ class Label_Text_Builder():
 
     """
     #########################################   DEV NOTES   ###########################################################
-    - Have named sections, I think we only care about the names of the tags
+    - Need to add counting chapters and handling multiple files.
     
     
     """
@@ -80,104 +96,125 @@ class Label_Text_Builder():
 
     tag = []
     jj = 0
-    def __init__(self, file):
-        self.file = file
+    def __init__(self, *args):
+        self.args = args
         self.codex = []
         self.para_num = 0
         self.sec_num = 0
         self.sub_num = 0
+        self.chap_num = 0
 
         self.sec_tags = []
         self.sub_tags = []
 
         self.counter = 0
         # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
-        self.doc = dict()
+
+        self.master = dict()
+
+
 
 
     def main(self, the_count=False):
-        self.build_codex()
         tagsec = []
         tagsub = []
         tagpara = []
-        with open(self.file, 'r') as f:
-            for kk, line in enumerate(f):
+        self.codex = []
 
-                ###########################################
-                ################ SECTION ##################
-                if '\\section{' in line:
-                    heading = self.is_begin(line) # check if \\section{ is at the beginning
-                    if heading == 'sec': # confirm this is a true instance of \\section{}
-                        tagsec = [] # open list for section tags
-                        self.sec_num += 1 # increment section number
-                        if '\\tags{' not in self.codex[kk+1]:
-                            print(f'Untagged section in line {kk+2} of {self.file}')
+        for file in self.args:
+            self.chap_num += 1
+            with open(file, 'r') as f:
 
-                ###########################################
-                ############### SUBSECTION ################
-                elif '\\subsection{' in line:
-                    heading = self.is_begin(line)
-                    if heading == 'sub':
-                        tagsub = []
-                        self.sub_num += 1
-                        if '\\tags{' not in self.codex[kk+1]:
-                            print(f'Untagged subsection in line {kk+2} of {self.file}')
+                self.build_codex(file)
 
-                ###########################################
-                ################### TAG ###################
+                for kk, line in enumerate(f):
 
-                elif '\\tags{' in line: # if \tag{ is in line
-                    tagcheck = self.tag_begins_line(line)
+                    ###########################################
+                    ################ SECTION ##################
+                    if '\\section{' in line:
+                        heading = self.is_begin(line) # check if \\section{ is at the beginning
+                        if heading == 'sec': # confirm this is a true instance of \\section{}
+                            tagsec = [] # open list for section tags
+                            self.sec_num += 1 # increment section number
+                            if '\\tags{' not in self.codex[kk+1]:
+                                print(f'Untagged section in line {kk+2} of {self.file}')
 
-                    if tagcheck == True:
-                        if '\\section{' in self.codex[kk-1]:
-                            # it it a section tag???
-                            # assuming section/subsection tags are in the line directly below
-                            tagsec = self.grab_tagname(line)
+                    ###########################################
+                    ############### SUBSECTION ################
+                    elif '\\subsection{' in line:
+                        heading = self.is_begin(line)
+                        if heading == 'sub':
+                            tagsub = []
+                            self.sub_num += 1
+                            if '\\tags{' not in self.codex[kk+1]:
+                                print(f'Untagged subsection in line {kk+2} of {file}')
 
-                        elif '\\subsection{' in self.codex[kk-1]:
-                            # is it a subsection tag?
-                            tagsub = self.grab_tagname(line)
-                        else:
-                            # assuming tags are the line right after a paragraph
-                            self.para_num += 1
-                            tag = [] # empty tag
-                            para = []  # empty para
-                            while self.codex[kk-1] != '\n': # reverse through lines until empty line
-                                # grab paragraph above tag
-                                para.append(self.codex[kk-1])
-                                kk -= 1
+                    ###########################################
+                    ################### TAG ###################
 
+                    elif '\\tags{' in line: # if \tag{ is in line
+                        tagcheck = self.tag_begins_line(line)
 
-                            # grab the tag name for the paragraph
-                            tagpara = self.grab_tagname(line)
+                        if tagcheck == True:
+                            if '\\section{' in self.codex[kk-1]:
+                                # it it a section tag???
+                                # assuming section/subsection tags are in the line directly below
+                                tagsec = self.grab_tagname(line)
 
-                            tagsec, tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
-                            tag = tagsec + tagsub + tagpara
-
-                            para_clean = []
-
-                            # for aa in range(0, len(para)):
-                            #     para_clean.append(pandoc.convert_text(para[aa], 'plain', format='latex'))
-                            # para = self.clean_para(para)
-
-                            # doc = {self.para_num: [[tags], [para], self.sec_num, self.sub_num]}
-                            self.doc[self.para_num] = [[tag], [para], self.sec_num, self.sub_num]
-                            if the_count == True:
-                                self.word_count(para)
-                            tagpara = []
-
-                if '\\end{document}' in line:
-                    if the_count == True:
-                        self.word_count([], the_count=True)
-                    with open('doc_dict.pkl', 'wb') as pickle_file:
-                        pickle.dump(self.doc, pickle_file)
+                            elif '\\subsection{' in self.codex[kk-1]:
+                                # is it a subsection tag?
+                                tagsub = self.grab_tagname(line)
+                            else:
+                                # assuming tags are the line right after a paragraph
+                                self.para_num += 1
+                                tag = [] # empty tag
+                                para = []  # empty para
+                                while self.codex[kk-1] != '\n': # reverse through lines until empty line
+                                    # grab paragraph above tag
+                                    para.append(self.codex[kk-1])
+                                    kk -= 1
 
 
+                                # grab the tag name for the paragraph
+                                tagpara = self.grab_tagname(line)
 
-    def build_codex(self):
+                                tagsec, tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
+                                tag = tagsec + tagsub + tagpara
+
+                                para_clean = []
+
+                                para_clean = self.clean_para(para)
+
+                                chapter = dict()
+                                section = dict()
+                                subsection = dict()
+                                tag_dict = dict()
+                                para_dict = dict()
+
+                                section['section'] = self.sec_num
+                                subsection['subsection'] = self.sub_num
+                                chapter['chapter'] = self.chap_num
+                                tag_dict['tags'] = [tag]
+                                para_dict['paragraph'] = [para]
+
+
+
+                                self.master[self.para_num] = [chapter, section, subsection, tag_dict, para_dict]
+                                if the_count == True:
+                                    self.word_count(para)
+                                tagpara = []
+
+                    if '\\end{document}' in line:
+                        if the_count == True:
+                            self.word_count([], the_count=True)
+                        with open('doc_dict.pkl', 'wb') as pickle_file:
+                            pickle.dump(self.master, pickle_file)
+
+
+
+    def build_codex(self, file):
         codex = []
-        with open(self.file, 'r') as f:
+        with open(file, 'r') as f:
             for line in f:
                 self.codex.append(line)
 
@@ -189,7 +226,7 @@ class Label_Text_Builder():
                 if char == ' ':
                     self.counter += 1
         if the_count == True:
-            print(f'The word count for file {self.file} is {self.counter} words')
+            print(f'The word count for file {self.args[self.chap_num - 1]} is {self.counter} words')
 
     def grab_tagname(self, line):
         ii = 0
@@ -280,93 +317,69 @@ class Label_Text_Builder():
         return tagsec, tagsub, tagpara
 
 
-    # def clean_para(self, para):
-    #     """
-    #     Ideally gets rid of latex word commands and inline math. IMPORTANT: commands/inline math must
-    #     begin and end in the same line.
+    def clean_para(self, para):
+        """
+
+        :param para:
+        :return:
+        """
+        pattern = re.compile(r'\\[a-z]\w+\{([a-z]\w*)\}')
+        clean_para = []
+        for line in para:
+            clean_line = []
+            start_macro = []
+            end_macro = []
+            start_arg = []
+            end_arg = []
+            macro_num = 0
+            matches = re.finditer(pattern, line)
+
+
+            macro_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
+            arg_idx = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
+
+            for idx in macro_idx:
+                start_macro.append(idx[0])
+                end_macro.append(idx[1])
+
+            for idx in arg_idx:
+                start_arg.append(idx[0])
+                end_arg.append(idx[1])
+
+            ii = 0
+
+
+            while macro_num < len(start_macro):
+                if ii >= start_macro[macro_num] and ii < end_macro[macro_num]:
+                    if ii >= start_arg[macro_num] and ii < end_arg[macro_num]:
+                        clean_line.append(line[ii])
+
+
+                elif ii != len(line) or ii != len(line) - 1:
+                    clean_line.append(line[ii])
+
+                if ii == end_macro[macro_num]:
+                    macro_num += 1
+
+                ii += 1
+
+            while ii < len(line):
+                clean_line.append(line[ii])
+                ii += 1
+
+            clean_para.append(''.join(clean_line))
+        return clean_para
+
+
+    # def clean_inline(self, para):
+    #     pattern = re.compile(r'\$(.*)\$')
+    #     matches = re.finditer(pattern, para)
     #
-    #     :param para: dirty paragraph
-    #     :return: clean paragraph
-    #     """
-    #     clean = ''
-    #     clean_line = []
-    #     clean_para = []
+    #     for match in matches:
+    #         print(match.group(1))
     #
-    #     for line in para:
-    #
-    #         char_store = [] # storage for all characters in line
-    #
-    #         word = [] # word in command
-    #         for ii, char in enumerate(line):
-    #             master_idx = []
-    #
-    #             if char == '\\':
-    #                 jj = ii
-    #                 master_idx.append(ii)
-    #
-    #                 while line[jj] != ' ':
-    #
-    #                     master_idx.append(jj)
-    #                     jj += 1
-    #                     if line[jj] == '{':
-    #                         kk = jj
-    #                         indices = []
-    #                         char_store = []
-    #
-    #                         while line[kk+1] != '}':
-    #                             char_store.append(line[kk+1])
-    #                             indices.append(kk+1)
-    #                             kk += 1
-    #
-    #                         if char_store != []:
-    #                             # if we have a word in a command
-    #
-    #                             for ch in char_store:
-    #                                 line[jj+1] = str(ch)
-    #                                 jj += 1
-    #     return para
-
-
-
-#     def clean_para_inception(self, para):
-#         level1 = []
-#         level2 = []
-#         level3 = []
-#         clean_char = []
-#         ii = 0
-#         for line1 in para:
-#             codex.append(line)
-
-#         for line2 in codex:
-#             for jj, char1 in enumerate(codex):
-#                 level1.append(char1)
-
-#                 if char1 == '\\':
-#                     char2 = ''
-
-#                     while char2 != ' ' or char2 != '\n':
-#                         level2.append()
-
-#                         if char2 == '{':
-#                             char3 == []
-
-#                             while char3 != ' ' or char3 != '\n':
-#                                 level3.append(char3)
-
-#                                 if char3 == '}':
-#                                     words.append(''.join(level3))
-
-
-
-#             ii += 1
-#     def macro_check(self, line):
-#         char_hold = []
-#         for char in line:
-#             char_hold.append(char)
-
-
-
-#     def inline_check(self, line):
+    #     start, end = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
+    #     print(start, end)
 
 
 
