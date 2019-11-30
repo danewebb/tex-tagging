@@ -169,10 +169,15 @@ class Label_Text_Builder():
                                 self.para_num += 1
                                 tag = [] # empty tag
                                 para = []  # empty para
-                                while self.codex[kk-1] != '\n': # reverse through lines until empty line
+                                empty = False
+                                while empty == False: # reverse through lines until empty line
+                                    empty = self.slashn(self.codex[kk-1])
                                     # grab paragraph above tag
-                                    para.append(self.codex[kk-1])
-                                    kk -= 1
+                                    if empty == True:
+                                        pass
+                                    elif empty == False:
+                                        para.append(self.codex[kk-1])
+                                        kk -= 1
 
 
                                 # grab the tag name for the paragraph
@@ -195,7 +200,7 @@ class Label_Text_Builder():
                                 subsection['subsection'] = self.sub_num
                                 chapter['chapter'] = self.chap_num
                                 tag_dict['tags'] = [tag]
-                                para_dict['paragraph'] = [para]
+                                para_dict['paragraph'] = [para_clean]
 
 
 
@@ -209,6 +214,18 @@ class Label_Text_Builder():
                             self.word_count([], the_count=True)
                         with open('doc_dict.pkl', 'wb') as pickle_file:
                             pickle.dump(self.master, pickle_file)
+
+
+
+    def slashn(self, line):
+        ii = 0
+        while line[ii] == ' ' or line[ii] == '\t' or line[ii] == '\r' or line[ii] == '':
+            ii += 1
+
+        if line[ii] == '\n':
+            return True
+        elif line[ii] != '\n':
+            return False
 
 
 
@@ -323,9 +340,15 @@ class Label_Text_Builder():
         :param para:
         :return:
         """
-        pattern = re.compile(r'\\[a-z]\w+\{([a-z]\w*)\}')
+        # pattern = re.compile(r'\\[a-z]\w+\{([a-z]+)\}')
+
+        pattern = re.compile(r'\\[a-zA-Z]+\{([a-zA-Z]+\s?[a-zA-Z]*)\}')
+
+        # pattern = re.compile(r'\\[a-z]+\[([a-z]*)\]\{([a-z]+)\}')
+        # pattern3 = re.compile(r'\\[a-z]+\{([a-z]+)\s([a-z]+)\}')
         clean_para = []
         for line in para:
+
             clean_line = []
             start_macro = []
             end_macro = []
@@ -333,7 +356,8 @@ class Label_Text_Builder():
             end_arg = []
             macro_num = 0
             matches = re.finditer(pattern, line)
-
+            for match in matches:
+                print(match)
 
             macro_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
             arg_idx = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
@@ -368,18 +392,69 @@ class Label_Text_Builder():
                 ii += 1
 
             clean_para.append(''.join(clean_line))
+
+        # clean_para = self.clean_inline(clean_para)
         return clean_para
-
-
+    #
+    #
     # def clean_inline(self, para):
+    #     start = []
+    #     end = []
+    #     clean_line = []
+    #     in_num = 0
+    #     clean_para = []
+    #     # this pattern is too general.
     #     pattern = re.compile(r'\$(.*)\$')
-    #     matches = re.finditer(pattern, para)
     #
-    #     for match in matches:
-    #         print(match.group(1))
+    #     for line in para:
     #
-    #     start, end = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
-    #     print(start, end)
+    #         clean_line = []
+    #         matches = re.finditer(pattern, line)
+    #
+    #         for match in matches:
+    #             print(match.group(1))
+    #         inline_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
+    #         if inline_idx != []:
+    #             for idx in inline_idx:
+    #                 start.append(idx[0])
+    #                 end.append(idx[1])
+    #
+    #             ii = 0
+    #             while in_num < len(start):
+    #                 if ii == start[in_num] or ii == end[in_num]:
+    #                     if ii == end[in_num]:
+    #                         in_num += 1
+    #                 else:
+    #                     clean_line.append(line[ii])
+    #
+    #
+    #                 ii += 1
+    #
+    #
+    #             while ii < len(line):
+    #                 clean_line.append(line[ii])
+    #                 ii += 1
+    #             clean_para.append(''.join(clean_line))
+    #         else:
+    #             clean_para.append(line)
+    #
+    #
+    #
+    #     return clean_para
+
+
+
+
+    # def clean_para(self, para):
+    #
+    #     for line in para:
+    #         clean_line = []
+    #         for ii in range(0, len(line)):
+    #
+    #             if line[ii] == '\\':
+    #
+
+
 
 
 
