@@ -247,15 +247,20 @@ class Label_Text_Builder():
 
     def grab_tagname(self, line):
         ii = 0
-        char_pad = 0
+        pad = 0
         tagnum = 0
         tagchar = []
         tag = []
-        while line[ii] != '}':
-            # grab name of tags
-            if ii >= 6:
+        while line[pad] == ' ' or line[pad] == '\t':
+            pad += 1
+        while line[ii+pad] != '}':
 
-                if line[ii] == ',' and line[ii + 1] != '}':
+
+
+            # grab name of tags
+            if ii >= 6 + pad:
+
+                if line[ii+pad] == ',' and line[ii+pad + 1] != '}':
                     # if there is multiple tags
                     tag.append(''.join(tagchar))
                     tagchar = []
@@ -341,55 +346,60 @@ class Label_Text_Builder():
         :return:
         """
         # pattern = re.compile(r'\\[a-z]\w+\{([a-z]+)\}')
+        patterns = []
+        patterns.append(re.compile(r'\\[a-zA-Z]+\{([a-zA-Z]+\s?[a-zA-Z]*)\}'))
 
-        pattern = re.compile(r'\\[a-zA-Z]+\{([a-zA-Z]+\s?[a-zA-Z]*)\}')
-
-        # pattern = re.compile(r'\\[a-z]+\[([a-z]*)\]\{([a-z]+)\}')
+        # patterns.append(re.compile(r'\\[a-z]+\[([a-z]*)\]\{([a-z]+)\}'))
         # pattern3 = re.compile(r'\\[a-z]+\{([a-z]+)\s([a-z]+)\}')
         clean_para = []
         for line in para:
+            clean_hold = []
+            for pattern in patterns:
+                if clean_hold == []:
+                    pass
+                else:
+                    line = clean_hold
 
-            clean_line = []
-            start_macro = []
-            end_macro = []
-            start_arg = []
-            end_arg = []
-            macro_num = 0
-            matches = re.finditer(pattern, line)
-            for match in matches:
-                print(match)
+                clean_line = []
+                start_macro = []
+                end_macro = []
+                start_arg = []
+                end_arg = []
+                macro_num = 0
+                matches = re.finditer(pattern, line)
 
-            macro_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
-            arg_idx = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
+                macro_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
+                arg_idx = [(m.start(1), m.end(1)) for m in re.finditer(pattern, line)]
 
-            for idx in macro_idx:
-                start_macro.append(idx[0])
-                end_macro.append(idx[1])
+                for idx in macro_idx:
+                    start_macro.append(idx[0])
+                    end_macro.append(idx[1])
 
-            for idx in arg_idx:
-                start_arg.append(idx[0])
-                end_arg.append(idx[1])
+                for idx in arg_idx:
+                    start_arg.append(idx[0])
+                    end_arg.append(idx[1])
 
-            ii = 0
+                ii = 0
+
+                while macro_num < len(start_macro):
+                    if ii >= start_macro[macro_num] and ii < end_macro[macro_num]:
+                        if ii >= start_arg[macro_num] and ii < end_arg[macro_num]:
+                            clean_line.append(line[ii])
 
 
-            while macro_num < len(start_macro):
-                if ii >= start_macro[macro_num] and ii < end_macro[macro_num]:
-                    if ii >= start_arg[macro_num] and ii < end_arg[macro_num]:
+                    elif ii != len(line) or ii != len(line) - 1:
                         clean_line.append(line[ii])
 
+                    if ii == end_macro[macro_num]:
+                        macro_num += 1
 
-                elif ii != len(line) or ii != len(line) - 1:
+                    ii += 1
+
+                while ii < len(line):
                     clean_line.append(line[ii])
+                    ii += 1
 
-                if ii == end_macro[macro_num]:
-                    macro_num += 1
-
-                ii += 1
-
-            while ii < len(line):
-                clean_line.append(line[ii])
-                ii += 1
+                clean_hold = ''.join(clean_line)
 
             clean_para.append(''.join(clean_line))
 
