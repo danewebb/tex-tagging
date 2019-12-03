@@ -1,6 +1,8 @@
 import numpy as np
 import pickle
 import re
+from os import path
+
 # import pypandoc as pandoc
 """
 
@@ -189,6 +191,10 @@ class Label_Text_Builder():
                                 para_clean = []
 
                                 para_clean = self.clean_para(para)
+
+                                # build vocab set
+                                self.chapter_vocab(para_clean)
+
 
                                 chapter = dict()
                                 section = dict()
@@ -466,6 +472,83 @@ class Label_Text_Builder():
 
 
 
+    def chapter_vocab(self, para):
+
+        # need to check if a vocab file has been created yet
+
+        if path.exists('vocab.pkl'):
+            with open('vocab.pkl', 'rb') as voc:
+                vocab = pickle.load(voc)
+        else:
+            vocab = dict()
+
+        build_word = []
+        words = []
+        matches = []
+        space_pat = re.compile(r'\s+')
+        word_pat = re.compile(r'\w+')
+        num_pat = re.compile(r'\d+')
+        for line in para:
+            for char in line:
+                char.lower()
+                if char == ' ' or char == '\n':
+                    # if the only character in build_word is a space
+                    if build_word == []:
+                        break
+                    elif re.findall(space_pat, build_word[0]):
+                        pass
+                    else:
+
+                        if re.findall(word_pat, ''.join(build_word)):
+                            hold = []
+                            for c in build_word:
+                                if re.match(word_pat, c):
+                                    hold.append(c)
+                                else:
+                                    hold.append(' ')
+
+                            build_word = hold
+                        if re.findall(num_pat, ''.join(build_word)):
+                            hold = []
+                            for c in build_word:
+                                if re.match(num_pat, c):
+                                    hold.append(c)
+                                else:
+                                    hold.append(' ')
+                            build_word = hold
+                    hold = []
+
+                    # break up multiple words
+                    # for s in build_word:
+                    #     if s == ' ':
+                    #         words.append(''.join(hold))
+                    #     else:
+                    #         hold.append(s)
+
+
+
+
+                    words.append(''.join(build_word))
+                    build_word = []
+                elif char == '\t':
+                    continue
+                else:
+                    build_word.append(char)
+
+        for word in words:
+            if '{' in word or '}' in word:
+                continue
+            elif word not in vocab:
+                vocab[word] = 1
+            elif word in vocab:
+                vocab[word] = vocab[word] + 1
+
+
+        with open('vocab.pkl', 'wb') as pickle_file:
+            pickle.dump(vocab, pickle_file)
+
+        pickle_file.close()
+
 
 
 if __name__ == '__main__':
@@ -475,3 +558,13 @@ if __name__ == '__main__':
         data = pickle.load(pickle_file)
     for key, value in data.items():
         print(f'key: {key}\nvalue: {value}')
+
+    with open('vocab.pkl', 'rb') as voc:
+        vocab = pickle.load(voc)
+    for key, value in vocab.items():
+        print(f'word: {key}\nusage: {value}')
+
+    pickle_file.close()
+    voc.close()
+
+
