@@ -55,9 +55,9 @@
 	}%
 }%
 
-
 \begin{document}
 \chapter{Fundamentals}
+\tags{}
 
 Read \cite{Horowitz2015}.
 
@@ -66,7 +66,7 @@ Read \cite{Horowitz2015}.
 
 Two quantities will be of special importance in analyzing and designing electronic systems: \keyword{voltage} and \keyword{current}.
 The relationship between them defines a third important quantity: \keyword{resistance} (more generally, \emph{impedance}).
-\tags{V, I}
+\tags{V, I, S}
 
 Momentarily, we will define each of these, but we start with the fundamental quantity in electronics.
 \tags{}
@@ -80,7 +80,7 @@ It is considered to be a \keyword{conserved quantity}.
 \tags{}
 
 \subsection{Voltage}
-\tags{V}
+\tags{V, S}
 
 \begin{Definition}{voltage}{voltage}
   Voltage is the difference in electrical potential energy of a unit of charge moved between two locations in an electrical field.
@@ -95,7 +95,7 @@ It is good form to describe the voltage as being ``between'' two locations or ``
 \tags{}
 
 \subsection{Current}
-\tags{I}
+\tags{I, S}
 
 \begin{Definition}{current}{current}
   Current is a flow of charge.
@@ -131,7 +131,7 @@ A node is an idealized concept that is approximate in most instantiations.
 
 A circuit \keyword{element} is a region of a circuit considered to have properties distinct from the surrounding circuit.
 Examples of elements are resistors, capacitors, inductors, and sources.
-\tags{ex, R, C, L}
+\tags{R, C, L, D, A, T}
 
 A circuit element has \keyword{terminals} through which it connects to a circuit.
 \tags{}
@@ -143,6 +143,7 @@ Circuit elements in \keyword{series} are those that have two terminals, only one
 \tags{}
 
 \subsection{Element types}
+\tags{}
 
 The following are common types of circuit element.
 \begin{itemize}
@@ -188,7 +189,7 @@ Gustav Kirchhoff formulated two laws fundamental to circuit analysis.
 \tags{}
 
 Kirchhoff's current law (KCL) depends on the fact that charge is a conserved quantity. Therefore, the charge flowing \emph{in} a node is equal to that flowing \emph{out}, which implies KCL.
-\tags{}
+\tags{I, S}
 
 \begin{Definition}{Kirchhoff's current law}{KCL}
   The current \emph{in} a node is equal to the current \emph{out}.
@@ -205,7 +206,7 @@ Kirchhoff's current law states that
 
 It can be discovered empirically that elements connected in parallel have the same voltage across them.
 This doesn't mean they share the same current, but it does imply Kirchhoff's voltage law (KVL).
-\tags{V}
+\tags{V, S}
 
 \begin{Definition}{Kirchhoff's voltage law}{KVL}
   The sum of the voltage drops around any closed loop is zero.\footnote{A loop is a series of elements that begins and ends at the same node.}
@@ -214,7 +215,7 @@ This doesn't mean they share the same current, but it does imply Kirchhoff's vol
 KVL implies that the voltage drops across elements that form a loop must be zero.
 Assume, for instance, that $k$ elements with voltage drops $v_j$ form a loop.
 KVL states that
-\tags{V}
+\tags{V, S}
 
 \begin{align}
   \sum_{j=1}^k v_j = 0.
@@ -226,10 +227,10 @@ KVL states that
 Much of electronics is about the relationship between a voltage and a corresponding current.
 Applying a voltage to a material typically induces a current through it.
 The functional relationship between $v$ and $i$ is of the utmost importance to the analysis and design of circuits.
-\tags{V, I}
+\tags{V, I, S}
 
 The simplest relationship is known as Ohm's law, for which we will first need the concept of resistance.
-\tags{R}
+\tags{R, D}
 
 \begin{Definition}{resistance}{resistance}
   Let a circuit element have voltage $v$ and current $i$. The resistance $R$ is defined as the ratio
@@ -249,10 +250,10 @@ This is pretty weak.
 However, it's still quite useful, as we'll see.
 With it we can assume, for certain elements and situations, that the resistance of the element is a static property and that the voltage and current are proportional.
 We call such elements \keyword[resistor]{resistors}.
-\tags{V, I, R}
+\tags{V, I, R, S, D}
 
 \subsection{Combining resistance}
-\tags{R}
+\tags{R, D}
 
 Resistors can be connected together in different topologies to form composite elements that exhibit ``equivalent'' resistances of their own.
 \tags{}
@@ -344,13 +345,13 @@ But we can't resist just a bit of circuit analysis now.
 The \keyword{voltage divider} is a ubiquitous and useful circuit.
 In a sense, it's less of a circuit and more of concept.
 For resistors, that concept can be stated as the following.
-\tags{R, V}
+\tags{R, V, D, S}
 \begin{quote}
   The voltage across resistors in series is divided among the resistors.
 \end{quote}
 
 An immediately useful result is that we can ``divide voltage'' into any smaller voltage we like by putting in a couple resistors.
-\tags{V, R}
+\tags{V, R, D, S}
 \begin{figure}[b]
   \centering
   \includegraphics[width=.6\linewidth]{figures/voltage_divider_demo.pdf}
@@ -363,7 +364,7 @@ Consider the circuit in \autoref{fig:voltage_divider_demo}.
 The input voltage $v_\text{in}$ is divided into $v_{R_1}$ and $v_{R_2} = v_\text{out}$.
 We want to know $v_\text{out}$ as a function of $v_\text{in}$ and parameters $R_1$ and $R_2$.
 Let's write down the equations we know from the laws of Kirchhoff and Ohm:
-\tags{V, R}
+\tags{V, R, D, S}
 \maybeeq{%
 \begin{align*}
   v_{R_1} &= i_{R_1} R_1, \\
@@ -398,10 +399,10 @@ Nice! So we can now write the input-output relationship for a two-resistor volta
 So the voltage divider had the effect of dividing the input voltage into a fraction governed by the relationship between the relative resistances of the two resistors.
 This fraction takes values in the interval $[0,1]$.
 Now, whenever we see the voltage divider circuit, we can just remember this easy formula!
-\tags{V, R}
+\tags{V, R, S, D}
 
 Similarly, for $n$ resistors in series, it can be shown that the voltage divider relationship is as follows.
-\tags{R, V}
+\tags{R, V, D, S}
 \maybeeqn{general voltage divider}{eq:voltage_divider}{%
 The output voltage $v_\text{out}$ across resistor $R_k$ in a series of $n$ resistors with input $v_\text{in}$ is
 \begin{align*}
@@ -413,15 +414,15 @@ The output voltage $v_\text{out}$ across resistor $R_k$ in a series of $n$ resis
 \tags{}
 
 Sources (a.k.a.\ supplies) supply power to a circuit. There are two primary types: \emph{voltage sources} and \emph{current sources}.
-\tags{V, I}
+\tags{V, I, S}
 
 \subsection{Ideal voltage sources}
-\tags{V}
+\tags{V, S}
 
 An ideal voltage source provides exactly the voltage a user specifies, independent of the circuit to which it is connected.
 All it must do in order to achieve this is to supply whatever current necessary.
 Let's unpack this with a simple example.
-\tags{}
+\tags{V, S}
 
 \examplemaybe{
   limitations of a voltage source
@@ -462,12 +463,12 @@ ex:voltage_source%
 }
 
 \subsection{Ideal current sources}
-\tags{I}
+\tags{I, S}
 
 An ideal current source provides exactly the current a user specifies, independent of the circuit to which it is connected.
 All it must do in order to achieve this is to supply whatever voltage necessary.
 Let's unpack this with a simple example.
-\tags{}
+\tags{V}
 
 \examplemaybe{
   limitations of a current source
@@ -516,7 +517,7 @@ These types of sources can be approximated as ideal when operating within their 
 Many voltage sources (e.g.\ batteries) do not have internal feedback controlling the voltage.
 When these sources are ``loaded'' (delivering power) they cannot maintain their nominal output, be that voltage or current.
 We model these types of sources as ideal sources in series or parallel with a resistor, as illustrated in \autoref{fig:real_sources}.
-\tags{V, I}
+\tags{V, I, S}
 
 \begin{figure}[b]%
   \centering
@@ -533,7 +534,7 @@ We model these types of sources as ideal sources in series or parallel with a re
 
 Most manufacturers specify the nominal resistance of a source as the ``output resistance.''
 A typical value is $50\ \Omega$.
-\tags{R}
+\tags{R, D}
 \section{Thevenin's and Norton's theorems}
 \tags{}
 
@@ -551,22 +552,22 @@ The following remarkable theorem has been proven.
 \end{Theorem}
 
 The equivalent circuit has two quantities to determine: $V_e$ and $R_e$.
-\tags{V, R}
+\tags{V, R, S, D}
 
 \subsubsection{Determining $R_e$}
-\tags{R}
+\tags{R, D}
 
 The \keyword{equivalent resistance $R_e$} of a circuit is the resistance between the output terminals with all inputs set to zero.
 Setting a voltage source to zero means the voltage on both its terminals are equal, which is equivalent to treating it as a short or wire.
 Setting a current source to zero means the current through it is zero, which is equivalent to treating it as an open circuit.
-\tags{V, I}
+\tags{V, I, S}
 
 \subsubsection{Determining $V_e$}
-\tags{V}
+\tags{V, S}
 
 The \keyword{equivalent voltage source $V_e$} is the voltage at the output terminals of the circuit when they are left open (disconnected from a load).
 Determining this value typically requires some circuit analysis with the laws of Ohm and Kirchhoff.
-\tags{}
+\tags{V, S}
 
 \subsection{Norton's theorem}
 \tags{}
@@ -580,10 +581,10 @@ Similarly, the following remarkable theorem has been proven.
 
 The equivalent circuit has two quantities to determine: $I_e$ and $R_e$.
 The equivalent resistance $R_e$ is identical to that of Th\'evenin's theorem, which leaves the equivalent current source $I_e$ to be determined.
-\tags{V, I, R}
+\tags{V, I, R, S, D}
 
 \subsubsection{Determining $I_e$}
-\tags{I}
+\tags{I, S}
 
 The \keyword{equivalent current source $I_e$} is the current through the output terminals of the circuit when they are shorted (connected by a wire).
 Determining this value typically requires some circuit analysis with the laws of Ohm and Kirchhoff.
@@ -594,7 +595,7 @@ Determining this value typically requires some circuit analysis with the laws of
 
 There is an equivalence between the two equivalent circuit models that allows one to convert from one to another with ease.
 The equivalent resistance $R_e$ is identical in each and provides the following equation for converting between the two representations:
-\tags{R}
+\tags{R, D}
 
 \maybeeqn{converting between Th\'evenin and Norton equivalents}{eq:converting_thevenin_norton}{
   \begin{align}
@@ -647,12 +648,12 @@ ex:equivalent_sources%
 \tags{}
 
 When considering a circuit from the perspective of two terminals---either as \emph{input} or \emph{output}---it is often characterized as having a Th\'evenin/Norton \keyword{equivalent resistance} and, if it is considered as an output, as having an equivalent (Th\'evenin or Norton) source.
-\tags{R}
+\tags{R, D}
 
 If the terminals are considered to be an \emph{output}, its \keyword{output resistance} is just the Th\'evenin/Norton equivalent resistance.
 Other names for this output resistance are \emph{source} or \emph{internal resisistance}.\footnote{Sometimes, instead of \emph{resistance}, the term \emph{impedance} is substituded. In these situations, there is no difference in meaning.}
 \autoref{fig:output_input_resistance} illustrates this model.
-\tags{R}
+\tags{R, D}
 
 \begin{figure}[b]
   \centering
@@ -663,7 +664,7 @@ Other names for this output resistance are \emph{source} or \emph{internal resis
 
 If the terminals are considered to be an \emph{input}, its \keyword{input resistance} is the is the Th\'evenin/Norton equivalent resistance of the circuit.
 Another term for this input resistance is the \emph{load resistance}.
-\tags{R}
+\tags{R, D}
 
 \subsection{Loading the source}
 \tags{}
@@ -673,7 +674,7 @@ Let's explore what happens when we connect the load to the source for the circui
 \tags{}
 
 Before connecting, the source output voltage is
-\tags{V}
+\tags{V, S}
 \maybeeq{%
   \begin{align*}
     v_\text{out}
@@ -697,16 +698,18 @@ Also, as $R_e/R_L\rightarrow\infty$, $v_\text{out}\rightarrow 0$.
 So, relatively small output resistance and large input resistance yield a ``loaded'' voltage nearer nominal.
 Some sources are labeled with nominal values assuming no load and others assuming a \keyword{matching load}\footnote{A matching load can be shown to have maximum power transfer.}---a load equal to the output impedance.
 For this reason, it is best to measure the actual output of any source.
-\tags{R, V}
+\tags{R, V, S, D}
 
 \section{Capacitors}
-\tags{C}
+\tags{C, A}
+
 Capacitors have two terminal and are composed of two conductive surfaces separated by some distance.
 One surface has charge $q$ and the other $-q$.
 A capacitor stores energy in an \emph{electric field} between the surfaces.
+\tags{}
 
 Let a capacitor with voltage $v$ across it and charge $q$ be characterized by the parameter \keyword{capacitance} $C$, where the constitutive equation is
-\tags{V}
+\tags{V, S}
 
 \maybeeq{%
   \begin{align}
@@ -731,7 +734,7 @@ A time-derivative!
 This is new.
 Resistors have only algebraic $i$-$v$ relationships, so circuits with only sources and resistors can be described by \emph{algebraic} relationships.
 The dynamics of circuits with capacitors are described with \emph{differential equations}.
-\tags{R}
+\tags{R, D}
 
 \begin{figure}[b]%
   \centering
@@ -762,15 +765,15 @@ Capacitors allow us to build many new types of circuits: filtering, energy stora
 Capacitors come in a number of varieties, with those with the largest capacity (and least expensive) being \keyword[electrolytic capacitor]{electrolytic} and most common being \keyword[ceramic capacitor]{ceramic}. There are two functional varieties of capacitors: \keyword[bipolar capacitor]{bipolar} and \keyword[polarized capacitor]{polarized}, with circuit diagram symbols shown in \autoref{fig:capacitors}.
 Polarized capacitors can have voltage drop across in only one direction, from \keyword{anode} ($+$) to \keyword{cathode} ($-$)---otherwise they are damaged or may \keyword[explosion]{explode}.
 Electrolytic capacitors are polarized and ceramic capacitors are bipolar.
-\tags{V, C}
+\tags{V, C, S, A}
 
 So what if you need a high-capacitance bipolar capacitor?
 Here's a trick: place identical high-capacity polarized capacitors \keyword{cathode-to-cathode}.
 What results is effectively a bipolar capacitor with capacitance \emph{half} that of one of the polarized capacitors.
-\tags{C}
+\tags{C, A}
 
 \section{Inductors}
-\tags{L}
+\tags{L, T}
 
 \begin{wrapfigure}{R}{0.3\textwidth}
   \centering
@@ -782,7 +785,7 @@ What results is effectively a bipolar capacitor with capacitance \emph{half} tha
 \end{wrapfigure}
 
 A \keyword{pure inductor} is defined as an element in which \keyword{flux linkage $\lambda$}---the integral of the voltage---across the inductor is a monotonic function $\mathcal{F}$ of the current $i$; i.e.\ the pure constitutive equation is
-\tags{V}
+\tags{V, S}
 \begin{align}
   \lambda = \mathcal{F}(i).
 \end{align}
@@ -810,7 +813,7 @@ Inductors store energy in a \emph{magnetic field}.
 It is important to notice how inductors are, in a sense, the \emph{opposite} of capacitors.
 A capacitor's current is proportional to the time rate of change of its voltage.
 An inductor's voltage is proportional to the time rate of change of its current.
-\tags{C, V, I}
+\tags{C, V, I, S, A}
 
 Inductors are usually made of wire coiled into a number of turns.
 The geometry of the coil determines its inductance $L$.
