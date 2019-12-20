@@ -5,7 +5,10 @@ from os import path
 import psycopg2 as psy
 import json
 
+
 # import pypandoc as pandoc
+# import rpack???
+    # in scipy
 """
 
 QUESTIONS
@@ -62,7 +65,7 @@ NOTES
         - keys: section, values: section #
         - keys: subsection, values: sub #
         - keys: chapter, values: chap #
-        
+    
         
 - look into python based utilities for text processing
     - regular expressions? regx?
@@ -88,6 +91,13 @@ class Label_Text_Builder():
     #########################################   DEV NOTES   ###########################################################
     - Need to add counting chapters and handling multiple files.
     - need to ignore lines beginning in %
+    
+    - keep track of last paragraph number and start from the next one on the next chapter
+    - we want to dump partitioned data into json file
+    - try to get database working but it's low priority
+    - add book name/number to dictionary instead of adding extra layers of dictionaries
+    - need to build a new class for PIMS filter
+        - use arpack which is in scipy
     
     """
 
@@ -220,12 +230,15 @@ class Label_Text_Builder():
 
                     if '\\end{document}' in line:
                         self.partition()
+                        self.dump()
 
                         if the_count == True:
                             self.word_count([], the_count=True)
                         with open('doc_dict.pkl', 'wb') as pickle_file:
                             pickle.dump(self.master, pickle_file)
 
+
+    # build another partitioning function that takes two sequential paragraphs. these pairs should be random.
 
 
     def partition(self, train=80, test=20):
@@ -258,7 +271,7 @@ class Label_Text_Builder():
 
         with open('testing_dict.pkl', 'rb') as f2:
             test = pickle.load(f2)
-            with open('test_data', 'w') as f4:
+            with open('test_data.json', 'w') as f4:
                 json.dump(test, f4)
 
 
@@ -282,14 +295,6 @@ class Label_Text_Builder():
     #     cur = con.cursor()
     #
     #     cur.execute("INSERT INTO GRAND (BOOK,CHAPTER,PARANUM,SECNUM,SUBSECNUM,PARA) VALUES (")
-
-
-
-
-
-
-
-
 
 
 
@@ -593,6 +598,7 @@ if __name__ == '__main__':
 
     pickle_file.close()
     voc.close()
+
 
 
 
