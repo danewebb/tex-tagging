@@ -2,6 +2,8 @@ import numpy as np
 import pickle
 import re
 from os import path
+import psycopg2 as psy
+import json
 
 # import pypandoc as pandoc
 """
@@ -85,7 +87,7 @@ class Label_Text_Builder():
     """
     #########################################   DEV NOTES   ###########################################################
     - Need to add counting chapters and handling multiple files.
-    
+    - need to ignore lines beginning in %
     
     """
 
@@ -115,6 +117,7 @@ class Label_Text_Builder():
         self.master = dict()
 
 
+        # need to add some sort of grand master dictionary that keeps chapters and textbook separate
 
 
     def main(self, the_count=False):
@@ -216,10 +219,80 @@ class Label_Text_Builder():
                                 tagpara = []
 
                     if '\\end{document}' in line:
+                        self.partition()
+
                         if the_count == True:
                             self.word_count([], the_count=True)
                         with open('doc_dict.pkl', 'wb') as pickle_file:
                             pickle.dump(self.master, pickle_file)
+
+
+
+    def partition(self, train=80, test=20):
+        if train + test == 100:
+            randomizer = dict()
+            train_dict = dict()
+            test_dict = dict()
+            print(len(self.master))
+
+            for key, value in self.master.items():
+                if np.random.random() <= train/100:
+                    train_dict[key] = value
+                else:
+                    test_dict[key] = value
+
+            with open('training_dict.pkl', 'wb') as f1:
+                pickle.dump(train_dict, f1)
+            with open('testing_dict.pkl', 'wb') as f2:
+                pickle.dump(test_dict, f2)
+
+        else:
+            print('train + test need to equal 100')
+
+
+    def dump(self):
+        with open('training_dict.pkl', 'rb') as f1:
+            train = pickle.load(f1)
+            with open('train_data.json', 'w') as f3:
+                json.dump(train, f3)
+
+        with open('testing_dict.pkl', 'rb') as f2:
+            test = pickle.load(f2)
+            with open('test_data', 'w') as f4:
+                json.dump(test, f4)
+
+
+    # def create_database(self):
+    #     con = psy.connect(database="postgres", user="postgres", password="", host="127.0.0.1",
+    #                       port="5432")
+    #     cur = con.cursor()
+    #     cur.execute('''CREATE TABLE GRAND
+    #     (BOOK INT PRIMARY KEY   NOT NULL,
+    #     CHAPTER INT   NOT NULL,
+    #     PARANUM INT   NOT NULL,
+    #     SECNUM INT   NOT NULL,
+    #     SUBSECNUM INT   NOT NULL,
+    #     PARA TEXT NOT NULL
+    #     );''')
+    #
+    #
+    # def add_to_database(self):
+    #     con = psy.connect(database="postgres", user="postgres", password="", host="127.0.0.1",
+    #                       port="5432")
+    #     cur = con.cursor()
+    #
+    #     cur.execute("INSERT INTO GRAND (BOOK,CHAPTER,PARANUM,SECNUM,SUBSECNUM,PARA) VALUES (")
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -411,69 +484,10 @@ class Label_Text_Builder():
 
         # clean_para = self.clean_inline(clean_para)
         return clean_para
-    #
-    #
-    # def clean_inline(self, para):
-    #     start = []
-    #     end = []
-    #     clean_line = []
-    #     in_num = 0
-    #     clean_para = []
-    #     # this pattern is too general.
-    #     pattern = re.compile(r'\$(.*)\$')
-    #
-    #     for line in para:
-    #
-    #         clean_line = []
-    #         matches = re.finditer(pattern, line)
-    #
-    #         for match in matches:
-    #             print(match.group(1))
-    #         inline_idx = [(m.start(0), m.end(0)) for m in re.finditer(pattern, line)]
-    #         if inline_idx != []:
-    #             for idx in inline_idx:
-    #                 start.append(idx[0])
-    #                 end.append(idx[1])
-    #
-    #             ii = 0
-    #             while in_num < len(start):
-    #                 if ii == start[in_num] or ii == end[in_num]:
-    #                     if ii == end[in_num]:
-    #                         in_num += 1
-    #                 else:
-    #                     clean_line.append(line[ii])
-    #
-    #
-    #                 ii += 1
-    #
-    #
-    #             while ii < len(line):
-    #                 clean_line.append(line[ii])
-    #                 ii += 1
-    #             clean_para.append(''.join(clean_line))
-    #         else:
-    #             clean_para.append(line)
-    #
-    #
-    #
-    #     return clean_para
-
-
-
-
-    # def clean_para(self, para):
-    #
-    #     for line in para:
-    #         clean_line = []
-    #         for ii in range(0, len(line)):
-    #
-    #             if line[ii] == '\\':
-    #
-
 
 
     def chapter_vocab(self, para):
-
+        space = False
         # need to check if a vocab file has been created yet
 
         if path.exists('vocab.pkl'):
@@ -490,7 +504,7 @@ class Label_Text_Builder():
         num_pat = re.compile(r'\d+')
         for line in para:
             for char in line:
-                char.lower()
+                char = char.lower()
                 if char == ' ' or char == '\n':
                     # if the only character in build_word is a space
                     if build_word == []:
@@ -519,16 +533,23 @@ class Label_Text_Builder():
                     hold = []
 
                     # break up multiple words
-                    # for s in build_word:
-                    #     if s == ' ':
-                    #         words.append(''.join(hold))
-                    #     else:
-                    #         hold.append(s)
+                    if ' ' in build_word:
+                        space = True
+                        for s in build_word:
+                            if s == ' ':
+                                words.append(''.join(hold))
+                                hold = []
+                            else:
+                                hold.append(s)
+
+                        if hold != []:
+                            ''.join(hold)
 
 
-
-
-                    words.append(''.join(build_word))
+                    if space == False:
+                        words.append(''.join(build_word))
+                    else:
+                        space == False
                     build_word = []
                 elif char == '\t':
                     continue
@@ -552,6 +573,12 @@ class Label_Text_Builder():
 
 
 if __name__ == '__main__':
+    num_of_books = 1
+
+    chap_dict = dict()
+    book_dict = dict()
+
+    # need to loop through all the chapters and all of the books
     LTB = Label_Text_Builder('ch01_00.tex')
     LTB.main(the_count=True)
     with open('doc_dict.pkl', 'rb') as pickle_file:
@@ -566,5 +593,6 @@ if __name__ == '__main__':
 
     pickle_file.close()
     voc.close()
+
 
 
