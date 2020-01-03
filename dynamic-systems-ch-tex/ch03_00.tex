@@ -1,0 +1,1561 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+\chapter{State-space models}
+\tags{}
+\label{ch:state_space_models}
+
+\section{State variable system representation}
+\tags{}
+\label{lec:state_variable_system_representation}
+% TODO why does this repeat so much of Lecture 01.02?
+
+\keyword[state variables]{State variables}, typically denoted $x_i$, are members of a minimal set of variables that completely expresses the \keyword{state} (or status) of a system.
+All variables in the system can be expressed algebraically in terms of state variables and \keyword{input variables}, typically denoted $u_i$.
+\tags{}
+
+A \keyword{state-determined system model} is a system for which 
+\begin{enumerate}
+	\item a mathematical description in terms of $n$ state variables $x_i$, 
+	\item initial conditions $x_i(t_0)$, and 
+	\item inputs $u_i(t)$ for $t\ge t_0$
+\end{enumerate}
+are sufficient conditions to determine $x_i(t)$ for all $t\ge t_0$.
+We call $n$ the \keyword{system order}.
+
+The state, input, and \keyword[output variables]{output variables} are all functions of time.
+Typically, we construct vector-valued functions of time for each.
+The so-called \keyword{state vector} $\bm{x}$ is actually a vector-valued function of time $\bm{x}: \mathbb{R}\rightarrow\mathbb{R}^n$.
+The $i$th value of $\bm{x}$ is a state variable denoted $x_i$.
+\tags{}
+
+Similarly, the so-called \keyword{input vector} $\bm{u}$ is actually a vector-valued function of time $\bm{u}: \mathbb{R}\rightarrow\mathbb{R}^r$, where $r$ is the number of \emph{inputs}.
+The $i$th value of $\bm{u}$ is an input variable denoted $u_i$.
+\tags{}
+
+Finally, the so-called \keyword{output vector} $\bm{y}$ is actually a vector-valued function of time $\bm{y}: \mathbb{R}\rightarrow\mathbb{R}^m$, where $m$ is the number of \emph{outputs}.
+The $i$th value of $\bm{y}$ is an output variable denoted $y_i$.
+\tags{}
+
+\begin{figure}[b]
+\ifdefined\ispartial
+	\begin{tikzpicture}
+		\node[text width=3.5cm,draw,align=center,inner sep=10pt,thick,rounded corners=5pt] (sys) {system with state vector \[\phantom{\bm{x}(t) = \begin{bmatrix}x_1(t) \\ x_2(t) \\ \vdots \\ x_n(t)\end{bmatrix}}\]};
+		\draw[->,=>stealth',thick] ($(sys.west)+(-1.25,0)$) node[left]{\phantom{$\bm{u}(t) = \begin{bmatrix}u_1(t) \\ u_2(t) \\ \vdots \\ u_r(t)\end{bmatrix}$}} -- node[midway,above]{inputs} (sys.west);
+		\draw[->,=>stealth',thick] (sys.east) -- node[midway,above]{outputs} ($(sys.east)+(1.5,0)$) node[right]{\phantom{$\bm{y}(t) = \begin{bmatrix}y_1(t) \\ y_2(t) \\ \vdots \\ y_m(t)\end{bmatrix}$}};
+	\end{tikzpicture}
+\else
+	\begin{tikzpicture}
+		\node[text width=3.5cm,draw,align=center,inner sep=10pt,thick,rounded corners=5pt] (sys) {system with state vector \[\bm{x}(t) = \begin{bmatrix}x_1(t) \\ x_2(t) \\ \vdots \\ x_n(t)\end{bmatrix}\]};
+		\draw[->,=>stealth',thick] ($(sys.west)+(-1.25,0)$) node[left]{$\bm{u}(t) = \begin{bmatrix}u_1(t) \\ u_2(t) \\ \vdots \\ u_r(t)\end{bmatrix}$} -- node[midway,above]{inputs} (sys.west);
+		\draw[->,=>stealth',thick] (sys.east) -- node[midway,above]{outputs} ($(sys.east)+(1.5,0)$) node[right]{$\bm{y}(t) = \begin{bmatrix}y_1(t) \\ y_2(t) \\ \vdots \\ y_m(t)\end{bmatrix}$};
+	\end{tikzpicture}
+\fi
+\caption{block diagram of a system with input $\bm{u}$, state $\bm{x}$, and output $\bm{y}$.}
+\label{fig:sys_with_state}
+\end{figure}
+
+Most systems encountered in engineering practice can be modeled as state-determined.
+For these systems, the number of state variables $n$ is equal to the number of \keyword{independent energy storage elements}.
+\tags{}
+
+Since to know the state vector $\bm{x}$ is to know everything about the state, the energy stored in each element can be determined from $\bm{x}$.
+Therefore, the time-derivative $d\bm{x}/dt$ describes the \keyword{power flow}.
+\tags{}
+
+The choice of state variables represented by $\bm{x}$ is not unique.
+In fact, any basis transformation yields another valid state vector.
+This is because, despite a vector's \emph{components} changing when its basis is changed, a ``symmetric'' change also occurs to its \emph{basis vectors}.
+This means \emph{a vector is a coordinate-independent object}, and the same goes for vector-valued functions.
+This is not to say that there aren't invalid choices for a state vector.
+There are.
+But if a valid state vector is given in one basis, any basis transformation yields a valid state vector.
+\tags{}
+
+One aspect of the state vector \emph{is} invariant, however: it must always be a vector-valued function in $\mathbb{R}^n$.
+Our method of analysis will yield a special basis for our state vectors.
+Some methods yield rather unnatural state variables (e.g.\ the third time-derivative of the voltage across a capacitor), but ours will yield natural state variables (e.g.\ the voltage across a capacitor or the force through a spring).
+\tags{V, C, k, S, A, T}
+
+\section{State and output equations}
+\tags{}
+
+The state $\bm{x}$, input $\bm{u}$, and output $\bm{y}$ vectors interact through two equations:
+\begin{subequations}
+\begin{align}
+	\frac{d\bm{x}}{d t} &= \bm{f}(\bm{x},\bm{u},t) \label{eq:state_nonlinear} \\
+	\bm{y} &= \bm{g}(\bm{x},\bm{u},t)\label{eq:output_nonlinear}
+\end{align}
+\end{subequations}
+
+where $\bm{f}$ and $\bm{g}$ are vector-valued functions that depend on the system.
+Together, they comprise what is called a \keyword{state-space model} of a system.
+Let's not glide past these equations, which will be our dear friends for the rest of our analytic lives.
+The first equation \eqref{eq:state_nonlinear} is called the \keyword{state equation}.
+Given state and input vectors at a moment in time, it's function $\bm{f}$ describes, \emph{how the state is changing} (i.e.\ $d\bm{x}/d t$).
+Clearly, the state equation is a vector differential equation, which is equivalent to a system of first-order differential equations.\footnote{We'll learn how to solve such systems both analytically and numerically in later chapters.}
+\tags{}
+
+In accordance with the definition of a state-determined system from \autoref{lec:state_variable_system_representation}, given an initial condition $\bm{x}(t_0)$ and input $\bm{u}$, the state $\bm{x}$ is determined for all $t\ge t_0$.
+The state-space model is precisely the ``mathematical model'' described in the definition of a state-determined system.
+Determining the state requires the solution---analytic or numerical---of the vector differential equation.
+\tags{}
+
+The second equation \eqref{eq:output_nonlinear} is \emph{algebraic}.
+It expresses how the output $\bm{y}$ can be constructed from the state $\bm{x}$ and input $\bm{u}$.
+This means we must first solve the state equation \eqref{eq:state_nonlinear}.
+Since the output $\bm{y}$ is a vector of variables of interest, the output equation is constructed in two steps: (1) define the output variables and (2) write them in terms of the state variables $x_i$ and input variables $u_j$.
+\tags{}
+
+Just because we know that, for a state-determined system, there exists a solution to \autoref{eq:state_nonlinear}, doesn't mean we know how to find it.
+In general, $\bm{f}:\mathbb{R}^n \times \mathbb{R}^r \times \mathbb{R}\rightarrow\mathbb{R}^n$ and $\bm{g}:\mathbb{R}^n \times \mathbb{R}^r \times \mathbb{R}\rightarrow\mathbb{R}^m$ can be nonlinear functions.\footnote{Technically, since $\bm{x}$ and $\bm{u}$ are themselves functions, $\bm{f}$ and $\bm{g}$ are \emph{functionals}.}
+We don't know how to solve most nonlinear state equations analytically.
+An additional complication can arise when, in addition to states and inputs, system parameters are themselves time-varying (note the explicit time $t$ argument of $\bm{f}$ and $\bm{g}$).
+Fortunately, often a linear model is sufficiently effective.\footnote{A later lecture will describe the process of deriving a ``linearized'' model from a nonlinear one.}
+\tags{}
+
+A \keyword{linear, time-invariant} (LTI) system has state-space model
+\begin{subequations}
+\begin{align}
+	\frac{d\bm{x}}{d t} &= A \bm{x} + B \bm{u} \label{eq:state} \\
+	\bm{y} &= C \bm{x} + D \bm{u}\label{eq:output}
+\end{align}
+\end{subequations}
+where 
+\begin{itemize}
+	\item $A$ is an \mayb{$n\times n$} matrix that describes how the \mayb{state $\bm{x}$} changes the \mayb{state $\bm{x}$}, 
+	\item $B$ is an \mayb{$n\times r$} matrix that describes how the \mayb{input $\bm{u}$} changes the \mayb{state $\bm{x}$}, 
+	\item $C$ is an \mayb{$m\times n$} matrix that describes how the \mayb{state $\bm{x}$} contributes to the \mayb{output $\bm{y}$}, and 
+	\item $D$ is an \mayb{$m\times r$} matrix that describes how the \mayb{input $u$} contributes to the \mayb{output $\bm{y}$}.
+\end{itemize}
+
+In the next two lectures, we will learn how to derive a state-space model---for linear systems, how to find $A$, $B$, $C$, and $D$---for a system \emph{from its linear graph}.
+This is the link between the linear graph model and the state-space model.
+\tags{}
+
+\section{Graphs to state-space I normal trees}
+\tags{}
+
+Before we introduce the algorithm for constructing the state-space model in \autoref{lec:graphs2}, we introduce the first step from the system graph to the state-space model: the \keyword{normal tree}.
+It is a \keyword{subgraph} of the system's linear graph.
+\tags{}
+
+In the following, we will consider a connected graph with $E$ edges, of which $S$ are sources.
+There are $2 E - S$ unknown across- and through-variables, so that's how many equations we need.
+We have $E-S$ elemental equations and for the rest we will write continuity and compatibility equations.
+$N$ is the number of nodes.
+\tags{}
+
+The following rules must be respected.
+\begin{enumerate}
+	\item[R1.] There can be no loops.
+	\item[R2.] Every node must be connected.
+\end{enumerate}
+
+\newcommand{\blanklineargraphnormal}{%
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=gray!50] (g) pic {groundnode};
+		\node[graphnode,color=gray!50] (n2) at (-2,2) {};
+		\node[graphnode,color=gray!50] (n3) at (0,2) {};
+		\node[graphnode,color=gray!50] (n4) at (2,2) {};
+		\draw[sourcebranch,color=gray!50] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=gray!50] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=gray!50] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+}
+
+\begingroup
+\noindent\begin{minipage}[r]{.52\linewidth}
+	Form a normal tree with the following steps. 
+	For an inline example, we will construct a normal tree from the linear graph for an electronic system, shown at right.
+\end{minipage}
+\hfill%
+\begin{minipage}[r]{.345\linewidth}
+  \begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw (g) pic {groundnode};
+		\node[graphnode] (n2) at (-2,2) {};
+		\node[graphnode] (n3) at (0,2) {};
+		\node[graphnode] (n4) at (2,2) {};
+		\draw[sourcebranch] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\end{minipage}
+\endgroup
+% \vspace{2\baselineskip}
+
+\begingroup
+% \renewcommand{\tabularxcolumn}[1]{m{#1}}
+\def\tabularxcolumn#1{m{#1}}
+\renewcommand*{\arraystretch}{1.4}
+\noindent\begin{tabularx}{1\linewidth}{X r}
+\begin{adjustbox}{valign=t}
+1. Include all nodes.
+\end{adjustbox}
+ &
+\begin{adjustbox}{valign=t}
+\ifdefined\ispartial
+	\blanklineargraphnormal{}
+\else
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=mygreen] (g) pic {groundnode};
+		\node[graphnode,color=mygreen] (n2) at (-2,2) {};
+		\node[graphnode,color=mygreen] (n3) at (0,2) {};
+		\node[graphnode,color=mygreen] (n4) at (2,2) {};
+		\draw[sourcebranch,color=gray!50] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=gray!50] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=gray!50] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\fi
+\end{adjustbox}
+ \\
+\begin{adjustbox}{valign=t}
+2. Include all across-variable sources.
+\end{adjustbox}
+ &
+\begin{adjustbox}{valign=t}
+\ifdefined\ispartial
+	\blanklineargraphnormal{}
+\else
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=mygreen] (g) pic {groundnode};
+		\node[graphnode,color=mygreen] (n2) at (-2,2) {};
+		\node[graphnode,color=mygreen] (n3) at (0,2) {};
+		\node[graphnode,color=mygreen] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=gray!50] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=gray!50] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\fi
+\end{adjustbox} 
+\end{tabularx}
+
+\noindent\begin{tabularx}{1\linewidth}{X r}
+\begin{adjustbox}{valign=t}
+3. Select as many as possible A-type elements.
+\end{adjustbox}
+ &
+\begin{adjustbox}{valign=t}
+\ifdefined\ispartial
+	\blanklineargraphnormal{}
+\else
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=mygreen] (g) pic {groundnode};
+		\node[graphnode,color=mygreen] (n2) at (-2,2) {};
+		\node[graphnode,color=mygreen] (n3) at (0,2) {};
+		\node[graphnode,color=mygreen] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=gray!50] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=mygreen] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\fi
+\end{adjustbox} \\
+\begin{adjustbox}{valign=t}
+4. Select as many as possible D-type elements.
+\end{adjustbox}
+ &
+\begin{adjustbox}{valign=t}
+\ifdefined\ispartial
+	\blanklineargraphnormal{}
+\else
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=mygreen] (g) pic {groundnode};
+		\node[graphnode,color=mygreen] (n2) at (-2,2) {};
+		\node[graphnode,color=mygreen] (n3) at (0,2) {};
+		\node[graphnode,color=mygreen] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=mygreen] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=mygreen] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\fi
+\end{adjustbox}  \\
+\begin{adjustbox}{valign=t}
+5. Select as many as possible T-type elements.
+\end{adjustbox}
+ &
+\begin{adjustbox}{valign=t}
+\ifdefined\ispartial
+	\blanklineargraphnormal{}
+\else
+	\begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw[color=mygreen] (g) pic {groundnode};
+		\node[graphnode,color=mygreen] (n2) at (-2,2) {};
+		\node[graphnode,color=mygreen] (n3) at (0,2) {};
+		\node[graphnode,color=mygreen] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch,color=gray!50] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+		\draw[branch,color=mygreen] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+		\draw[branch,color=mygreen] (n3) to node[midway,right] {$C$} (g);
+		\draw[branch,color=gray!50] (n4) to[bend left] node[midway,right] {$L$} (g);
+	\end{tikzpicture}%
+\fi
+\end{adjustbox} 
+\end{tabularx}
+\endgroup
+
+\vspace{1\baselineskip}
+
+We call those edges in the normal tree its \keyword{branches} and those not, the \keyword{links}.
+\tags{}
+
+\emph{A-type elements not in} and \emph{T-type elements in} the normal tree are called \keyword{dependent energy storage elements}.
+All other A- and T-types are \keyword{independent energy storage elements}.
+The energy in these can be independently controlled.
+\tags{A, T}
+
+In order to avoid an artificial excess in state variables and construct what is called a \keyword{controllable} model, whenever \keyword[A-types in series]{A-types in series} (sharing one node) or \keyword{T-types in parallel} (sharing two nodes) appear, we should combine them to form equivalent elements in accordance with the formulas
+\tags{A, T}
+
+\begin{subequations}
+\begin{align}
+	C_e &= \frac{1}{\sum_i 1/C_i} \quad
+	\text{or} \\
+	L_e &= \frac{1}{\sum_i 1/L_i}.
+\end{align}
+\end{subequations}
+
+There are special names for power-flow variables associated with an element, depending on whether the element is a branch or link.
+\keyword{Primary variables} are:
+\emph{across}-variables on branches and
+\emph{through}-variables on links.
+\keyword{Secondary variables} are:
+\emph{through}-variables on branches and
+\emph{across}-variables on links.
+\tags{}
+
+\section{Graphs to state-space II the algorithm}
+\tags{}
+\label{lec:graphs2}
+
+At long last, we consider an algorithm to generate a state-space model from a linear graph model.
+In the following, we will consider a connected graph with $E$ edges, of which $S$ are sources (split between through-variable sources $S_T$ and across $S_A$).
+There are $2 E - S$ unknown across- and through-variables, so that's how many equations we need.
+We have $E-S$ elemental equations and for the rest we will write continuity and compatibility equations.
+$N$ is the number of nodes.
+\tags{S}
+
+\begin{enumerate}
+	\item Derive $2 E-S$ independent differential and algebraic equations from elemental, continuity, and compatibility equations.
+	\begin{enumerate}
+		\item Draw a \keyword{normal tree}.
+		\item Identify \keyword[primary variables]{primary} and \keyword{secondary variables}.
+		\item Select the \keyword{state variables} to be\\ 
+		\emph{across}-variables on A-type branches and \\
+		\emph{through}-variables on T-type links.
+		\item Define the \keyword{state vector} $\bm{x}$, \keyword{input vector} $\bm{u}$, and \keyword{output vector} $\bm{y}$.
+		\item Write an \keyword{elemental equation} for each passive element.\footnote{There will be $E-S$ elemental equations.}
+		\item Write a \keyword{continuity equation} for each passive branch by drawing a contour intersecting that and no other branch.
+		Solve each for the secondary through-variable associated with that branch.\footnote{There will be $N - 1 - S_A$ independent continuity equations.}
+		\item Write a \keyword{compatibility equation} for each passive link by temporarily ``including'' it in the tree and finding the compatibility equation for the resulting loop.
+		Solve each for the secondary across-variable associated with that link.\footnote{There will be $E-N+1-S_T$ independent compatibility equations.}
+	\end{enumerate}
+	\item Eliminate variables that are not state or input variables and their derivatives.
+	The following procedure is recommended.
+	\begin{enumerate}
+		\item Eliminate all secondary variables by substitution into the elemental equations of the continuity and compatibility equations.
+		\item Reduce the resulting set of equations to $n$ (system order) in state and input variables, only.
+		If not elimination, use linear algebra.
+		\item Write the result in standard form (\autoref{eq:state_nonlinear} or \autoref{eq:state}).
+		\item Express the output variables in terms of state and input variables, using any of the elemental, continuity, or compatibility equations.
+		\item Write the result in standard form (\autoref{eq:output_nonlinear} or \autoref{eq:output}).
+	\end{enumerate}
+\end{enumerate}
+
+\examplemaybe{%
+	circuit state-space model
+}{%
+	\noindent\begin{minipage}[r]{.52\linewidth}
+		For the electronic system shown, find a state-space model with outputs $i_L$, $I_s$, and $v_{R_2}$.
+	\end{minipage}
+	\hfill%
+	\begin{minipage}[r]{.345\linewidth}
+	  \begin{tikzpicture}[]
+			\coordinate (g) at (0,0);
+			\draw (g) pic {groundnode};
+			\node[graphnode] (n2) at (-2,2) {};
+			\node[graphnode] (n3) at (0,2) {};
+			\node[graphnode] (n4) at (2,2) {};
+			\draw[sourcebranch] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_S$} (g);
+			\draw[branch] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+			\draw[branch] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+			\draw[branch] (n3) to node[midway,right] {$C$} (g);
+			\draw[branch] (n4) to[bend left] node[midway,right=5pt] {$L$} (g);
+		\end{tikzpicture}%
+	\end{minipage}
+}{%
+\begin{minipage}[l]{.5\linewidth}
+	0. Linear graph model.\\ Coordinate arrows are given.
+\end{minipage}%
+\hfill%
+\begin{minipage}[r]{.43\linewidth}
+	  \begin{tikzpicture}[]
+			\coordinate (g) at (0,0);
+			\draw[normaltree] (g) pic {groundnode};
+			\node[graphnode,normaltree] (n2) at (-2,2) {};
+			\node[graphnode,normaltree] (n3) at (0,2) {};
+			\node[graphnode,normaltree] (n4) at (2,2) {};
+			\draw[sourcebranch,normaltree] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_S$} (g);
+			\draw[branch] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+			\draw[branch,normaltree] (n3) to[bend left] node[midway,above] {$R_2$} (n4);
+			\draw[branch,normaltree] (n3) to node[midway,right] {$C$} (g);
+			\draw[branch] (n4) to[bend left] node[midway,right=5pt] {$L$} (g);
+		  \draw[red,densely dashed,line cap=round,thick] (n4) circle (10pt) node[above=7pt]{$\text{con}_2$};
+		  \coordinate (foo) at (1,2);
+		  \draw [red,densely dashed,line cap=round,thick] plot [smooth cycle] coordinates {($(foo)+(-2,0)$) ($(foo)+(0,-.8)$) ($(foo)+(2,0)$) ($(foo)+(0,1.1)$)}
+		  node[right=12pt] {$\text{con}_1$};
+		\end{tikzpicture}%
+\end{minipage}
+\bigbreak
+1a. The normal tree is shown on the linear graph.
+\bigbreak
+1b. 
+\begin{tabular}[t]{ll}
+Primary variables: & $V_S$, $v_{C}$, $i_{L}$, $i_{R_1}$, $v_{R_2}$.\\
+Secondary variables: & $I_S$, $i_{C}$, $v_{L}$, $v_{R_1}$, $i_{R_2}$.
+\end{tabular}
+\bigbreak
+1c. State variables: $v_C$, $i_L$ (system order $n = 2$).
+\bigbreak
+1d. State, input, and output vectors:
+\begin{align*}
+	\bm{x} = 
+	\begin{bmatrix} 
+		v_C \\ i_L
+	\end{bmatrix}
+	\qquad
+	\bm{u} = 
+	\begin{bmatrix} 
+		V_s
+	\end{bmatrix}
+	\qquad
+	\bm{y} = 
+	\begin{bmatrix} 
+		i_L \\ I_S \\ v_{R_2}
+	\end{bmatrix}.
+\end{align*}
+\bigbreak
+1e. Elemental equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		C&	\frac{d v_C}{d t} = \frac{1}{C} i_{C} \\
+		L&	\frac{d i_L}{d t} = \frac{1}{L} v_{L} \\
+		R_1& i_{R_1} = v_{R_1}/R_1 \\
+		R_2& v_{R_2} = i_{R_2} R_2
+\end{tabular}
+\endgroup
+\bigbreak
+1f. Continuity equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{branch}& \text{equation} \\
+		C\ (\text{con}_1)&	i_C = i_{R_1} - i_L \\
+		R_2\ (\text{con}_2)& i_{R_2} = i_L
+\end{tabular}
+\endgroup
+\bigbreak
+1g. Compatibility equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{link}& \text{equation} \\
+		L&	v_L = -v_{R_2} + v_C \\
+		R_1&	v_{R_1} = V_S - v_C 
+\end{tabular}
+\endgroup
+\bigbreak
+2a. Eliminate secondary variables from the elemental equations.\\
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		C&	\frac{d v_C}{d t} = \frac{1}{C} \left(i_{R_1} - i_L\right) \\
+		L&	\frac{d i_L}{d t} = \frac{1}{L}
+		\left(-v_{R_2} + v_C\right) \\
+		R_1& i_{R_1} = \left(V_S - v_C\right)/R_1 \\
+		R_2& v_{R_2} = i_L R_2
+\end{tabular}
+\endgroup
+\bigbreak
+
+2b. Eliminate non-state and non-input variables from the elemental equations. In this case, $i_{R_1}$ and $v_{R_2}$ are the only variables remaining to eliminate, and they are already expressed as state- and input-variables! (This doesn't always happen, but it does pretty frequently for relatively simple systems.)\\
+\tags{}
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		C&	\frac{d v_C}{d t} = 
+			\frac{1}{R_1 C} V_S -
+			\frac{1}{R_1 C} v_C -
+			\frac{1}{C} i_L \\
+		L&	\frac{d i_L}{d t} = 
+			-\frac{R_2}{L} i_L +
+			\frac{1}{L} v_C
+\end{tabular}
+\endgroup
+\bigbreak
+2c. Write the state equation in standard form
+\begin{align*}
+	\frac{d\bm{x}}{d t} &=
+	\begin{bmatrix}
+		\frac{-1}{R_1 C} & \frac{-1}{C} \\
+		1/L & -R_2/L
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_C \\ i_L
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		\frac{1}{R_1 C} \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_S
+	\end{bmatrix}.
+\end{align*}
+\bigskip
+2d. Outputs in terms of states and inputs.
+\begin{align*}
+	i_L = i_L &&
+	I_S = i_{R_1} = (V_S - v_C)/R_1 &&
+	v_{R_2} = R_2 i_L.
+\end{align*}
+
+Note the sign for $I_S$. This is because, for an across-variable source, we assume the through-variable flows in the \emph{opposite direction}!
+\tags{}
+\bigskip
+2e. Output in standard form.
+\begin{align*}
+	\bm{y} &=
+	\begin{bmatrix}
+		0 & 1 \\
+		-1/R_1 & 0 \\
+		0 & R_2
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_C \\ i_L
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 \\ 1/R_1 \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_S
+	\end{bmatrix}.
+\end{align*}
+}{%
+ex:state_model_ex_01%
+}
+
+\section{State-space model of a translational mechanical system}
+\tags{}
+
+Let's try an example of a higher-order translational mechanical system.
+\tags{}
+\examplemaybe{%
+	state-space model of a translational mechanical system
+}{%
+	For the translational mechanical system shown, find a state-space model with outputs the spring forces and mass momenta.
+	\begin{center}
+  	\ifdefined\noff\else\newlength{\noff}\fi
+  	\setlength{\noff}{5pt}
+  	\begin{tikzpicture}
+			\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m2) at (0,0) {$m_2$};
+			\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m1) at (-3,0) {$m_1$};
+			\node[graphnode] (n1) at (-6,0) {};
+			\draw (n1) -- ([yshift=-\noff]n1 |- m1.north west)
+				coordinate (n1n);
+			\draw[spring] (n1n) 
+			  --node[above=7pt,anchor=south]{$k_1$} 
+			  ([yshift=-\noff]m1.north west);
+			\draw (n1) -- ([yshift=\noff]n1 |- m1.south west)
+				coordinate (n1s);
+			\draw[damper] (n1s) 
+			  --node[below=7pt,anchor=north]{$B_1$} 
+			  ([yshift=\noff]m1.south west);
+			\draw[spring] ([yshift=-\noff]m1.north east) --node[above=7pt,anchor=south]{$k_2$} ([yshift=-\noff]m2.north west);
+			\draw[damper] ([yshift=\noff]m2.south west) --node[below=7pt,anchor=north]{$B_2$} ([yshift=\noff]m1.south east);
+			\draw[<-,>=stealth',thick,violet] (n1) -- ++(-.5,0)
+			node[above,black] {$V_s$};
+		\end{tikzpicture}
+  \end{center}
+}{%
+\begin{minipage}[l]{.5\linewidth}
+	0. Linear graph model. Assigning the coordinate arrow in the direction of $V_s$, we obtain the linear graph shown.
+\end{minipage}%
+\hfill%
+\begin{minipage}[r]{.345\linewidth}
+  \begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw (g) pic {groundnode};
+		\node[graphnode] (n2) at (-2,2) {};
+		\node[graphnode] (n3) at (0,2) {};
+		\node[graphnode] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen,very thick] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch] (n2) to[bend left] node[midway,above] {$k_1$} (n3);
+		\draw[branch] (n2) to[bend right] node[midway,below] {$B_1$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$k_2$} (n4);
+		\draw[branch] (n3) to[bend right] node[midway,below] {$B_2$} (n4);
+		\draw[branch,color=mygreen,very thick] (n3) to node[midway,right] {$m_1$} (g);
+		\draw[branch,color=mygreen,very thick] (n4) to[bend left] node[midway,right] {$m_2$} (g);
+	  \draw[red,densely dashed,line cap=round,thick] (n3) circle (10pt) node[above=7pt]{$\text{con}_1$};
+	  \draw[red,densely dashed,line cap=round,thick] (n4) circle (10pt) node[above=7pt]{$\text{con}_2$};
+	\end{tikzpicture}%
+\end{minipage}
+\bigbreak
+1a. The normal tree is shown on the linear graph.
+\bigbreak
+1b. 
+\begin{tabular}[t]{ll}
+Primary variables: & $V_s$, $v_{m_1}$, $v_{m_2}$, $f_{k_1}$, $f_{k_2}$, $f_{B_1}$, $f_{B_2}$.\\
+Secondary variables: & $F_s$, $f_{m_1}$, $f_{m_2}$, $v_{k_1}$, $v_{k_2}$, $v_{B_1}$, $v_{B_2}$.
+\end{tabular}
+\bigbreak
+1c. State variables: $v_{m_1}$, $v_{m_2}$, $f_{k_1}$, $f_{k_2}$ (system order $n = 4$).
+\bigbreak
+1d. State, input, and output vectors:
+\begin{align*}
+	\bm{x} = 
+	\begin{bmatrix} 
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	\qquad
+	\bm{u} = 
+	\begin{bmatrix} 
+		V_s
+	\end{bmatrix}
+	\qquad
+	\bm{y} = 
+	\begin{bmatrix} 
+		f_{k_1}\\f_{k_2}\\p_{m_1}\\p_{m_2}
+	\end{bmatrix}.
+\end{align*}
+\bigbreak
+1e. Elemental equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		m_1&	\dot{v}_{m_1} = \frac{1}{m_1} f_{m_1} \\
+		m_2&	\dot{v}_{m_2} = \frac{1}{m_2} f_{m_2} \\
+		k_1&	\dot{f}_{k_1} = k_1 v_{k_1} \\
+		k_2&	\dot{f}_{k_2} = k_2 v_{k_2} \\
+		B_1&	f_{B_1} = B_1 v_{B_1} \\
+		B_2&	f_{B_2} = B_2 v_{B_2}
+\end{tabular}
+\endgroup
+\bigbreak
+1f. Continuity equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{branch}& \text{equation} \\
+		m_1\ (\text{con}_1)&	f_{m_1} = f_{k_1} + f_{B_1} - f_{k_2} - f_{B_2} \\
+		m_2\ (\text{con}_2)&	f_{m_2} = f_{k_2} + f_{B_2}
+\end{tabular}
+\endgroup
+\bigbreak
+1f. Compatibility equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{link}& \text{equation} \\
+		k_1&	v_{k_1} = V_s - v_{m_1} \\
+		B_1&	v_{B_1} = V_s - v_{m_1} \\
+		k_2&	v_{k_2} = v_{m_1} - v_{m_2} \\
+		B_2&	v_{B_2} = v_{m_1} - v_{m_2}
+\end{tabular}
+\endgroup
+\bigbreak
+2a. Eliminate secondary variables from the elemental equations.\\
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		m_1&	\dot{v}_{m_1} = \frac{1}{m_1} (f_{k_1} + f_{B_1} - f_{k_2} - f_{B_2}) \\
+		m_2&	\dot{v}_{m_2} = \frac{1}{m_2} (f_{k_2} + f_{B_2}) \\
+		k_1&	\dot{f}_{k_1} = k_1 (V_s - v_{m_1}) \\
+		k_2&	\dot{f}_{k_2} = k_2 (v_{m_1} - v_{m_2}) \\
+		B_1&	f_{B_1} = B_1 (V_s - v_{m_1}) \\
+		B_2&	f_{B_2} = B_2 (v_{m_1} - v_{m_2})
+\end{tabular}
+\endgroup
+\bigbreak
+2b. Eliminate non-state and non-input variables from the elemental equations. In this case, $f_{B_1}$ and $f_{B_2}$ are the only variables remaining to eliminate, and they are already expressed as state- and input-variables!\\
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabularx}{1\linewidth}{L|L}
+		m_1&	
+		\begin{aligned}
+			\dot{v}_{m_1} &= 
+			\frac{1}{m_1} (f_{k_1} + B_1 (V_s - v_{m_1}) - f_{k_2} - B_2 (v_{m_1} - v_{m_2})) \\
+			&= \frac{-(B_1+B_2)}{m_1} v_{m_1} 
+			+ \frac{B_2}{m_1} v_{m_2}  
+			+ \frac{1}{m_1} f_{k_1}  
+			+ \frac{-1}{m_1} f_{k_2} 
+			+ \frac{B_1}{m_1} V_s 
+		\end{aligned} 
+		\\
+		m_2& 
+		\begin{aligned}
+			\dot{v}_{m_2} &= 
+			\frac{1}{m_2} (f_{k_2} + B_2 (v_{m_1} - v_{m_2})) \\
+			&= \frac{B_2}{m_2} v_{m_1} 
+			+ \frac{-B_2}{m_2} v_{m_2}   
+			+ \frac{1}{m_2} f_{k_2}  
+		\end{aligned} 
+		\\
+		k_1&
+		\begin{aligned}
+			\dot{f}_{k_1} &= 
+			k_1 (V_s - v_{m_1}) \\
+			&= -k_1 v_{m_1} 
+			+ k_1 V_s
+		\end{aligned} \\
+		k_2&
+		\begin{aligned}
+			\dot{f}_{k_2} &= 
+			k_2 (v_{m_1} - v_{m_2}) \\
+			&= k_2 v_{m_1} 
+			- k_2 v_{m_2}
+		\end{aligned}
+\end{tabularx}
+\endgroup
+\bigbreak
+2c. Write the state equation in standard form
+\begin{align*}
+	\bm{\dot{x}} &=
+	\begin{bmatrix}
+		-(B_1+B_2)/m_1 &
+		B_2/m_1 &
+		1/m_1 &
+		-1/m_1 \\
+		B_2/m_2 &
+		-B_2/m_2 &
+		0 &
+		1/m_2 \\
+		-k_1 &
+		0 & 0 & 0 \\
+		k_2 &
+		-k_2 & 
+		0 & 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		B_1/m_1 \\ 0 \\ k_1 \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_s
+	\end{bmatrix}.
+\end{align*}
+\bigskip
+2d. Outputs in terms of states and inputs.
+\begin{align*}
+	f_{k_1} = f_{k_1} && f_{k_2} = f_{k_2} &&
+	p_{m_1} = m_1 v_{m_1} && p_{m_2} = m_2 v_{m_2}.
+\end{align*}
+\bigskip
+2e. Output in standard form.
+\begin{align*}
+	\bm{y} &=
+	\begin{bmatrix}
+		0 & 0 & 1 & 0 \\
+		0 & 0 & 0 & 1 \\
+		m_1 & 0 & 0 & 0 \\
+		0 & m_2 & 0 & 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 \\ 0 \\ 0 \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_s
+	\end{bmatrix}.
+\end{align*}
+}{%
+ex:state_model_ex_02%
+}
+
+\section{State-space model of a rotational mechanical system}
+\tags{}
+
+Let's try an example of a rotational mechanical system.
+
+\examplemaybe{%
+	state-space model of a rotational mechanical system
+}{%
+	For the rotational mechanical system shown, find a state-space model with outputs the spring torque and moment of inertia angular momentum.
+  \begin{center}
+		\begin{tikzpicture}[]
+			% \node[inertia] (J1) at (-6,0) {$J_1$};
+			\coordinate (J1) at (-4,0) {};
+			\draw[shaftcap] ($(J1)+(-.5,0)$)
+				coordinate (lefty) -- (J1);
+			\draw[<-,>=stealth',thick,violet] (lefty) -- ++(-.5,0)
+				node[above,black] {$\Omega_s$};
+			\draw[dragcup] (J1) --node[above=.2] {$B_1$} ++(1,0)
+				coordinate (J2l);
+			\draw[shaftcap] (J2l) -- ++(.3,0)
+				node[inertia,anchor=west] (J2) {$J$};
+			\draw[bearing] (J2.east) -- node[above=.2] {$B_2$} ++(.7,0)
+				coordinate (J2r);
+			\draw[spring] (J2r) --node[above=.2] {$k$} ++(2,0)
+				coordinate (gc);
+			\node[groundmech,minimum height=1cm,minimum width=.5cm,anchor=west] (g) at (gc) {};
+			\draw (g.south west) -- (g.north west);
+		\end{tikzpicture}
+  \end{center}
+}{%
+\begin{minipage}[l]{.5\linewidth}
+	0. Linear graph model. Assigning the coordinate arrow in the direction of $V_s$, we obtain the linear graph shown.
+\end{minipage}%
+\hfill%
+\begin{minipage}[r]{.345\linewidth}
+  \begin{tikzpicture}[]
+		\coordinate (g) at (0,0);
+		\draw (g) pic {groundnode};
+		\node[graphnode] (n2) at (-2,2) {};
+		\node[graphnode] (n3) at (0,2) {};
+		\node[graphnode] (n4) at (2,2) {};
+		\draw[sourcebranch,color=mygreen,very thick] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+		\draw[branch] (n2) to[bend left] node[midway,above] {$k_1$} (n3);
+		\draw[branch] (n2) to[bend right] node[midway,below] {$B_1$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$k_2$} (n4);
+		\draw[branch] (n3) to[bend right] node[midway,below] {$B_2$} (n4);
+		\draw[branch,color=mygreen,very thick] (n3) to node[midway,right] {$m_1$} (g);
+		\draw[branch,color=mygreen,very thick] (n4) to[bend left] node[midway,right] {$m_2$} (g);
+	  \draw[red,densely dashed,line cap=round,thick] (n3) circle (10pt) node[above=7pt]{$\text{con}_1$};
+	  \draw[red,densely dashed,line cap=round,thick] (n4) circle (10pt) node[above=7pt]{$\text{con}_2$};
+	\end{tikzpicture}%
+\end{minipage}
+\bigbreak
+1a. The normal tree is shown on the linear graph.
+\bigbreak
+1b. 
+\begin{tabular}[t]{ll}
+Primary variables: & $V_s$, $v_{m_1}$, $v_{m_2}$, $f_{k_1}$, $f_{k_2}$, $f_{B_1}$, $f_{B_2}$.\\
+Secondary variables: & $F_s$, $f_{m_1}$, $f_{m_2}$, $v_{k_1}$, $v_{k_2}$, $v_{B_1}$, $v_{B_2}$.
+\end{tabular}
+\bigbreak
+1c. State variables: $v_{m_1}$, $v_{m_2}$, $f_{k_1}$, $f_{k_2}$ (system order $n = 4$).
+\bigbreak
+1d. State, input, and output vectors:
+\begin{align*}
+	\bm{x} = 
+	\begin{bmatrix} 
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	\qquad
+	\bm{u} = 
+	\begin{bmatrix} 
+		V_s
+	\end{bmatrix}
+	\qquad
+	\bm{y} = 
+	\begin{bmatrix} 
+		f_{k_1}\\f_{k_2}\\p_{m_1}\\p_{m_2}
+	\end{bmatrix}.
+\end{align*}
+\bigbreak
+1e. Elemental equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		m_1&	\dot{v}_{m_1} = \frac{1}{m_1} f_{m_1} \\
+		m_2&	\dot{v}_{m_2} = \frac{1}{m_2} f_{m_2} \\
+		k_1&	\dot{f}_{k_1} = k_1 v_{k_1} \\
+		k_2&	\dot{f}_{k_2} = k_2 v_{k_2} \\
+		B_1&	f_{B_1} = B_1 v_{B_1} \\
+		B_2&	f_{B_2} = B_2 v_{B_2}
+\end{tabular}
+\endgroup
+\bigbreak
+1f. Continuity equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{branch}& \text{equation} \\
+		m_1\ (\text{con}_1)&	f_{m_1} = f_{k_1} + f_{B_1} - f_{k_2} - f_{B_2} \\
+		m_2\ (\text{con}_2)&	f_{m_2} = f_{k_2} + f_{B_2}
+\end{tabular}
+\endgroup
+\bigbreak
+1f. Compatibility equations.
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		\text{link}& \text{equation} \\
+		k_1&	v_{k_1} = V_s - v_{m_1} \\
+		B_1&	v_{B_1} = V_s - v_{m_1} \\
+		k_2&	v_{k_2} = v_{m_1} - v_{m_2} \\
+		B_2&	v_{B_2} = v_{m_1} - v_{m_2}
+\end{tabular}
+\endgroup
+\bigbreak
+2a. Eliminate secondary variables from the elemental equations.\\
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabular}[t]{L|L}
+		m_1&	\dot{v}_{m_1} = \frac{1}{m_1} (f_{k_1} + f_{B_1} - f_{k_2} - f_{B_2}) \\
+		m_2&	\dot{v}_{m_2} = \frac{1}{m_2} (f_{k_2} + f_{B_2}) \\
+		k_1&	\dot{f}_{k_1} = k_1 (V_s - v_{m_1}) \\
+		k_2&	\dot{f}_{k_2} = k_2 (v_{m_1} - v_{m_2}) \\
+		B_1&	f_{B_1} = B_1 (V_s - v_{m_1}) \\
+		B_2&	f_{B_2} = B_2 (v_{m_1} - v_{m_2})
+\end{tabular}
+\endgroup
+\bigbreak
+2b. Eliminate non-state and non-input variables from the elemental equations. In this case, $f_{B_1}$ and $f_{B_2}$ are the only variables remaining to eliminate, and they are already expressed as state- and input-variables!\\
+\begingroup
+\renewcommand*{\arraystretch}{1.6}
+\newcolumntype{L}{>{$}l<{$}} % math-mode version of "l"
+\begin{tabularx}{1\linewidth}{L|L}
+		m_1&	
+		\begin{aligned}
+			\dot{v}_{m_1} &= 
+			\frac{1}{m_1} (f_{k_1} + B_1 (V_s - v_{m_1}) - f_{k_2} - B_2 (v_{m_1} - v_{m_2})) \\
+			&= \frac{-(B_1+B_2)}{m_1} v_{m_1} 
+			+ \frac{B_2}{m_1} v_{m_2}  
+			+ \frac{1}{m_1} f_{k_1}  
+			+ \frac{-1}{m_1} f_{k_2} 
+			+ \frac{B_1}{m_1} V_s 
+		\end{aligned} 
+		\\
+		m_2& 
+		\begin{aligned}
+			\dot{v}_{m_2} &= 
+			\frac{1}{m_2} (f_{k_2} + B_2 (v_{m_1} - v_{m_2})) \\
+			&= \frac{B_2}{m_2} v_{m_1} 
+			+ \frac{-B_2}{m_2} v_{m_2}   
+			+ \frac{1}{m_2} f_{k_2}  
+		\end{aligned} 
+		\\
+		k_1&
+		\begin{aligned}
+			\dot{f}_{k_1} &= 
+			k_1 (V_s - v_{m_1}) \\
+			&= -k_1 v_{m_1} 
+			+ k_1 V_s
+		\end{aligned} \\
+		k_2&
+		\begin{aligned}
+			\dot{f}_{k_2} &= 
+			k_2 (v_{m_1} - v_{m_2}) \\
+			&= k_2 v_{m_1} 
+			- k_2 v_{m_2}
+		\end{aligned}
+\end{tabularx}
+\endgroup
+\bigbreak
+2c. Write the state equation in standard form
+\begin{align*}
+	\bm{\dot{x}} &=
+	\begin{bmatrix}
+		-(B_1+B_2)/m_1 &
+		B_2/m_1 &
+		1/m_1 &
+		-1/m_1 \\
+		B_2/m_2 &
+		-B_2/m_2 &
+		0 &
+		1/m_2 \\
+		-k_1 &
+		0 & 0 & 0 \\
+		k_2 &
+		-k_2 & 
+		0 & 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		B_1/m_1 \\ 0 \\ k_1 \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_s
+	\end{bmatrix}.
+\end{align*}
+\bigskip
+2d. Outputs in terms of states and inputs.
+\begin{align*}
+	f_{k_1} = f_{k_1} && f_{k_2} = f_{k_2} &&
+	p_{m_1} = m_1 v_{m_1} && p_{m_2} = m_2 v_{m_2}.
+\end{align*}
+\bigskip
+2e. Output in standard form.
+\begin{align*}
+	\bm{y} &=
+	\begin{bmatrix}
+		0 & 0 & 1 & 0 \\
+		0 & 0 & 0 & 1 \\
+		m_1 & 0 & 0 & 0 \\
+		0 & m_2 & 0 & 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		v_{m_1}\\v_{m_2}\\f_{k_1}\\f_{k_2}
+	\end{bmatrix}
+	+
+	\begin{bmatrix}
+		0 \\ 0 \\ 0 \\ 0
+	\end{bmatrix}
+	\begin{bmatrix}
+		V_s
+	\end{bmatrix}.
+\end{align*}
+}{%
+ex:state_model_ex_03%
+}
+
+\section[Between state-space and io differential equations]{Bridge between state-space and input-output differential equations and, oh yeah, transfer functions}
+\tags{}
+\label{lec:bridge_state_space_to_io}
+
+The \keyword{Laplace transform} $\mathcal{L}$ is cool af.
+It is used to solve differential equations and define the \keyword{transfer function} $H$: you know, just another awesome dynamic system representation.
+For now, we'll use it as a bridge between state-space and input/output differential equation representations, merely waving at transfer functions as we pass through.
+Later, transfer functions will be considered extensively.
+\tags{}
+
+% \subsection{Input-output differential equations}
+
+% \input{../_common/io_ode}
+
+\subsection{Transfer functions}
+\tags{}
+\input{../_common/tf}
+
+\subsection{Bridging transfer functions and io differential equations}
+\tags{}
+\input{../_common/io_to_tf}
+
+Exactly the reverse procedure, then, can be used to convert a given transfer function to an input-output differential equation.
+\tags{}
+\examplemaybe{%
+A circuit transfer function
+}{%
+\noindent\begin{minipage}[r]{.50\linewidth}
+	The circuit shown has input-output differential equation
+	\begin{align*}
+		L \frac{d^2 v_L}{d t^2} + R \frac{d v_L}{d t} + \frac{1}{C} v_L &= L \frac{d^2 V_s}{d t^2}.
+	\end{align*}
+	What is the transfer function from $V_s$ to $v_L$?
+\end{minipage}
+\hfill%
+\begin{minipage}[r]{.45\linewidth}
+  \begin{circuitikz}[]
+		\draw
+			(0,0) to[voltage source, v=$V_s$] (0,2)
+			to[R=$R$] (2,2)
+			to[C=$C$] (4,2)
+			to[L=$L$] (4,0)
+			-- node[midway,ground] {} (0,0);
+	\end{circuitikz}
+\end{minipage}
+}{%
+By inspection,
+\begin{align*}
+	H(s) &= \frac{V_L(s)}{V_s(s)} \\
+	&= \frac{L s^2}{L s^2 + R s + 1/C}.
+\end{align*}
+}{%
+ex:transfer_function_rlc
+}%
+
+\subsection{Bridging transfer functions and state-space models}
+\tags{}
+\input{../_common/ss_to_tf}
+
+The reverse procedure of deriving a state-space model from a transfer function is what is called a \keyword{state-space realization}, which is not a unique operation (there are different realizations for a single transfer function) and is not considered here.
+\tags{}
+\examplemaybe{%
+Matrix transfer function from state-space
+}{%
+Given the linear state-space model
+\begin{align*}
+	\dot{\bm{x}} &=
+	\begin{bmatrix}
+		-3 & 4 \\
+		-1 & 1
+	\end{bmatrix}
+	\bm{x}
+	+
+	\begin{bmatrix}
+		1 \\ 0
+	\end{bmatrix}
+	\bm{u}
+	\\
+	\bm{y} &=
+	\begin{bmatrix}
+		1 & 0 \\
+		0 & 1
+	\end{bmatrix}
+	\bm{x}
+	+
+	\begin{bmatrix}
+		0 \\ 0
+	\end{bmatrix}
+	\bm{u},
+\end{align*}
+derive the matrix transfer function.
+}{%
+Directly apply the formula, as follows.
+\begin{align*}
+	H(s) &= C (sI - A)^{-1} B + D \\
+	&= C
+	\left(
+		\begin{bmatrix}
+			s & 0 \\
+			0 & s
+		\end{bmatrix}
+		-
+		\begin{bmatrix}
+			-3 & 4 \\
+			-1 & 1
+		\end{bmatrix}
+	\right)^{-1} 
+	B + D \\
+	&= C
+	\begin{bmatrix}
+		s+3 & -4 \\
+		1 & s-1
+	\end{bmatrix}^{-1} 
+	B + D\\
+	&= 
+	\frac{1}{(s+3)(s-1)-(-4)(1)}
+	C
+	\begin{bmatrix}
+		s-1 & 4 \\
+		-1 & s+3
+	\end{bmatrix} 
+	B + D\\
+	&= 
+	\frac{1}{s^2 + 2 s + 1}
+	\begin{bmatrix}
+		s-1 & 4 \\
+		-1 & s+3
+	\end{bmatrix} 
+	\begin{bmatrix}
+		1 \\ 0
+	\end{bmatrix}\\
+	&= 
+	\frac{1}{s^2 + 2 s + 1}
+	\begin{bmatrix}
+		s-1 \\
+		-1
+	\end{bmatrix}\\
+	&= 
+	\begingroup
+	\renewcommand*{\arraystretch}{1.95}
+	\begin{bmatrix}
+		\dfrac{s-1}{s^2 + 2 s + 1} \\
+		\dfrac{-1}{s^2 + 2 s + 1}
+	\end{bmatrix}.
+	\endgroup
+\end{align*}
+}{%
+ex:transfer_function_ss
+}
+
+\examplemaybe{%
+	state-space to io differential equations
+}{%
+	For the following state-space model, derived in Example~\ref{ex:state_model_ex_01}, derive the io differential equations for each output variable:
+	\begin{align*}
+		\frac{d\bm{x}}{d t} &=
+		\begin{bmatrix}
+			\frac{-1}{R_1 C} & \frac{-1}{C} \\
+			1/L & -R_2/L
+		\end{bmatrix}
+		\bm{x}
+		+
+		\begin{bmatrix}
+			\frac{1}{R_1 C} \\ 0
+		\end{bmatrix}
+		\bm{u} \\
+		\bm{y} &=
+		\begin{bmatrix}
+			0 & 1 \\
+			-1/R_1 & 0 \\
+			0 & R_2
+		\end{bmatrix}
+		\bm{x}
+		+
+		\begin{bmatrix}
+			0 \\ 1/R_1 \\ 0
+		\end{bmatrix}
+		\bm{u}.
+	\end{align*}
+	The output variables are $i_L$, $I_S$, and $v_{R_2}$.
+}{%
+We proceed in two steps: state-space to transfer functions, then transfer functions to io differential equations.
+The matrix transfer function is
+\tags{}
+\begin{align*}
+	H(s) &= C (sI - A)^{-1} B + D \\
+	&= 
+		\begin{bmatrix}
+			0 & 1 \\
+			-1/R_1 & 0 \\
+			0 & R_2
+		\end{bmatrix}
+		\left(
+			\begin{bmatrix}
+				s & 0 \\
+				0 & s
+			\end{bmatrix}
+			-
+			\begin{bmatrix}
+				\frac{-1}{R_1 C} & \frac{-1}{C} \\
+				1/L & -R_2/L
+			\end{bmatrix}
+		\right)^{-1}
+		\begin{bmatrix}
+			\frac{1}{R_1 C} \\ 0
+		\end{bmatrix}
+		+
+		\begin{bmatrix}
+			0 \\ 1/R_1 \\ 0
+		\end{bmatrix} \\
+	&=
+	\frac{1}{L R_1 C  s^2 + (L + R_1 R_2 C) s + R_1 + R_2}
+	\begin{bmatrix}
+		1 \\ L C s^2 + R_2 C s + 1 \\ R_2
+	\end{bmatrix}.
+\end{align*}
+
+For notes on inverting matrices, see \cref{sec:matrix_inverses}.
+Note that \emph{most calculators cannot do symbolic matrix inverses}.
+This contains three transfer functions: $i_L(s)/V_S(s)$, $I_S(s)/V_S(s)$, and $v_{R_2}(s)/V_S(s)$.
+Let's unpack the first one to get a feel for how this works:
+\tags{}
+\begin{gather*}
+	\frac{i_L(s)}{V_S(s)} 
+	= \frac{1}{L R_1 C  s^2 + (L + R_1 R_2 C) s + R_1 + R_2} \Rightarrow \\
+	\left(L R_1 C  s^2 + (L + R_1 R_2 C) s + R_1 + R_2\right) i_L(s) = V_S(s). \tag{rearranged}
+\end{gather*}
+From this last expression, recalling that $s$ is the Laplace-domain differentiator, the following (time-domain) differential equation can be constructed by inspection:
+\begin{align*}
+	L R_1 C \frac{d^2 i_L}{d t^2} + (L + R_1 R_2 C) \frac{d i_L}{d t} + (R_1 + R_2) i_L = V_S.
+\end{align*}
+Similarly, the other two differential equations are:
+\begin{gather*}
+	L R_1 C \frac{d^2 I_S}{d t^2} + (L + R_1 R_2 C) \frac{d I_S}{d t} + (R_1 + R_2) I_S = L C \frac{d^2 V_S}{d t^2} + R_2 C \frac{d V_S}{d t} + V_S \\
+	\text{and}\\
+	L R_1 C \frac{d^2 v_{R_2}}{d t^2} + (L + R_1 R_2 C) \frac{d v_{R_2}}{d t} + (R_1 + R_2) v_{R_2} = R_2 V_S.
+\end{gather*}
+}{%
+ex:ss_to_ode_01%
+}
+
+
+
+%TODO ... not sure where this goes
+%\section{Dependent sources}
+
+\begin{exercises}
+\input{ch03_exercises}
+\end{exercises}
+
+% \begin{problems}
+
+% \subsection{Linear graphs}
+
+% Draw necessary sign coordinate arrows, a \emph{linear graph}, a \emph{normal tree}, and identify \emph{state variables} and \emph{system order} for each of the following schematics.
+	
+% \begin{enumerate}
+% 	\item electronic system, current source\hfill
+% \begin{center}
+% 	\begin{circuitikz}[]
+% 		\draw
+% 			(0,0) to[current source, i=$I_s$] (0,2)
+% 			-- (1.5,2)
+% 			to[L=$L$] (1.5,0)
+% 			(1.5,2) -- (3,2)
+% 			to[R=$R$] (3,0)
+% 			(3,2) -- (4.5,2)
+% 			to[C=$C$] (4.5,0)
+% 			-- (0,0);
+% 		\end{circuitikz}
+% \end{center}
+% 	\item rotational mechanical system, torque source\hfill
+% \begin{center}
+% 	\begin{tikzpicture}[]
+% 		\node[inertia] (J1) at (-6,0) {$J_1$};
+% 		\draw[shaftcap] ($(J1.west)+(-.3,0)$)
+% 			coordinate (lefty) -- (J1.west);
+% 		\draw[<-,>=stealth',thick,violet] (lefty) -- ++(-.5,0)
+% 			node[above,black] {$T_s$};
+% 		\draw[bearing] (J1.east) -- node[above=7pt] {$B_1$} ++(.7,0)
+% 			coordinate (righty);
+% 		\draw[spring] (righty) --node[above=7pt] {$k$} ++(2,0)
+% 			coordinate (J2l);
+% 		\draw[shaftcap] (J2l) -- ++(.3,0)
+% 			node[inertia,anchor=west] (J2) {$J_2$};
+% 		\draw[bearing] (J2.east) -- node[above=7pt] {$B_2$} ++(.7,0)
+% 			coordinate (J2r);
+% 		\draw[dragcup] (J2r) --node[above=7pt] {$B_3$} ++(2,0)
+% 			coordinate (gc);
+% 		\node[groundmech,minimum height=1cm,minimum width=.5cm,anchor=west] (g) at (gc) {};
+% 		\draw (g.south west) -- (g.north west);
+% 	\end{tikzpicture}
+% \end{center}
+% 	\item translational mechanical system, velocity source\hfill
+% \begin{center}
+% 	% \newlength{\noff}
+% 	\setlength{\noff}{5pt}
+% 	\begin{tikzpicture}
+% 		\node[groundmech,minimum height=1cm,minimum width=.5cm] (g) at (0,0) {};
+% 		\draw (g.south west) -- (g.north west);
+% 		\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m2) at (-2,0) {$m_2$};
+% 		\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m1) at (-5,0) {$m_1$};
+% 		\draw[damper] (g.west) -- node[above=7pt,anchor=south]{$B_2$} (m2.east);
+% 		\draw[spring] ([yshift=-\noff]m1.north east) --node[above=7pt,anchor=south]{$k_2$} ([yshift=-\noff]m2.north west);
+% 		\draw[damper] ([yshift=\noff]m2.south west) --node[below=7pt,anchor=north]{$B_1$} ([yshift=\noff]m1.south east);
+% 		\draw[spring] (m1.west) --node[above=7pt,anchor=south]{$k_1$} ++(-2,0)
+% 			node[graphnode] (n1) {};
+% 		\draw[<-,>=stealth',thick,violet] (n1) -- ++(-.5,0)
+% 		node[above,black] {$V_s$};
+% 	\end{tikzpicture}
+% \end{center}
+% \end{enumerate}
+
+% \subsection{State-space model from linear graph}
+
+% Use the following linear graph for a circuit to answer the questions below, which are the steps to determining a state-space model of the circuit. Use the sign convention from the diagram. $V_s$ is a voltage source.
+	
+% 	\begin{center}
+% 	\begin{tikzpicture}[]
+% 		\coordinate (g) at (0,0);
+% 		\draw (g) pic {groundnode};
+% 		\node[graphnode] (n2) at (-2,2) {};
+% 		\node[graphnode] (n3) at (0,2) {};
+% 		\node[graphnode] (n4) at (2,2) {};
+% 		\draw[sourcebranch] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+% 		\draw[branch] (n2) to[bend left] node[midway,above] {$R$} (n3);
+% 		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n4);
+% 		\draw[branch] (n4) to[bend left] node[midway,below right] {$C$} (g);
+% 	\end{tikzpicture}%
+% 	\end{center}
+	
+% 	\begin{enumerate}
+% 		\item Determine the \emph{normal tree}, \emph{state variables}, \emph{system order}, \emph{state vector}, \emph{input vector}, and \emph{output vector} for the outputs $i_R$ and $v_C$.
+% 		\item Write the required \emph{elemental}, \emph{continuity}, and \emph{compatibility equations}.
+% 		\item Solve for the \emph{state equation} in standard form.
+% 		\item Solve for the \emph{output equation} in standard form.
+% 	\end{enumerate}
+
+% \end{problems}
+
+% \begin{solutions}
+
+% \subsection{Linear graphs}
+
+% 1. The linear graph model is shown, below. Assign the coordinate arrows toward ground.\\
+% \begin{center}
+% \begin{tikzpicture}[]
+% 	\coordinate (g) at (0,0);
+% 	\draw (g) pic {groundnode};
+% 	\node[graphnode] (n2) at (0,2) {};
+% 	\coordinate (fn1) at (.5,1);
+% 	\coordinate (fn2) at (1,1);
+% 	\coordinate (fn3) at (1.5,1);
+% 	\draw[sourcebranch] (g) to[bend left] node[midway,below=7pt,left=7pt,anchor=north east] {$I_s$} (n2);
+% 	\draw[branch] (n2) to[out=0,in=90] (fn1) node[left] {$L$}
+% 		to[out=-90,in=0] (g);
+% 	\draw[branch] (n2) to[out=0,in=90] (fn2) node[left] {$R$}
+% 		to[out=-90,in=0] (g);
+% 	\draw[branch,color=mygreen,very thick] (n2) to[out=0,in=90] (fn3) node[left] {$C$}
+% 		to[out=-90,in=0] (g);
+% \end{tikzpicture}%
+% \end{center}
+% \bigbreak
+% The normal tree is shown on the linear graph.
+% The state variables are $v_C$ and $i_L$, so the system order is $n = 2$.
+% \bigbreak
+% 2. The linear graph model is shown, below. Assign the coordinate arrows toward the right.\\
+% \begin{center}
+% \begin{tikzpicture}[]
+% 	\coordinate (g1) at (-1,0);
+% 	\draw (g1) pic {groundnode};
+% 	\coordinate (g2) at (1,0);
+% 	\draw (g2) pic {groundnode};
+% 	\node[graphnode] (n2) at (-1,2) {};
+% 	\node[graphnode] (n3) at (1,2) {};
+% 	\draw[sourcebranch] (g1) to[out=160,in=-160] node[midway,left=7pt,anchor=north east] {$T_s$} (n2);
+% 	\draw[branch,color=mygreen,very thick] (n2) to node[midway,right] {$J_1$} (g1);
+% 	\draw[branch,color=mygreen,very thick] (n3) to node[midway,right] {$J_2$} (g2);
+% 	\draw[branch] (n2) to[bend left] node[midway,above] {$k$} (n3);
+% 	\draw[branch] (n2) to[out=-20,in=20] node[midway,right] {$B_1$} (g1);
+% 	\draw[branch] (n3) to[out=-20,in=20] node[midway,right] {$B_3$} (g2);
+% 	\draw[branch] (n3) to[out=-160,in=160] node[midway,right] {$B_2$} (g2);
+% \end{tikzpicture}%
+% \end{center}
+% \bigbreak
+% The normal tree is shown on the linear graph.
+% The state variables are $\Omega_{J_1}$, $\Omega_{J_2}$, and $T_k$, so the system order is $n = 3$.
+% \bigbreak
+% 3. The linear graph model is shown, below. Assign the coordinate arrows toward ground.\\
+% \begin{center}
+% \begin{tikzpicture}[]
+% 	\coordinate (g1) at (-2,0);
+% 	\coordinate (g2) at (0,0);
+% 	\coordinate (g3) at (2,0);
+% 	\draw (g1) pic {groundnode};
+% 	\draw (g2) pic {groundnode};
+% 	\draw (g3) pic {groundnode};
+% 	\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+% 	\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+% 	\node[graphnode] (n3) at ($(g3)+(0,2)$) {};
+% 	\draw[sourcebranch,color=mygreen,very thick] (n1) to[bend right] node[midway,left=7pt,anchor=north east] {$V_s$} (g1);
+% 	\draw[branch,color=mygreen,very thick] (n2) to node[midway,left] {$m_1$} (g2);
+% 	\draw[branch,color=mygreen,very thick] (n3) to[bend right] node[midway,left] {$m_2$} (g3);
+% 	\draw[branch] (n1) to[bend left] node[midway,above] {$k_1$} (n2);
+% 	\draw[branch] (n2) to[bend left] node[midway,above] {$k_2$} (n3);
+% 	\draw[branch] (n2) to[bend right] node[midway,below] {$B_1$} (n3);
+% 	\draw[branch] (n3) to[bend left] node[midway,right] {$B_2$} (g3);
+% \end{tikzpicture}%
+% \end{center}
+% \bigbreak
+% The normal tree is shown on the linear graph.
+% The state variables are $v_{m_1}$, $v_{m_2}$, $f_{k_1}$, and $f_{k_2}$, so the system order is $n = 4$.
+
+% \subsection{State-space model from linear graph}
+
+% 1. The normal tree is shown, below.
+% \begin{center}
+% 	\begin{tikzpicture}[]
+% 		\coordinate (g) at (0,0);
+% 		\draw (g) pic {groundnode};
+% 		\node[graphnode] (n2) at (-2,2) {};
+% 		\node[graphnode] (n3) at (0,2) {};
+% 		\node[graphnode] (n4) at (2,2) {};
+% 		\draw[sourcebranch,color=mygreen,very thick] (n2) to[bend right] node[midway,below=7pt,left=7pt,anchor=north east] {$V_s$} (g);
+% 		\draw[branch,color=mygreen,very thick] (n2) to[bend left] node[midway,above] {$R$} (n3);
+% 		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n4);
+% 		\draw[branch,color=mygreen,very thick] (n4) to[bend left] node[midway,below right] {$C$} (g);
+% 	\end{tikzpicture}%
+% \end{center}
+% The state variables are $v_C$ and $i_L$, so the order $n=2$. The state, input, and output vectors are
+% \begin{align*}
+% 	\bm{x} = \begin{bmatrix}
+% 		v_C \\ i_L
+% 	\end{bmatrix},
+% 	\qquad
+% 	\bm{u} = \begin{bmatrix}
+% 		V_s
+% 	\end{bmatrix},
+% 	\qquad
+% 	\bm{x} = \begin{bmatrix}
+% 		i_R \\ v_C
+% 	\end{bmatrix}.
+% \end{align*}
+
+% 2. The elemental equations are:
+% \begin{align}
+% 	\frac{d v_C}{d t} &= \frac{1}{C} i_C \\
+% 	\frac{d i_L}{d t} &= \frac{1}{L} v_L \\
+% 	v_R &= i_R R.
+% \end{align} 
+% The continuity equations are:
+% \begin{align}
+% 	i_R &= i_L \\
+% 	i_C &= i_L.
+% \end{align}
+% The compatibility equation is:
+% \begin{align}
+% 	v_L &= -v_R + V_s - v_C.
+% \end{align}
+
+% 3. Using the continuity and compatibility equations to eliminate secondary variables from the elemental equations,
+% \begin{align*}
+% 	\frac{d v_C}{d t} &= \frac{1}{C} i_L \\
+% 	\frac{d i_L}{d t} &= \frac{1}{L} (-v_R + V_s - v_C) \\
+% 	v_R &= i_L R.
+% \end{align*} 
+% Using the $R$ elemental equation to eliminate $v_R$,
+% \begin{align*}
+% 	\frac{d v_C}{d t} &= \frac{1}{C} i_L \\
+% 	\frac{d i_L}{d t} &= \frac{1}{L} (-i_L R + V_s - v_C).
+% \end{align*} 
+% Writing in standard form,
+% \begin{align*}
+% 	\frac{d \bm{x}}{d t} &=
+% 	\begin{bmatrix}
+% 		0 & 1/C \\
+% 		-1/L & -R/L
+% 	\end{bmatrix}
+% 	\begin{bmatrix}
+% 		v_C \\ i_L
+% 	\end{bmatrix}
+% 	+
+% 	\begin{bmatrix}
+% 		0 \\
+% 		1/L
+% 	\end{bmatrix}
+% 	\begin{bmatrix}
+% 		V_s
+% 	\end{bmatrix}.
+% \end{align*}
+
+% 4. The outputs can be written in terms of state and input variables as
+% \begin{align*}
+% 	i_R = i_L \qquad v_C = v_C.
+% \end{align*}
+% Writing in standard form,
+% \begin{align*}
+% 	\bm{y} &=
+% 	\begin{bmatrix}
+% 		0 & 1 \\
+% 		1 & 0
+% 	\end{bmatrix}
+% 	\begin{bmatrix}
+% 		v_C \\ i_L
+% 	\end{bmatrix}
+% 	+
+% 	\begin{bmatrix}
+% 		0 \\
+% 		0
+% 	\end{bmatrix}
+% 	\begin{bmatrix}
+% 		V_s
+% 	\end{bmatrix}.
+% \end{align*}
+
+% \end{solutions}
+
+\end{document}

@@ -1,0 +1,965 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+\chapter{Introduction}
+\tags{}
+\label{ch:introduction}
+
+Read \cite{Rowell1997}.
+
+\section{The systems approach}
+\tags{}
+
+Simon Ramo and Richard Booton, Jr.---the folks who brought us the intercontinental ballistic missile (ICBM) (thanks? \ldots I mean thanks. But, thanks?)---defined \keyword{systems engineering} to be
+\tags{}
+
+\begin{quote}
+  the design of the whole as distinguished from the design of the parts. \citep{Ramo1984}
+\end{quote}
+Like the ICBM, many modern technologies require this systems engineering design approach.
+
+A key aspect of the systems engineering design process is the \keyword{mathematical modeling} of the system.
+Most systems of interest to the mechanical engineer are \keyword{dynamic systems}: those that change with time.
+Enter the time-derivative.
+And differential equations.
+\tags{}
+
+Dynamic systems exhibit behavior that can be characterized through analysis and called the system's \keyword[system properties]{properties}.
+A property of a dynamic system might be how long it takes for it to respond to a given input or which types of inputs would cause a damaging response.
+Clearly, such properties are of significant interest to the design process.
+\tags{}
+
+\keyword[system dynamics]{System dynamics} is the study and practice of dynamic system analysis and design.
+We primarily focus on analysis, at first, since it is a prerequisite for design.
+One cannot make a thing do what one wants without first understanding how the thing works.
+\tags{}
+
+This Part of the text focuses on \keyword{electromechanical systems}: systems with an interface between electronics and mechanical subsystems.
+These are ubiquitous: manufacturing plants, power plants, vehicles, robots, consumer products, anything with a motor---all include electromechanical systems.
+In \cref{part:modeling_other_systems}, we will consider more types of systems (e.g.\ fluid and thermal) and their interactions.
+\tags{}
+
+Electromechanical systems analysis can proceed with initially separate modeling of the electronic and mechanical subsystems, then, through an unholy union, combining their equations and attempting a solution.
+This is fine for simple systems.
+However, many systems will require a systematic approach.
+\tags{}
+
+We adopt a systematic approach that draws \keyword{graphs} (\'a la \keyword{graph theory}) for electronic and mechanical systems that are intentionally analogous to electronic circuit diagrams.
+This allows us to use a single graphical diagram to express a system's composition and interconnections.
+Virtually every technique from electronic circuit analysis can be applied to these representations.
+Elemental equations, Kirchhoff's laws, impedance---each will be generalized.
+In \cref{part:modeling_other_systems}, this same graphical and electronic-analog technique will be extended to other energy domains.
+\tags{}
+
+\section{State-determined systems}
+\tags{}
+
+A \keyword{system} is defined to be a collection of objects and their relations contained within a \keyword{boundary}.
+The collection of those objects that are external to the system and yet interact with it is called the \keyword{environment}.
+\keyword[system variables]{System variables} are variables that represent the behavior of the system, both those that are internal to the system and those that are external---that is, with the system's environment.
+\tags{}
+
+There are three important classes of system variable, all typically expressed as vector-valued functions of time $t$, conventionally all expressed as column-vectors (and called ``vectors'' even though they're vector-valued functions \ldots because nothing makes sense and we're all going to die).
+Consider \autoref{fig:system} for the following definitions.
+\keyword[input variables]{Input variables} are system variables that do not depend on the internal dynamics of the system; for a system with $r$ input variables, the ``\keyword{input vector}'' is a vector-valued function $\bm{u}:\mathbb{R}\rightarrow\mathbb{R}^r$.
+The environment prescribes inputs, making them \emph{independent variables}.
+Conversely, \keyword{output variables} are system variables of interest to the designer; for a system with $m$ output variables, the ``\keyword{output vector}'' is a vector-valued function $\bm{y}:\mathbb{R}\rightarrow\mathbb{R}^m$.
+Outputs may or may not directly interact with the environment.
+Finally, a minimal set of variables that define the internal state of the system are defined as the \keyword{state variables}; for a system with $n$ state variables, the ``\keyword{state vector}'' is a vector-valued function $\bm{x}:\mathbb{R}\rightarrow\mathbb{R}^n$.
+\tags{}
+
+\begin{figure}[b]
+	\centering
+	\includegraphics[width=1\linewidth]{figures/system.pdf}
+	\caption{illustration of a system and its environment.}
+	\label{fig:system}
+\end{figure}
+
+We consider a very common class of system: those that are \keyword{state-determined}, which are those for which \citep{Rowell1997}
+\tags{}
+
+\begin{enumerate}
+	\item a mathematical description,
+	\item the state at time $t_0$, called the \keyword{initial condition} $\bm{x}(t)|_{t=t_0}$, and
+	\item the input $\bm{u}$ for all time $t\ge t_0$
+\end{enumerate}
+
+are necessary and sufficient conditions to determine $\bm{x}(t)$ (and therefore $\bm{y}(t)$) for all $t\ge t_0$.
+\tags{}
+
+The ``mathematical description'' of the system requires a set of primitive elements be assigned to represent its internal and external interactions. 
+The equations derive from two key types of mathematical relationships:
+\tags{}
+\begin{enumerate}
+	\item the input-output behavior of each primitive element and
+	\item the topology of interconnections among elements.
+\end{enumerate}
+
+The former generate \keyword{elemental equations} and the latter, \keyword[continuity equations]{continuity} or \keyword{compatibility equations}.
+\tags{}
+\examplemaybe{%
+	a state-determined system
+}{%
+	\begin{minipage}[c]{.52\linewidth}
+    In the RC circuit shown, let $V_s$ be a source and $v_o$ the voltage of interest.
+    Identify
+    \begin{enumerate}
+    	\item the system boundary,
+    	\item the input vector,
+    	\item the output vector,
+    	\item a state vector,
+    	\item an elemental equation,
+    	\item and which equations might be continuity or compatibility equations.
+    \end{enumerate}
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.4\linewidth}
+    \begin{circuitikz}[]
+			\draw
+				(0,0) to[voltage source, v=$V_s$] (0,2)
+				to[R=$R$, i=$i_{R}$] (2,2)
+				to[C=$C$, i=$i_{C}$] (2,0)
+				-- (0,0);
+			\draw
+				(2,2) to[short, -o] (3,2)
+				to[open, v^=$v_o$, -o] (3,0)
+				to[short] (2,0);
+		\end{circuitikz}
+  \end{minipage}
+}{%
+  \begin{enumerate}
+  	\item Everything but $V_s$ and $v_o$.
+  	\item $\bm{u}(t) = \begin{bmatrix} V_s(t) \end{bmatrix}$.
+  	\item $\bm{y}(t) = \begin{bmatrix} v_o(t) \end{bmatrix}$.
+  	\item There is no unique answer, but it turns out the minimimum number of variables that describe the state of an $n$th order system is $n$. $v_C$ is a good choice in this case. So $\bm{x}(t) = \begin{bmatrix} v_C(t) \end{bmatrix}$.
+  	\item For instance, $v_R = i_R R$.
+  	\item Because they deal with the topology and interconnections of the elements, KCL and KVL are the continuity and compatibility equations.
+  \end{enumerate}
+}{%
+ex:state_determined_systems%
+}
+
+\section{Energy, power, and lumping}
+\tags{}
+
+The \keyword{law of energy conservation} states that, for an isolated system, the total energy remains constant.
+Let $\mathcal{E}:\mathbb{R}\rightarrow\mathbb{R}$ be the function of time representing the total energy in a system and $\mathcal{P}:\mathbb{R}\rightarrow\mathbb{R}$ be the function of time representing \keyword{power} into the system, defined as
+\tags{}
+\begin{align}
+	\mathcal{P}(t) = \frac{d \mathcal{E}(t)}{d t}.
+\end{align}
+
+The energy in a system can change if it exchanges energy with its environment.
+We consider this exchange to occur through a finite number of \emph{ports}, each of which can supplies or removes energy (positive or negative power), as in \autoref{fig:system_ports}.
+This is expressed in an equation for power into a port $\mathcal{P}_i$ and $N$ ports as
+\tags{}
+\maybeeq{
+	\begin{align*}
+		\mathcal{P}(t) = \sum_{i=1}^N \mathcal{P}_i(t).
+	\end{align*}
+}
+We construct our systems such that they have no internal energy sources.
+
+\subsection{Lumping}
+\tags{}
+
+We have assumed power enters a system via a finite number of ports.
+Similarly, we assume the energy \emph{in} a system is stored in a finite number $M$ of distinct elements with energy $\mathcal{E}_i$ such that
+\tags{}
+\begin{align}
+	\mathcal{E}(t) = \sum_{i=1}^M \mathcal{E}_i(t).
+\end{align}
+
+We call these elements \keyword{energy storage elements}. Energy can also be dissipated from the system via certain elements called \keyword{energy dissipative elements}.
+\tags{B, D}
+
+\begin{figure}[bt]
+	\centering
+	\includegraphics[width=.7\linewidth]{figures/system_ports.pdf}
+	\caption{system ports}
+	\label{fig:system_ports}
+\end{figure}
+
+Considering a system to have a finite number of elements, as we have done, requires a specific kind of \keyword{abstraction} from real systems.
+A familiar example is the ``point mass'' of elementary mechanics.
+We say it interacts with its environment via specific connections called ports (maybe it's attached to a spring element) and behaves a certain way in these interactions (for a mass element, Newton's second law).
+We do not often encounter an object that behaves as if it has mass, but no volume.
+Yet, this is a useful abstraction for many problems.
+\tags{}
+
+When we abstract like this, considering an object to be described fully as a discrete object with interaction ports, we are said to be \keyword{lumped-parameter modeling}.
+This is often contrasted with \keyword[distributed modeling]{distributed} or \keyword[continuous modeling]{continuous modeling}, which consider the element in greater detail.
+For instance, an object might be considered to be distributed through space and perhaps be flexible or behave as a fluid.
+\tags{}
+
+It is lumped-\emph{parameter} modeling because we typically define a parameter that governs the behavior of the element, such as resistance or mass. This parameter will enter the system's dynamics via an \keyword{elemental equation} such as Ohm's Law in the case of a resistor or Newton's Second Law in the case of a mass.
+\tags{R, D}
+
+Determining if lumped-parameter modeling is proper for a given system is dependent on the type of insight one wants to achieve about the system.
+The system itself does not prescribe the proper modeling technique, but the desired understanding does.
+Every system is incredibly complex in its behavior, if one considers it at a fine-granularity.
+In this light, it is striking that simple models work \emph{at all}.
+Nevertheless, lumping is highly effective for many analyses.
+\tags{}
+
+It is important to note that lumped-parameter models can be applied at different levels of granularity for the same system.
+\keyword[finite element modeling]{Finite element modeling} can use a large number of small lumped-parameter model elements to approximate a continuous model.
+Such applications are beyond the scope of this course.
+\tags{}
+
+\section{Mechanical translational elements}
+\tags{}
+
+We now introduce a few lumped-parameter elements for mechanical systems in translational (i.e.\ straight-line) motion.
+Newton's laws of motion can be applied.
+Let a \keyword{force} $f$ and \keyword{velocity} $v$ be input to a port in a mechanical translational element.
+Since, for mechanical systems, the power into the element is 
+\tags{f, v, S}
+
+\begin{align}
+	\mathcal{P}(t) &= f(t) v(t)
+\end{align}
+
+we call $f$ and $v$ the \keyword{power-flow variables} for mechanical translational systems.
+Some mechanical translational elements have two distinct locations between which its velocity is defined (e.g.\ the velocity across a spring's two ends) and other elements have just one (e.g.\ a point-mass), the velocity of which must have an inertial frame of reference.
+This is analogous to how a point in a circuit can be said to have a voltage---by which we mean ``relative to ground.''
+In fact, we call this mechanical translational inertial reference \keyword{ground}.
+\tags{f, v, S}
+
+\keyword[work]{Work} done on the system over the time interval $[0,T]$ is defined as
+\begin{align}
+	W \equiv \int_0^T \mathcal{P}(\tau) d\tau.
+\end{align}
+Therefore, the work done on a mechanical system is 
+\begin{align}
+	W = \int_0^T f(\tau) v(\tau) d\tau.
+\end{align}
+
+The \keyword{linear displacement} $x$ is
+\begin{align}
+	x(t) = \int_0^t v(\tau) d\tau + x(0).
+\end{align}
+Similarly, the \keyword{linear momentum} is
+\begin{align}
+	p(t) = \int_0^t f(\tau) d\tau + p(0).
+\end{align}
+
+We now consider two elements that can store energy, called \keyword{energy storage elements}; an element that can dissipate energy to a system's environment, called an \keyword[energy dissipative elements]{energy dissipative element}; and two elements that can supply power from outside a system, called \keyword{source elements}.
+\tags{B, D}
+
+\subsection{Translational springs}
+\tags{}
+
+A \keyword{translational spring} is defined as an element for which the displacement $x$ across it is a monotonic function of the force $f$ through it.
+A \keyword{linear translational spring} is a spring for which Hooke's law applies; that is, for which
+\tags{f, S}
+
+\begin{align}
+\label{eq:hooke}
+	f(t) = k x(t),
+\end{align}
+
+where $f$ is the force through the spring and $x$ is the displacement across the spring, minus its unstretched length, and $k$ is called the \keyword{spring constant} and is typically a function of the material properties and geometry of the element.
+This is called the element's \keyword{constitutive equation} because it constitutes what it means to be a spring.
+\tags{f, S, k, T}
+
+% \tikzstyle{spring}= % don't know why I have to repeat this from mybook.sty!
+%   [
+%     % double,
+%     thick,
+%     decorate,
+%     decoration={coil,pre length=0.5cm,post length=0.5cm,segment length=6,amplitude=6}
+%   ]
+
+\begin{wrapfigure}[8]{r}{0.3\textwidth}
+  \centering
+	\begin{tikzpicture}
+		\draw[spring] (0,0) -- node[above=.2] {$k$} (2,0);
+		\draw[->] (0,0) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_1$};
+		\draw[->] (2,0) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_2$};
+		\draw[->] (0,0) -- ++(-.5,0)
+		node[left] {$f$};
+		\draw[->] (2,0) -- ++(.5,0)
+		node[right] {$f$};
+		\draw[fill=white] (0,0) circle (2pt);
+		\draw[fill=white] (2,0) circle (2pt);
+	\end{tikzpicture}
+  \caption{\label{fig:spring} schematic symbol for a spring with spring constant $k$ and velocity drop $v = v_1 - v_2$.}%
+\end{wrapfigure}
+
+Although there are many examples of nonlinear springs, we can often use a linear model for analysis in some operating regime.
+The \keyword{elemental equation} for a linear spring can be found by time-differentiating \autoref{eq:hooke} to obtain
+\tags{}
+
+\maybeeq{
+\begin{align*}
+	\frac{d f}{d t} = k v.
+\end{align*}
+}
+
+We call this the elemental equation because it relates the element's power-flow variables $f$ and $v$.
+\tags{f, v, S}
+
+A spring stores energy as elastic potential energy, making it an \emph{energy storage element}.
+The amount of energy it stores depends on the force it applies.
+For a linear spring,
+\tags{}
+
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2 k} f(t)^2.
+\end{align}
+
+\subsection{Point-masses}
+\tags{}
+
+A non-relativistic translational point-mass element with mass $m$, velocity $v$ (relative to an inertial reference frame), and momentum $p$ has the constitutive equation
+\tags{v, S, M, A}
+\begin{align}
+	p = m v.
+\end{align}
+\begin{wrapfigure}[8]{r}{0.35\textwidth}
+  \centering
+	\begin{tikzpicture}
+		\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m) at (0,0) {$m$};
+		\node[groundmech,minimum height=1cm] (g) at (-1.5,0) {};
+		\draw (g.south east) -- (g.north east);
+		\draw[->] (g.north east) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_2$};
+		\draw[->] (m.north east) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_1$};
+		\draw[->] (m.east) -- ++(.5,0)
+		node[right] {$f$};
+		% \draw[fill=white] (0,0) circle (2pt);
+		% \draw[fill=white] (2,0) circle (2pt);
+	\end{tikzpicture}
+  \caption{\label{fig:mass} schematic symbol for a point-mass with mass $m$ and velocity drop $v = v_1 - v_2$, where $v_2$ is the constant reference velocity.}%
+\end{wrapfigure}
+Once again, time-differentiating the constitutive equation gives us the elemental equation:
+\maybeeq{
+	\begin{align*}
+		\frac{d v}{d t} = \frac{1}{m} f,
+	\end{align*}
+}
+\noindent which is just Newton's second law.
+
+Point-masses can store energy (making them \emph{energy storage elements}) in gravitational potential energy or, as will be much more useful in our analyses, in kinetic energy
+\tags{M, A}
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2} m v^2.
+\end{align}
+
+\subsection{Dampers}
+\tags{B, D}
+
+% \tikzstyle{damper}= % don't know why I have to repeat this from mybook.sty!
+%   [
+%     thick,
+%     decoration=
+%       {
+%         markings,
+%         mark connection node=dmp,
+%         mark=at position 0.5 with
+%         {
+%           \node (dmp) [thick,inner sep=0pt,transform shape,rotate=-90,minimum width=15pt,minimum height=3pt,draw=none] {};
+%           \draw [thick] ($(dmp.north east)+(2pt,0)$) -- (dmp.south east) -- (dmp.south west) -- ($(dmp.north west)+(2pt,0)$);
+%           \draw [thick] ($(dmp.north)+(0,-5pt)$) -- ($(dmp.north)+(0,5pt)$);
+%         }
+%       },
+%     decorate
+%   ]
+
+\begin{wrapfigure}[10]{r}{0.3\textwidth}
+  \centering
+	\begin{tikzpicture}
+		\draw[damper] (0,0) -- node[above=.3] {$B$} (2,0);
+		\draw[->] (0,0) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_1$};
+		\draw[->] (2,0) -- ++(0,.75)
+		-- ++(.3,0)
+		node[above] {$v_2$};
+		\draw[->] (0,0) -- ++(-.5,0)
+		node[left] {$f$};
+		\draw[->] (2,0) -- ++(.5,0)
+		node[right] {$f$};
+		\draw[fill=white] (0,0) circle (2pt);
+		\draw[fill=white] (2,0) circle (2pt);
+	\end{tikzpicture}
+  \caption{\label{fig:damper} schematic symbol for a damper with damping coefficient $B$ and velocity drop $v = v_1 - v_2$.}%
+\end{wrapfigure}
+
+\keyword[dampers]{Dampers} are defined as elements for which the force $f$ through the element is a monotonic function of the velocity $v$ across it.
+\keyword[linear dampers]{Linear dampers} have constitutive equation (and, it turns out, elemental equation)
+\tags{v, f}
+
+\begin{align}
+	f = B v
+\end{align}
+
+where $B$ is called the \keyword{damping coefficient}.
+Linear damping is often called \keyword{viscous damping} because systems that push viscous fluid through small orifices or those that have lubricated sliding are well-approximated by this equation.
+For this reason, a damper is typically schematically depicted as a \keyword{dashpot}.
+\tags{}
+
+Linear damping is a reasonable approximation of lubricated sliding, but it is rather poor for \keyword{dry friction} or \keyword{Coulomb friction}, forces for which are not very velocity-dependent.
+Aerodynamic \keyword{drag} is quite velocity-dependent, but is rather nonlinear, often represented as
+\tags{v, S}
+\maybeeq{
+	\begin{align*}
+		f = c |v| v
+	\end{align*}
+}
+\noindent where $c$ is called the drag constant.
+
+Dampers dissipate energy from the system (typically to heat), making them \emph{energy dissipative elements}.
+\tags{}
+
+\subsection{Force and velocity sources}
+\tags{S}
+%TODO add figures
+
+An \keyword{ideal force source} is an element that provides arbitrary energy to a system via an independent (of the system) force.
+The corresponding velocity across the element depends on the system.
+\tags{f, v}
+
+An \keyword{ideal velocity source} is an element that provides arbitrary energy to a system via an independent (of the system) velocity.
+The corresponding force through the element depends on the system.
+\tags{v}
+
+
+\section{Mechanical rotational elements}
+\tags{}
+
+We now introduce a few lumped-parameter elements for mechanical systems in rotational motion.
+Newton's laws of motion, in their angular analogs, can be applied.
+Let a \keyword{torque} $T$ and \keyword{angular velocity} $\Omega$ be input to a port in a mechanical rotational element.
+Since, for mechanical rotational systems, the power into the element is 
+\tags{TO, OM, S}
+
+\begin{align}
+	\mathcal{P}(t) &= T(t) \Omega(t)
+\end{align}
+
+we call $T$ and $\Omega$ the \keyword{power-flow variables} for mechanical rotational systems.
+Some mechanical rotational elements have two distinct locations between which its angular velocity is defined (e.g.\ the angular velocity across a spring's two ends) and other elements have just one (e.g.\ a rotational inertia), the velocity of which must have an inertial frame of reference.
+This is analogous to how a point in a circuit can be said to have a voltage---by which we mean ``relative to ground.''
+In fact, we call this mechanical rotational inertial reference \keyword{ground}.
+\tags{V, v, S}
+
+\keyword[work]{Work} done on the system over the time interval $[0,t_f]$ is defined as
+\begin{align}
+	W \equiv \int_0^{t_f} \mathcal{P}(\tau) d\tau.
+\end{align}
+Therefore, the work done on a mechanical system is 
+\begin{align}
+	W = \int_0^{t_f} T(\tau) \Omega(\tau) d\tau.
+\end{align}
+
+The \keyword{angular displacement} $\theta$ is
+\begin{align}
+	\theta(t) = \int_0^t \Omega(\tau) d\tau + \theta(0).
+\end{align}
+Similarly, the \keyword{angular momentum} is
+\begin{align}
+	h(t) = \int_0^t T(\tau) d\tau + h(0).
+\end{align}
+
+We now consider two elements that can store energy, called \keyword{energy storage elements}; an element that can dissipate energy to a system's environment, called an \keyword[energy dissipative elements]{energy dissipative element}; and two elements that can supply power from outside a system, called \keyword{source elements}.
+\tags{J, k, T, A}
+
+\subsection{Rotational springs}
+\tags{k, T}
+
+A \keyword{rotational spring} is defined as an element for which the angular displacement $\theta$ across it is a monotonic function of the torque $T$ through it.
+A \keyword{linear rotational spring} is a rotational spring for which the angular form of Hooke's law applies; that is, for which
+\tags{}
+
+\begin{align}
+	\label{eq:hooke2}
+	T(t) = k \theta(t),
+\end{align}
+
+where $T$ is the torque through the spring and $\theta$ is the angular displacement across the spring and $k$ is called the \keyword{torsional spring constant} and is typically a function of the material properties and geometry of the element.
+This is called the element's \keyword{constitutive equation} because it constitutes what it means to be a rotational spring.
+\tags{TO}
+
+\begin{wrapfigure}[5]{r}{0.4\textwidth}
+  \centering
+	\begin{tikzpicture}[every node/.style={inner sep=0,outer sep=0}]
+		\draw[spring] (0,0) -- node[above=.3] {$k$} (2,0);
+		\node (w1) at (0,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w1.north) {$\Omega_1$};
+		\draw[->,thick,color=violet] ($(w1.west)-(.5,0)$) coordinate (lefty) -- (w1.west);
+		\node[left=.07] at (lefty) {$T$};
+		\node (w2) at (2,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w2.north) {$\Omega_2$};
+		\draw[->,thick,color=violet] ($(w2.east)+(.5,0)$) coordinate (righty) -- (w2.east);
+		\node[right=.07] at (righty) {$T$};
+	\end{tikzpicture}
+  \caption{\label{fig:spring} schematic symbol for a spring with spring constant $k$ and angular velocity drop $\Omega = \Omega_1 - \Omega_2$.}%
+\end{wrapfigure}
+
+Although there are many examples of nonlinear springs, we can often use a linear model for analysis in some operating regime.
+The \keyword{elemental equation} for a linear spring can be found by time-differentiating \autoref{eq:hooke2} to obtain
+\tags{}
+
+\maybeeq{
+\begin{align*}
+	\frac{d T}{d t} = k \Omega.
+\end{align*}
+}
+
+We call this the elemental equation because it relates the element's power-flow variables $T$ and $\Omega$.
+\tags{TO, OM, S}
+
+A rotational spring stores energy as elastic potential energy, making it an \emph{energy storage element}.
+The amount of energy it stores depends on the torque it applies.
+For a linear rotational spring,
+\tags{k, TO, S, T}
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2 k} T(t)^2.
+\end{align}
+
+\subsection{Moments of inertia}
+\tags{}
+
+A \keyword{moment of inertia} element with moment of inertia $J$, angular velocity $\Omega$ (relative to an inertial reference frame), and angular momentum $h$ has the constitutive equation
+\tags{J, OM, A, S}
+\begin{align}
+	h = J\Omega.
+\end{align}
+\begin{wrapfigure}[5]{r}{0.35\textwidth}
+  \centering
+	\begin{tikzpicture}[every node/.style={inner sep=0,outer sep=0}]
+		\node[rectangle,draw,minimum width=1cm,minimum height=1.5cm] (J1) at (1,0) {$J$};
+		\node (w1) at (0,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w1.north) {$\Omega_2$};
+		\node[left=.07] at (w1.west) {ref};
+		\node[anchor=west] (w2) at (J1.east) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w2.north) {$\Omega_1$};
+		\draw[->,thick,color=violet] ($(w2.east)+(.5,0)$) coordinate (righty) -- (w2.east);
+		\node[right=.07] at (righty) {$T$};
+	\end{tikzpicture}
+  \caption{\label{fig:mass} schematic symbol for a moment of inertia with inertia $J$ and velocity drop $\Omega = \Omega_1 - \Omega_2$, where $\Omega_2$ is a constant reference velocity.}%
+\end{wrapfigure}
+Once again, time-differentiating the constitutive equation gives us the elemental equation:
+\maybeeq{
+	\begin{align*}
+		\frac{d \Omega}{d t} = \frac{1}{J} T,
+	\end{align*}
+}
+\noindent which is just the angular version of Newton's second law.
+
+Any rotating element with mass can be considered as a lumped-inertia element.
+The \keyword{flywheel} is the quintessential example.
+Flywheels store energy in their angular momentum, with the expression
+\tags{J, A}
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2} J \Omega^2,
+\end{align}
+making them (and all moments of inertia) \emph{energy storage elements}.
+
+\subsection{Rotational dampers}
+\tags{B, D}
+
+\begin{wrapfigure}[13]{r}{0.4\textwidth}
+  \centering
+	\begin{tikzpicture}[every node/.style={inner sep=0,outer sep=0}]
+		\draw[dragcup] (0,0) -- node[above=.4] {$B$} (2,0);
+		\node (w1) at (0,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w1.north) {$\Omega_1$};
+		\draw[->,thick,color=violet] ($(w1.west)-(.5,0)$) coordinate (lefty) -- (w1.west);
+		\node[left=.07] at (lefty) {$T$};
+		\node (w2) at (2,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w2.north) {$\Omega_2$};
+		\draw[->,thick,color=violet] ($(w2.east)+(.5,0)$) coordinate (righty) -- (w2.east);
+		\node[right=.07] at (righty) {$T$};
+	\end{tikzpicture} \\ \vspace{1\baselineskip}
+	\begin{tikzpicture}[every node/.style={inner sep=0,outer sep=0}]
+		\draw[bearing] (0,0) -- node[above=.4] {$B$} (2,0);
+		\node (w1) at (0,0) {\AxisRotator[->,rotate=0,mygreen]};
+		\node[above] at (w1.north) {$\Omega$};
+		\draw[->,thick,color=violet] ($(w1.west)-(.5,0)$) coordinate (lefty) -- (w1.west);
+		\node[left=.07] at (lefty) {$T$};
+		\node (w2) at (2,0) {\AxisRotator[->,rotate=0,white]};
+		% \node[above] at (w2.north) {$\Omega_2$};
+		\draw[->,thick,color=violet] ($(w2.east)+(.5,0)$) coordinate (righty) -- (w2.east);
+		\node[right=.07] at (righty) {$T$};
+	\end{tikzpicture}
+  \caption{\label{fig:dragcup} schematic symbol for a drag cup (above) and bearing (below) with damping coefficient $B$. For the drag cup, the angular velocity drop is $\Omega = \Omega_1 - \Omega_2$ and for the bearing, $\Omega$ is reference is ground.}%
+\end{wrapfigure}
+
+\keyword[rotational dampers]{Rotational dampers} are defined as elements for which the torque $T$ through the element is a monotonic function of the angular velocity $\Omega$ across it.
+\keyword[linear rotational dampers]{Linear rotational dampers} have constitutive equation (and, it turns out, elemental equation)
+\begin{align}
+	T = B \Omega
+\end{align}
+where $B$ is called the \keyword{torsional damping coefficient}.
+Linear torsional damping is often called \keyword{torsional viscous damping} because systems that push viscous fluid through small orifices or those that have lubricated bearings are well-approximated by this equation.
+For this reason, a damper is typically schematically depicted as a \keyword{drag cup} or as a \keyword{bearing}, both of which are shown in \autoref{fig:dragcup}.
+\tags{}
+
+Linear damping is a reasonable approximation of lubricated sliding, but it is rather poor for \keyword{dry friction} or \keyword{Coulomb friction}, forces for which are not very velocity-dependent.
+\tags{OM, S}
+
+Rotational dampers dissipate energy from the system (typically to heat), making them \emph{energy dissipative elements}.
+\tags{}
+
+\subsection{Torque and angular velocity sources}
+\tags{S}
+%TODO add figures
+
+An \keyword{ideal torque source} is an element that provides arbitrary energy to a system via an independent (of the system) torque.
+The corresponding angular velocity across the element depends on the system.
+\tags{TO, OM}
+
+An \keyword{ideal angular velocity source} is an element that provides arbitrary energy to a system via an independent (of the system) angular velocity.
+The corresponding torque through the element depends on the system.
+\tags{OM, TO}
+
+\section{Electronic elements}
+\tags{}
+
+We now review a few lumped-parameter elements for electronic systems.
+Let a \keyword{current} $i$ and \keyword{voltage} $v$ be input to a port in an electronic element.
+Since, for electronic system, the power into the element is
+\begin{align}
+	P(t) = i(t) v(t)
+\end{align}
+we call $i$ and $v$ the \keyword{power-flow variables}.
+Voltage is always understood to be between two points in a circuit.
+If only one point is included, the voltage is implicitly relative to a reference voltage, called \keyword{ground}.
+\tags{V, I}
+
+The \keyword{magnetic flux linkage} $\lambda$ is 
+\begin{align}
+	\lambda(t) = \int_0^t v(\tau) d\tau + \lambda{(0)}.
+\end{align}
+Similarly, the \keyword{charge} is
+\begin{align}
+	q(t) = \int_0^t i(\tau) d\tau + q(0).
+\end{align}
+
+We now consider two elements that can store energy, called \keyword{energy storage elements}; an element that can dissipate energy to a system's environment, called an \keyword{energy dissipative element}; and two elements that can supply power from outside a system, called \keyword{source elements}.
+\tags{}
+
+\subsection{Capacitors}
+\tags{C, A}
+
+Capacitors have two terminal and are composed of two conductive surfaces separated by some distance.
+One surface has charge $q$ and the other $-q$.
+A capacitor stores energy in an \emph{electric field} between the surfaces.
+\tags{}
+
+Let a capacitor with voltage $v$ across it and charge $q$ be characterized by the parameter \keyword{capacitance} $C$, where the constitutive equation is
+\tags{V, S}
+\begin{align}
+  q = C v.
+\end{align}
+
+The capacitance has derived SI unit \keyword[farad (F)]{farad (\emph{F})}, where $\text{F} = \text{A}\cdot\text{s}/\text{V}$.
+A farad is actually quite a lot of capacitance.
+Most capacitors have capacitances best represented in $\mu\text{F}$, nF, and pF.
+\tags{C, A}
+
+The time-derivative of this equation yields the $v$-$i$ relationship (what we call the ``elemental equation'') for capacitors.
+\tags{V, I, S}
+\begin{align}
+  \frac{d v}{d t} = \frac{1}{C}\, i
+\end{align}
+% Resistors have only algebraic $i$-$v$ relationships, so circuits with only sources and resistors can be described by \emph{algebraic} relationships.
+% The dynamics of circuits with capacitors are described with \emph{differential equations}.
+
+\begin{figure}[b]%
+  \centering
+  \subbottom[\label{fig:bipolar_capacitor} bipolar capacitor.]{%
+    \begin{circuitikz}[]
+      \draw
+        (0,0) to[C=$C$] (2,0);
+    \end{circuitikz}
+  }%
+  \qquad
+  \subbottom[\label{fig:polarized_capacitor} polarized capacitor]{%
+    \begin{circuitikz}[]
+      \draw
+        (2,0) to[pC, l_=$C$, v>=$ $] (0,0);
+    \end{circuitikz}
+  }
+  \caption{capacitor circuit diagram symbols.}%
+  \label{fig:capacitors}%
+\end{figure}
+
+Capacitors allow us to build many new types of circuits: filtering, energy storage, resonant, blocking (blocks dc-component), and bypassing (draws ac-component to ground).
+\tags{A}
+
+Capacitors come in a number of varieties, with those with the largest capacity (and least expensive) being \keyword[electrolytic capacitor]{electrolytic} and most common being \keyword[ceramic capacitor]{ceramic}. There are two functional varieties of capacitors: \keyword[bipolar capacitor]{bipolar} and \keyword[polarized capacitor]{polarized}, with circuit diagram symbols shown in \autoref{fig:capacitors}.
+Polarized capacitors can have voltage drop across in only one direction, from \keyword{anode} ($+$) to \keyword{cathode} ($-$)---otherwise they are damaged or may \keyword[explosion]{explode}.
+Electrolytic capacitors are polarized and ceramic capacitors are bipolar.
+\tags{A}
+
+So what if you need a high-capacitance bipolar capacitor?
+Here's a trick: place identical high-capacity polarized capacitors \keyword{cathode-to-cathode}.
+What results is effectively a bipolar capacitor with capacitance \emph{half} that of one of the polarized capacitors.
+\tags{}
+
+\subsection{Inductors}
+\tags{L, T}
+
+\begin{wrapfigure}{R}{0.3\textwidth}
+  \centering
+  \begin{circuitikz}[]
+    \draw
+      (0,0) to[L=$L$] (2,0);
+  \end{circuitikz}
+  \caption{\label{fig:inductor} inductor circuit diagram symbol.}%
+\end{wrapfigure}
+
+A \keyword{pure inductor} is defined as an element in which \keyword{flux linkage $\lambda$}---the integral of the voltage---across the inductor is a monotonic function of the current $i$.
+An \keyword{ideal inductor} is such that this monotonic function is linear, with slope called the \keyword{inductance $L$}; i.e.\ the ideal constitutive equation is
+\tags{I, V, S}
+\begin{align}
+  \lambda = L i
+\end{align}
+
+The units of inductance are the SI derived unit \keyword[henry (H)]{henry (\emph{H})}.
+Most inductors have inductance best represented in mH or $\mu\text{H}$.
+\tags{}
+
+The elemental equation for an inductor is found by taking the time-derivative of the constitutive equation.
+\tags{}
+\begin{align}
+  \frac{d i}{d t} = \frac{1}{L} v
+\end{align}
+
+Inductors store energy in a \emph{magnetic field}.
+It is important to notice how inductors are, in a sense, the \emph{opposite} of capacitors.
+A capacitor's current is proportional to the time rate of change of its voltage.
+An inductor's voltage is proportional to the time rate of change of its current.
+\tags{C, I, V, A, S}
+
+Inductors are usually made of wire coiled into a number of turns.
+The geometry of the coil determines its inductance $L$.
+\tags{}
+
+Often, a \keyword{core} material---such as iron and ferrite---is included by wrapping the wire around the core.
+This increases the inductance $L$.
+\tags{}
+
+Inductors are used extensively in radio-frequency (rf) circuits, which we won't discuss in this text.
+However, they play important roles in ac-dc conversion, filtering, and transformers---all of which we will consider extensively.
+\tags{}
+
+The circuit diagram for an inductor is shown in \autoref{fig:inductor}.
+\tags{}
+
+\subsection{Resistors}
+\tags{R, D}
+
+\begin{wrapfigure}{R}{0.3\textwidth}
+  \centering
+  \begin{circuitikz}[]
+    \draw
+      (0,0) to[R=$R$] (2,0);
+  \end{circuitikz}
+  \caption{\label{fig:resistor} resistor circuit diagram symbol.}%
+\end{wrapfigure}
+
+Resistors \emph{dissipate} energy from the system, converting electrical energy to thermal energy (heat).
+The \keyword{constitutive equation} for an ideal resistor is
+\begin{align}
+	v = i R.
+\end{align}
+
+This is already in terms of power variables, so it is also the \keyword{elemental equation}.
+\tags{}
+
+\subsection{Sources}
+\tags{S}
+Sources (a.k.a.\ supplies) supply power to a circuit. There are two primary types: \emph{voltage sources} and \emph{current sources}.
+\tags{V, I}
+
+\subsubsection{Ideal voltage sources}
+\tags{V}
+
+An ideal voltage source provides exactly the voltage a user specifies, independent of the circuit to which it is connected.
+All it must do in order to achieve this is to supply whatever current necessary.
+\tags{V, I}
+
+\subsubsection{Ideal current sources}
+\tags{I}
+
+An ideal current source provides exactly the current a user specifies, independent of the circuit to which it is connected.
+All it must do in order to achieve this is to supply whatever voltage necessary.
+\tags{}
+
+\subsubsection{Modeling real sources}
+\tags{}
+
+No real source can produce infinite power.
+Some have feedback that controls the output within some finite power range.
+These types of sources can be approximated as ideal when operating within its specifications.
+Many voltage sources (e.g.\ batteries) do not have internal feedback controlling the voltage.
+When these sources are ``loaded'' (delivering power) they cannot maintain their nominal output, be that voltage or current.
+We model these types of sources as ideal sources in series or parallel with a resistor, as illustrated in \autoref{fig:real_sources}.
+\tags{V, I, R, D}
+
+\begin{figure}[b]%
+  \centering
+  \subbottom[\label{fig:voltage_source_real} real voltage source model.]{%
+    \includegraphics{figures/voltage_source_real.pdf}
+  }%
+  \qquad
+  \subbottom[\label{fig:voltage_source_real} real current source model.]{%
+    \includegraphics{figures/current_source_real.pdf}
+  }
+  \caption{Models for power-limited ``real'' sources.}%
+  \label{fig:real_sources}%
+\end{figure}
+
+Most manufacturers specify the nominal resistance of a source as the ``output resistance.''
+A typical value is $50\ \Omega$.
+\tags{R, D}
+
+\section{Generalized through- and across-variables}
+\tags{}
+%TODO combine with next lecture
+
+We have considered mechanical translational, mechanical rotational, and electronic systems---which we refer to as different \keyword{energy domains}.
+There are analogies among these systems that allow for generalizations of certain aspects of these systems.
+These generalizations will allow us to use a single framework for unifying the analysis of these (and other) dynamic systems.
+\tags{}
+
+There are two important classes of variables common to lumped-parameter dynamic systems: \emph{across-variables} and \emph{through-variables}.
+\tags{}
+
+An \keyword{across-variable} is one that makes reference to two nodes of a system element.
+For instance, the following are across-variables:
+\tags{}
+
+\begin{itemize}
+	\item \mayb{voltage $v$,}
+	\item \mayb{velocity $v$, and}
+	\item \mayb{angular velocity $\Omega$.}
+\end{itemize}
+We denote a \keyword{generalized across-variable} as $\mathcal{V}$.
+
+A \keyword{through-variable} is one that represents a quantity that passes through a system element.
+For instance, the following are through-variables:
+\tags{}
+\begin{itemize}
+	\item \mayb{current $i$,}
+	\item \mayb{force $f$, and}
+	\item \mayb{torque $T$.}
+\end{itemize}
+We denote a \keyword{generalized through-variable} as $\mathcal{F}$.
+
+The \keyword{generalized integrated across-variable} $\mathcal{X}$ is
+\begin{align}
+	\mathcal{X} = \int_0^t \mathcal{V}(\tau) d\tau + \mathcal{X}(0).
+\end{align}
+
+The \keyword{generalized integrated through-variable} $\mathcal{H}$ is
+\begin{align}
+	\mathcal{H} = \int_0^t \mathcal{F}(\tau) d\tau + \mathcal{H}(0).
+\end{align}
+
+For mechanical and electronic systems, power $\mathcal{P}$ passing through a lumped-parameter element is 
+\begin{align}
+	\mathcal{P}(t) = \mathcal{F}(t) \mathcal{V}(t).
+\end{align}
+
+These generalized across- and through-variables are sometimes used in analysis.
+However, the key idea here is that there are two classes of power-flow variables: across and through.
+These two classes allow us to strengthen the sense in which we consider different dynamic systems to be analogous.
+\tags{}
+
+\section{Generalized one-port elements}
+\tags{}
+
+We can categorize the behavior of one-port elements---electronic, mechanical translational, and mechanical rotational---considered thus far.
+In the following sections, we consider two types of energy storage elements, dissipative elements, and source elements.
+\tags{}
+
+\subsection{A-type energy storage elements}
+\tags{A}
+
+An element that stores energy as a function of its across-variable is called an \keyword{A-type energy storage element}.
+Sometimes we call it a \keyword{generalized capacitor} because a capacitor is an A-type energy storage element.
+\tags{C}
+
+For generalized through-variable $\mathcal{F}$, across-variable $\mathcal{V}$, integrated through-variable $\mathcal{H}$, and integrated across-variable $X$ the ideal, linear constitutive equation is
+\begin{align}\label{eq:generalized_con_A}
+	\mathcal{H} = C \mathcal{V}
+\end{align}
+for $C\in\mathbb{R}$ called the \keyword[generalized capacitance $C$]{generalized capacitance}.
+Differentiating \autoref{eq:generalized_con_A} with respect to time, the elemental equation is
+\maybeeq{
+\begin{align*}
+	\frac{d \mathcal{V}}{d t} = \frac{1}{C} \mathcal{F}.
+\end{align*}
+}
+
+A-type energy storage elements considered thus far are \keyword{capacitors}, \keyword[masses]{translational masses}, and \keyword[rotational inertia]{rotational moments of inertia}.
+As with generalized variables, the analogs among elements are more important than are generalized A-type energy storage elements.
+\tags{C}
+
+\subsection{T-type energy storage elements}
+\tags{T}
+
+An element that stores energy as a function of its through-variable is called a \keyword{T-type energy storage element}.
+Sometimes we call it a \keyword{generalized inductor} because an inductor is a T-type energy storage element.
+\tags{L}
+
+The ideal, linear constitutive equation is
+\begin{align}\label{eq:generalized_con_T}
+	\mathcal{X} = L \mathcal{F}
+\end{align}
+for $L\in\mathbb{R}$ called the \keyword[generalized inductance $L$]{generalized inductance}.
+Differentiating \autoref{eq:generalized_con_T} with respect to time, the elemental equation is
+\tags{L}
+\maybeeq{
+\begin{align*}
+	\frac{d \mathcal{F}}{d t} = \frac{1}{L} \mathcal{V}.
+\end{align*}
+}
+
+T-type energy storage elements considered thus far are \keyword{inductors}, \keyword[translational springs]{translational springs}, and \keyword[rotational springs]{rotational springs}.
+As with generalized variables, the analogs among elements are more important than are generalized T-type energy storage elements.
+\tags{L, k}
+
+\subsection{D-type energy dissipative elements}
+\tags{D}
+
+An element that dissipates energy from the system and has an algebraic relationship between its through-variable and its across-variable is called a \keyword{D-type energy dissipative element}.
+Sometimes we call it a \keyword{generalized resistor} because a resistor is a D-type energy dissipative element.
+\tags{R, B}
+
+The ideal, linear constitutive and elemental equation is
+\begin{align}\label{eq:generalized_con_D}
+	\mathcal{V} = R \mathcal{F}
+\end{align}
+for $R\in\mathbb{R}$ called the \keyword[generalized resistance $R$]{generalized resistance}.
+
+D-type energy dissipative elements considered thus far are \keyword{resistors}, \keyword[translational dampers]{translational dampers}, and \keyword[rotational dampers]{rotational dampers}.
+As with generalized variables, the analogs among elements are more important than are generalized D-type energy dissipative elements.
+\tags{R, B}
+
+\subsection{Sources}
+\tags{S}
+
+An \keyword{ideal through-variable source} is an element that provides arbitrary energy to a system via an independent (of the system) through-variable.
+The corresponding across-variable depends on the system.
+Current, force, and torque sources are the through-variable sources considered thus far.
+\tags{I, f, TO}
+
+An \keyword{ideal across-variable source} is an element that provides arbitrary energy to a system via an independent (of the system) across-variable.
+The corresponding through-variable depends on the system.
+Voltage, translational velocity, and angular velocity are the across-variable sources considered thus far.
+\tags{V, v, OM}
+
+\end{document}

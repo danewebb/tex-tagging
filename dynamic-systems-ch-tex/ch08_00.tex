@@ -1,0 +1,831 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+
+\chapter[Fluid and thermal systems]{Lumped-parameter modeling fluid and thermal systems}
+\tags{}
+
+We now consider the \keyword{lumped-parameter modeling} of \keyword{fluid systems} and \keyword{thermal systems}.
+The linear graph-based, state-space modeling techniques of \cref{ch:linear_graph_models,ch:state_space_models,ch:electromechanical_systems} are called back up to service for this purpose.
+Recall that this method defines several types of discrete elements in an energy domain---in \cref{ch:linear_graph_models,ch:state_space_models}, the electrical and mechanical energy domains.
+Also recall from \cref{ch:electromechanical_systems} that energy transducing elements allow energy to flow among domains.
+In this chapter, we introduce fluid and thermal energy domains and discrete and transducing elements associated therewith.
+\tags{}
+
+The analogs between the mechanical and electrical systems from \cref{ch:linear_graph_models} are expanded to include fluid and thermal systems.
+This generalization allows us to include, in addition to electromechanical systems, inter-domain systems including electrical, mechanical, fluid, and thermal systems.
+\tags{}
+
+This chapter begins by defining discrete lumped-parameter elements for fluid and thermal systems.
+We then categorize these into energy source, energy storage (A-type and T-type), and energy dissapative (D-type) elements, allowing us to immediately construct linear graphs and normal trees in the manner of \cref{ch:linear_graph_models}.
+Then we can directly apply the methods of \cref{ch:state_space_models} to construct state-space models of systems that include fluid and thermal elements.
+\tags{A, D, T, S}
+
+\section{Fluid system elements}
+\tags{}
+
+Detailed \emph{distributed} models of fluids, such as the Navier-Stokes equations, are necessary for understanding many aspects of fluid systems and for guiding their design (e.g. a pump or an underwater vehicle).
+However, a great many fluid systems are networks of pipes, tanks, pumps, valves, orifices, and elevation changes---and at this \emph{system-level}, a different approach is required.
+\tags{}
+
+As with electrical and mechanical systems, we can describe fluid systems as consisting of discrete lumped-parameter elements.
+The dynamic models that can be developed from considering these elements are often precisely the right granularity for system-level design.
+\tags{}
+
+We now introduce a few lumped-parameter elements for modeling fluid systems.
+Let a \keyword{volumetric flowrate} $Q$ and \keyword{pressure drop} $P$ be input to a port in a fluid element.
+Since, for fluid systems, the power into the element is 
+\begin{align}
+	\mathcal{P}(t) &= Q(t) P(t)
+\end{align}
+we call $Q$ and $P$ the \keyword{power-flow variables} for fluid systems.
+A fluid element has two distinct locations between which its pressure drop is defined.\
+We call a reference pressure \keyword{ground}.
+\tags{P, Q, S}
+
+\keyword[work]{Work} done on the system over the time interval $[0,T]$ is defined as
+\begin{align}
+	W \equiv \int_0^T \mathcal{P}(\tau) d\tau.
+\end{align}
+Therefore, the work done on a fluid system is 
+\begin{align}
+	W = \int_0^T Q(\tau) P(\tau) d\tau.
+\end{align}
+
+The \keyword{pressure momentum} $\Gamma$ is
+\begin{align}
+	\Gamma(t) = \int_0^t P(\tau) d\tau + \Gamma(0).
+\end{align}
+Similarly, the \keyword{volume} is
+\begin{align}
+	V(t) = \int_0^t Q(\tau) d\tau + V(0).
+\end{align}
+
+We now consider two elements that can store energy, called \keyword{energy storage elements}; an element that can dissipate energy to a system's environment, called an \keyword[energy dissipative elements]{energy dissipative element}; and two elements that can supply power from outside a system, called \keyword{source elements}.
+\tags{S, D, A, T}
+
+\subsection{Fluid inertances}
+\tags{D, IN}
+
+When fluid flows through a pipe, it has a momentum associated with it.
+The more mass (fluid density by its volume) moving in one direction and the faster it moves, the more momentum.
+This is stored kinetic energy.
+The discrete element we now introduce models this aspect of fluid systems.
+\tags{}
+
+A \keyword{fluid inertance} is defined as an element for which the pressure momentum $\Gamma$ across it is a monotonic function of the volumetric flowrate $Q$ through it.
+A \keyword{linear inertance} is such that
+\begin{align}
+\label{eq:inertance_linear}
+	\Gamma(t) = I Q(t),
+\end{align}
+where $I$ is called the \keyword{inertance} and is typically a function of pipe geometry and fluid properties.
+This is called the element's \keyword{constitutive equation} because it constitutes what it means to be an inertance.
+\tags{Q, P, S}
+
+% \begin{wrapfigure}[4]{r}{0.3\textwidth}
+%   \centering
+% 	\begin{tikzpicture}
+% 		\draw[spring] (0,0) -- node[above=.2] {$k$} (2,0);
+% 		\draw[->] (0,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_1$};
+% 		\draw[->] (2,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_2$};
+% 		\draw[->] (0,0) -- ++(-.5,0)
+% 		node[left] {$Q$};
+% 		\draw[->] (2,0) -- ++(.5,0)
+% 		node[right] {$Q$};
+% 		\draw[fill=white] (0,0) circle (2pt);
+% 		\draw[fill=white] (2,0) circle (2pt);
+% 	\end{tikzpicture}
+%   \caption{\label{fig:spring} schematic symbol for a spring with spring constant $k$ and pressure drop drop $v = v_1 - v_2$.}%
+% \end{wrapfigure}
+
+Although there are nonlinear inertances, we can often use a linear model for analysis in some operating regime.
+The \keyword{elemental equation} for a linear inertance can be found by time-differentiating \autoref{eq:inertance_linear} to obtain
+\maybeeq{
+\begin{align*}
+	\frac{d Q}{d t} = \frac{1}{I} P.
+\end{align*}
+}
+We call this the elemental equation because it relates the element's power-flow variables $Q$ and $P$.
+\tags{Q, P, S}
+
+An inertance stores energy as kinetic energy, making it an \emph{energy storage element}.
+The amount of energy it stores depends on the volumetric flowrate it contains.
+For a linear inertance,
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2} I Q(t)^2.
+\end{align}
+\tags{Q}
+
+%TODO figure of pipe section
+\begin{wrapfigure}[8]{r}{0.4\textwidth}
+  \centering
+	\includegraphics[width=1\linewidth]{figures/pipe_section.jpg}
+  \caption{\label{fig:pipe_section} a section of pipe for deriving its inertance.}%
+\end{wrapfigure}
+
+The inertance $I$ for a uniform pipe can be derived, as follows, with reference to the sectioned pipe of \cref{fig:pipe_section}.
+For an incompressible fluid flowing through a pipe of uniform area $A$ and length $L$, with uniform velocity profile (a convenient fiction), an element of fluid obey's Newton's second law, from which several interesting equalities can be derived:
+\tags{}
+\begin{align*}
+	F &= m \frac{d v}{d t} \Rightarrow \\
+	\frac{F}{A} &= \frac{m}{A} \frac{d v}{d t} \Rightarrow \\
+	P &= \frac{\rho A L}{A} \frac{d v}{d t} \\
+	&= \rho L \frac{d}{d t} \left(\frac{Q}{A}\right) \\
+	&= \frac{\rho L}{A} \frac{d Q}{d t} \Rightarrow \\
+	\frac{d Q}{d t} &= \underbrace{\frac{A}{\rho L}}_{1/I} P.
+\end{align*}
+
+From this last equality, it is clear that, for a uniform pipe and the assumptions, above,
+\begin{align}
+	I &= \frac{\rho L}{A}.
+\end{align}
+Clearly, \emph{long}, \emph{thin} pipes will have more inertance.
+In fact, we often ignore inertance in modeling a pipe, unless it is relatively long and thin.
+\tags{}
+
+\subsection{Fluid capacitors}
+\tags{FC, A}
+
+When fluid is stored in tanks or in pressure vessels, it stores potential energy via its pressure drop $P$.
+For instance, a tank with a column of fluid will have a pressure drop associated with the height of the column.
+This is analogous to how an electronic capacitor stores its energy via its voltage.
+For this reason, we call such fluid elements \keyword{fluid capacitors}.
+\tags{}
+
+A linear fluid capacitor with capacitance $C$, pressure drop $P$, and volume $V$ has the constitutive equation
+\tags{P, V, S}
+\begin{align}
+	V = C P.
+\end{align}
+% \begin{wrapfigure}[8]{r}{0.35\textwidth}
+%   \centering
+% 	\begin{tikzpicture}
+% 		\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m) at (0,0) {$m$};
+% 		\node[groundmech,minimum height=1cm] (g) at (-1.5,0) {};
+% 		\draw (g.south east) -- (g.north east);
+% 		\draw[->] (g.north east) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_2$};
+% 		\draw[->] (m.north east) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_1$};
+% 		\draw[->] (m.east) -- ++(.5,0)
+% 		node[right] {$Q$};
+% 		% \draw[fill=white] (0,0) circle (2pt);
+% 		% \draw[fill=white] (2,0) circle (2pt);
+% 	\end{tikzpicture}
+%   \caption{\label{fig:mass} schematic symbol for a point-mass with mass $m$ and pressure drop drop $v = v_1 - v_2$, where $v_2$ is the constant reference pressure drop.}%
+% \end{wrapfigure}
+Once again, time-differentiating the constitutive equation gives us the elemental equation:
+\maybeeq{
+	\begin{align*}
+		\frac{d P}{d t} = \frac{1}{C} Q,
+	\end{align*}
+}
+
+Fluid capacitors can store energy (making them \emph{energy storage elements}) in fluid potential energy, which, for a linear capacitor is
+\begin{align}
+	\mathcal{E}(t) = \frac{1}{2} C P^2.
+\end{align}
+
+\subsection{Fluid resistors}
+\tags{}
+
+% \begin{wrapfigure}[9]{r}{0.3\textwidth}
+%   \centering
+% 	\begin{tikzpicture}
+% 		\draw[damper] (0,0) -- node[above=.3] {$B$} (2,0);
+% 		\draw[->] (0,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_1$};
+% 		\draw[->] (2,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_2$};
+% 		\draw[->] (0,0) -- ++(-.5,0)
+% 		node[left] {$Q$};
+% 		\draw[->] (2,0) -- ++(.5,0)
+% 		node[right] {$Q$};
+% 		\draw[fill=white] (0,0) circle (2pt);
+% 		\draw[fill=white] (2,0) circle (2pt);
+% 	\end{tikzpicture}
+%   \caption{\label{fig:damper} schematic symbol for a damper with damping coefficient $B$ and pressure drop drop $v = v_1 - v_2$.}%
+% \end{wrapfigure}
+
+\keyword[fluid resistors]{Fluid resistors} are defined as elements for which the volumetric flowrate $Q$ through the element is a monotonic function of the pressure drop $P$ across it.
+\keyword[linear fluid resistors]{Linear fluid resistors} have constitutive equation (and, it turns out, elemental equation)
+\tags{FR, D}
+\begin{align}
+	Q = \frac{1}{R} P
+\end{align}
+where $R$ is called the \keyword{fluid resistance}.
+
+Fluid resistors dissipate energy from the system (to heat), making them \emph{energy dissipative elements}.
+\tags{FR, D}
+
+\subsection{Flowrate and pressure drop sources}
+\tags{S}
+%TODO add figures ... pumps? also linear graphs
+
+Fluid sources include pumps, runoff, etc.
+\tags{}
+
+An \keyword{ideal volumetric flowrate source} is an element that provides arbitrary energy to a system via an independent (of the system) volumetric flowrate.
+The corresponding pressure drop across the element depends on the system.
+\tags{}
+
+An \keyword{ideal pressure drop source} is an element that provides arbitrary energy to a system via an independent (of the system) pressure drop.
+The corresponding volumetric flowrate through the element depends on the system.
+\tags{}
+
+Real sources, usually pumps, cannot be ideal sources, but in some instances can approximate them.
+More typical is to include a fluid resistor in tandem with an ideal source, as we did with electrical resistors for real electrical sources.
+\tags{FR}
+
+\subsection{Generalized element and variable types}
+\tags{}
+
+In keeping with the definitions of \cref{ch:introduction}, pressure $P$ is an \keyword{across-variable} and flowrate $Q$ is a \keyword{through-variable}.
+\textbf{P, S, Q}
+
+Consequently, the fluid capacitor is considered an \keyword{A-type} energy storage element.
+Similarly, the fluid inertance is a \keyword{T-type} energy storage element.
+Clearly, a fluid resistor is a \keyword{D-type} energy dissipative element.
+\tags{A, IN, T, FR, D}
+
+Pressure sources are, then, across-variable sources and volumetric flowrate sources are through-variable sources.
+\tags{P, Q, S}
+
+\examplemaybe{%
+fluid system graph
+}{%
+\noindent\begin{minipage}[r]{.35\linewidth}
+	Use the schematic to draw a linear graph of the system.
+\end{minipage}
+\hfill%
+\begin{minipage}[r]{.60\linewidth}
+  \includegraphics[width=1\linewidth]{figures/fluidsystem_01.pdf}
+\end{minipage}
+}{%
+\includegraphics[width=.4\linewidth]{figures/fluidsystem_01_solution_graph.jpg}
+}{%
+ex:fluid_system_graph
+}
+
+\section{Thermal system elements}
+\tags{}
+
+Systems in which heat flow is of interest are called \keyword{thermal systems}. 
+For instance, heat generated by an engine or a server farm flows through several bodies via the three modes of heat transfer: \keyword{conduction}, \keyword{convection}, and \keyword{radiation}.
+This is, of course, a dynamic process.
+\tags{}
+
+A detailed model would require a spatial continuum.
+However, we are often concerned with, say, the maximum temperature an engine will reach for different speeds or the maximum density of a server farm while avoiding overheating.
+Or, more precisely, \emph{how} a given heat generation affects the temperature response of system components.
+\tags{}
+
+As with electrical, mechanical, and fluid systems, we can describe thermal systems as consisting of discrete lumped-parameter elements.
+The dynamic models that can be developed from considering these elements are often precisely the right granularity for system-level design.
+\tags{}
+
+We now introduce a few lumped-parameter elements for modeling thermal systems.
+Let a \keyword{heat flow rate} $q$ (SI units W) and \keyword{temperature} $T$ (SI units K or C) be input to a port in a thermal element.
+There are three structural differences between thermal systems and the other types we've considered.
+We are confronted with the \keyword[first difference]{first}, here, when we consider that heat power is typically \emph{not} considered to be the product of two variables; rather, the heat flow rate $q$ is \emph{already power}:
+\begin{align}
+	\mathcal{P}(t) &= q(t).
+\end{align}
+A thermal element has two distinct locations between which its temperature drop is defined.
+We call a reference temperature \keyword{ground}.
+\tags{q, TE, S}
+
+The \keyword{heat} energy $H$ of a system with initial heat $H(0)$ is
+\begin{align}
+	H(t) = \int_0^t \mathcal{P}(\tau) d\tau + H(0).
+\end{align}
+
+We now consider an element that can store energy, called an \keyword{energy storage element}; an element that resists power flow; and two elements that can supply power from outside a system, called \keyword{source elements}.
+The \keyword[second difference]{second} difference is that there is only one type of energy storage element in the thermal domain.
+\tags{S}
+
+\subsection{Thermal capacitors}
+\tags{}
+
+When heat is stored in an object, it stores potential energy via its temperature $T$.
+This is analogous to how an electronic capacitor stores its energy via its voltage.
+For this reason, we call such thermal elements \keyword{thermal capacitors}.
+\tags{TC, TE, A, S}
+
+A linear thermal capacitor with thermal capacitance $C$ (SI units J/K), temperature $T$, and heat $H$ has the constitutive equation
+\begin{align}
+	H = C T.
+\end{align}
+% \begin{wrapfigure}[8]{r}{0.35\textwidth}
+%   \centering
+% 	\begin{tikzpicture}
+% 		\node[rectangle,draw,thick,rounded corners=.5pt,minimum width=1cm,minimum height=1cm] (m) at (0,0) {$m$};
+% 		\node[groundmech,minimum height=1cm] (g) at (-1.5,0) {};
+% 		\draw (g.south east) -- (g.north east);
+% 		\draw[->] (g.north east) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_2$};
+% 		\draw[->] (m.north east) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_1$};
+% 		\draw[->] (m.east) -- ++(.5,0)
+% 		node[right] {$Q$};
+% 		% \draw[fill=white] (0,0) circle (2pt);
+% 		% \draw[fill=white] (2,0) circle (2pt);
+% 	\end{tikzpicture}
+%   \caption{\label{fig:mass} schematic symbol for a point-mass with mass $m$ and pressure drop drop $v = v_1 - v_2$, where $v_2$ is the constant reference pressure drop.}%
+% \end{wrapfigure}
+Once again, time-differentiating the constitutive equation gives us the elemental equation:
+\maybeeq{
+	\begin{align*}
+		\frac{d T}{d t} = \frac{1}{C} q,
+	\end{align*}
+}
+
+The thermal capacitance $C$ is an \keyword{extensive property}---that is, it depends on the amount of its substance.
+This is opposed to the \keyword{specific heat capacity} $c$ (units J/K/kg), an \keyword{intensive property}: one that is independent of the amount of its substance.
+These quantities are related for an object of mass $m$ by the equation
+\begin{align}
+	C = m c.
+\end{align}
+\tags{TC, A}
+
+\subsection{Thermal resistors}
+\tags{}
+
+% \begin{wrapfigure}[9]{r}{0.3\textwidth}
+%   \centering
+% 	\begin{tikzpicture}
+% 		\draw[damper] (0,0) -- node[above=.3] {$B$} (2,0);
+% 		\draw[->] (0,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_1$};
+% 		\draw[->] (2,0) -- ++(0,.75)
+% 		-- ++(.3,0)
+% 		node[above] {$v_2$};
+% 		\draw[->] (0,0) -- ++(-.5,0)
+% 		node[left] {$Q$};
+% 		\draw[->] (2,0) -- ++(.5,0)
+% 		node[right] {$Q$};
+% 		\draw[fill=white] (0,0) circle (2pt);
+% 		\draw[fill=white] (2,0) circle (2pt);
+% 	\end{tikzpicture}
+%   \caption{\label{fig:damper} schematic symbol for a damper with damping coefficient $B$ and pressure drop drop $v = v_1 - v_2$.}%
+% \end{wrapfigure}
+
+\keyword[thermal resistors]{Thermal resistors} are defined as elements for which the heat flowrate $q$ through the element is a monotonic function of the temperature drop $T$ across it.
+\keyword[linear thermal resistors]{Linear thermal resistors} have constitutive equation (and, it turns out, elemental equation)
+\begin{align}
+	q = \frac{1}{R} T
+\end{align}
+where $R$ is called the \keyword{thermal resistance}.
+\tags{TR, q, TE, D, S}
+
+Thermal resistors do \emph{not} dissipate energy from the system, which is the \keyword[third difference]{third} difference between thermal and other energy domains we've considered.
+After all, the other ``resistive'' elements all dissipate energy \emph{to heat}.
+Rather than dissipate energy, they simply impede its flow.
+\tags{TR, D}
+
+All three modes of heat transfer are modeled by thermal resistors, but only two of them are well-approximated as linear for a significant range of temperature.
+\tags{TR, D}
+\begin{description}
+	\item[conduction] Heat conduction is the transfer of heat through an object's microscopic particle interaction.\footnote{We use the term ``object'' loosely, here, to mean a grouping of continuous matter in any phase.}
+	It is characterized by a thermal resistance
+	\begin{align}
+		R = \frac{L}{\rho A},
+	\end{align}
+	where $L$ is the length of the object \emph{in the direction of heat transfer}, $A$ is the transverse cross-sectional area, and $\rho$ is the material's \keyword{thermal conductivity} (SI units W/K/m).\footnote{Thermal resistance can also be defined as an intensive property $\rho^{-1}$, the reciprocal of the thermal conductivity. Due to our lumped-parameter perspective, we choose the extensive definition.}
+	\item[convection] Heat convection is the transfer of heat via \keyword{fluid advection}: the bulk motion of a fluid.
+	It is characterized by a thermal resistance
+	\begin{align}
+		R = \frac{1}{h A},
+	\end{align}
+	where $h$ is the \keyword{convection heat transfer coefficient} (SI units W/m$^2$/K) and $A$ is the area of fluid-object contact (SI units m$^2$).
+	The convection heat transfer coefficient $h$ is highly and nonlinearly dependent on the velocity of the fluid.
+	Furthermore, the geometry of the objects and the fluid composition affect $h$.
+	\item[radiation] Radiative heat transfer is electromagnetic radiation emitted from one body and absorbed by another. For $T_1$ the absolute temperature of a ``hot'' body, $T_2$ the absolute temperature of a ``cold'' body, $\varepsilon$ the \keyword{effective emissivity/absorptivity},\footnote{The parameter $\varepsilon$ is taken to be the combined ``gray body'' emissivity/absorptivity. Consult a heat transfer text for details.} and $A$ the area of the exposed surfaces, the heat transfer is characterized by
+	\begin{align}
+		q = \varepsilon \sigma A (T_1^4 - T_2^4),
+	\end{align}
+	where $\sigma$ is the \keyword{Stefan-Boltzmann constant}
+	\begin{align}
+		\sigma = 5.67 \cdot 10^{-8}\ \frac{\textrm{W}}{\textrm{m}^2 K^4}.
+	\end{align}
+	Clearly, this heat transfer is highly nonlinear.
+	Linearization of this heat transfer is problematic because the temperature difference $T$ between the bodies does not appear in the expression.
+	For many system models, radiative heat transfer is assumed negligible.
+	We must be cautious with this assumption, however, especially when high operating temperatures are anticipated.
+\end{description}
+
+\subsection{Heat flow rate and temperature sources}
+\tags{}
+
+%TODO add figures ... linear graphs
+
+Thermal sources include many physical processes---almost everything generates heat!
+\tags{}
+
+An \keyword{ideal heat flow rate source} is an element that provides arbitrary heat flow rate $Q_s$ to a system, independent of the temperature across it, which depends on the system.
+\tags{TE, q, S}
+
+An \keyword{ideal temperature source} is an element that provides arbitrary temperature $T_s$ to a system, independent of the heat flow rate through it, which depends on the system.
+\tags{S}
+
+\subsection{Generalized element and variable types}
+\tags{}
+
+In keeping with the definitions of \cref{ch:introduction}, temperature $T$ is an \keyword{across-variable} and heat flow rate $q$ is a \keyword{through-variable}.
+\tags{q, TE, S}
+
+Consequently, the thermal capacitor is considered an \keyword{A-type} energy storage element.
+A thermal resistor is considered to be a \keyword{D-type} energy dissipative element, although it does not actually dissipate energy.
+It does, however, \emph{resist} its flow and relates its across- and through-variables \emph{algebraically}, both signature characteristics of D-type elements.
+\tags{TC, A, TR, D}
+
+Temperature sources are, then, across-variable sources and heat flow rate sources are through-variable sources.
+\tags{S}
+
+\examplemaybe{%
+thermal system graph
+}{%
+\noindent\begin{minipage}[r]{.45\linewidth}
+	Careless Carlton left a large pot of water boiling on the stove. Worse, a cast-iron pan is bumped so that it is in solid contact with the pot \emph{and} his glass fish tank, which was carelessly left next to the stove. 
+\end{minipage}
+\hfill%
+\begin{minipage}[r]{.50\linewidth}
+  \includegraphics[width=1\linewidth]{figures/careless_carlton.pdf}
+\end{minipage}
+Draw a linear graph of the sad situation to determine what considerations determine if Careless Carlton's fish goes from winner to dinner.
+}{%
+% \includegraphics[width=.4\linewidth]{figures/fluidsystem_01_solution_graph.jpg}
+\vspace{25\baselineskip}
+}{%
+ex:thermal_system_graph
+}
+
+\section{Fluid transducers}
+\tags{}
+
+Although thermal systems often exchange energy with other energy domains, it is much more common to consider those systems that interact with thermal systems to be generating or sinking heat (often modeled as a \emph{dependent source}) than to see a proper transducer.
+\tags{}
+
+Fluid systems, on the other hand, very naturally interact with mechanical systems.
+For instance, piston-cylinder mechanisms, propellers, turbines, and impellers (backward turbines) are just a few energy transducing elements.
+\tags{}
+
+These systems are often driven by motors (e.g.\ a pump's impeller) or drive generators (e.g. a dam's turbine).
+Therefore, it is common to require a fluid-electromechanical dynamic model.
+\tags{}
+
+\examplemaybe{%
+microhydroelectric power generation
+}{%
+\label{ex:fluid_system_graph}
+Dams, even small, ``micro'' dams, generate hydroelectric power by directing water through turbines, which rotate, creating mechanical power, and drive electric generators, generating electric power.
+For large-scale dams, the flowrate is regulated such that an AC generator produces a nice $60$ Hz.
+However, a microhydroelectric generator typically cannot expect well-regulated flowrates, so sometimes they use a brushed DC generator (brush replacement being the primary drawback).
+Assuming a microhydroelectric dam can be set up in a manner similar to a large-scale dam, draw a linear graph model from the following schematic.
+\begin{center}
+\includegraphics[width=.9\linewidth]{figures/hydroelectric_dam.pdf}
+{\itshape Schematic of a hydroelectric dam \citep{wiki:hydro}.}
+\end{center}
+}{%
+\begin{adjustbox}{center}
+\noindent\begin{tikzpicture}[scale=0.76, every node/.style={scale=0.9}]
+	\coordinate (g) at (-2,0);
+	\draw (g) pic {groundnode};
+	\node[graphnode] (n2) at (-2,2) {};
+	\node[graphnode] (n3) at (0,2) {};
+	\node[graphnode] (n4) at (2,2) {};
+	\node[graphnode] (n5) at (4,2) {};
+	\node[graphnode] (n6) at (4,0) {};
+	\node[graphnode] (n7) at (2,0) {};
+	\node[graphnode] (n8) at (0,0) {};
+	\node[graphnode] (n9) at (6,2) {};
+	\coordinate (g2) at (6,0);
+	\draw (g2) pic {groundnode};
+	\coordinate (g3) at (8,0);
+	\draw (g3) pic {groundnode};
+	\coordinate (g4) at (12,0);
+	\draw (g4) pic {groundnode};
+	\node[graphnode] (n10) at (8,2) {};
+	\node[graphnode] (n11) at (10,2) {};
+	\node[graphnode] (n12) at (12,2) {};
+	% fluid
+	\draw[sourcebranch] (g) to[bend left] node[midway,below=7pt,left=7pt,anchor=north east] {$Q_s$} (n2);
+	\draw[branch] (n2) to[bend left] node[midway,above right] {$C_1$} (g);
+	\draw[branch] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+	\draw[branch] (n3) to[bend left] node[midway,above] {$L_1$} (n4);
+	\draw[sourcebranch] (n5) to[bend right] node[midway,above=8pt] {$P_{s1}$} (n4);
+	\draw[branch] (n5) to[bend left] node[midway,left] {$1$} (n6);
+	\draw[sourcebranch] (n7) to[bend right] node[midway,below=7pt] {$P_{s2}$} (n6);
+	\draw[branch] (n7) to[bend left] node[midway,below] {$R_2$} (n8);
+	\draw[branch] (n8) to[bend right] node[midway,below] {$C_2$} (g);
+	% mechanical
+	\draw[branch] (n9) to[out=180,in=90] ($(n9)+(-1,-1)$) node[left] {$2$} to[out=-90,in=180] (g2);
+	\draw[branch] (n9) to[bend right=45] node[midway,left] {$J$} (g2);
+	\draw[branch] (n9) to[bend left=45] node[midway,left] {$B$} (g2);
+	\draw[branch] (n9) to[out=0,in=90] ($(n9)+(1,-1)$) node[right] {$3$} to[out=-90,in=0] (g2);
+	% electrical
+	\draw[branch] (n10) to[bend right] node[midway,right,yshift=1.25pt] {$4$} (g3);
+	\draw[branch] (n10) to[bend left] node[midway,above] {$R_3$} (n11);
+	\draw[branch] (n11) to[bend left] node[midway,above] {$L_2$} (n12);
+	\draw[branch] (n12) to[bend right] node[midway,left] {$C_3$} (g4);
+	\draw[branch] (n12) to[bend left] node[midway,right] {$R_4$} (g4);
+\end{tikzpicture}%
+\end{adjustbox}
+}{%
+ex:fluid_system_graph%
+}
+
+\section{State-space model of a hydroelectric dam}
+\tags{}
+
+Consider the microhydroelectric dam of \autoref{ex:fluid_system_graph}.
+We derived the linear graph of \cref{fig:dam_linear_graph}.
+In this lecture, we will derive a state-space model for the system---specifically, a state equation.
+\tags{}
+
+\begin{figure}[b]
+\centering
+\begin{adjustbox}{center}
+	\ifdefined\ispartial
+		\begin{tikzpicture}[]
+			\coordinate (g) at (-2,0);
+			\draw (g) pic {groundnode};
+			\node[graphnode] (n2) at (-2,2) {};
+			\node[graphnode] (n3) at (0,2) {};
+			\node[graphnode] (n4) at (2,2) {};
+			\node[graphnode] (n5) at (4,2) {};
+			\node[graphnode] (n6) at (4,0) {};
+			\node[graphnode] (n7) at (2,0) {};
+			\node[graphnode] (n8) at (0,0) {};
+			\node[graphnode] (n9) at (6,2) {};
+			\coordinate (g2) at (6,0);
+			\draw (g2) pic {groundnode};
+			\coordinate (g3) at (8,0);
+			\draw (g3) pic {groundnode};
+			\coordinate (g4) at (12,0);
+			\draw (g4) pic {groundnode};
+			\node[graphnode] (n10) at (8,2) {};
+			\node[graphnode] (n11) at (10,2) {};
+			\node[graphnode] (n12) at (12,2) {};
+			% fluid
+			\draw[sourcebranch] (g) to[bend left] node[midway,below=7pt,left=7pt,anchor=north east] {$Q_s$} (n2);
+			\draw[branch] (n2) to[bend left] node[midway,above right] {$C_1$} (g);
+			\draw[branch] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+			\draw[branch] (n3) to[bend left] node[midway,above] {$L_1$} (n4);
+			\draw[sourcebranch] (n5) to[bend right] node[midway,above=8pt] {$P_{s1}$} (n4);
+			\draw[branch] (n5) to[bend left] node[midway,right] {$1$} (n6);
+			\draw[sourcebranch] (n7) to[bend right] node[midway,below=7pt] {$P_{s2}$} (n6);
+			\draw[branch] (n7) to[bend left] node[midway,below] {$R_2$} (n8);
+			\draw[branch] (n8) to[bend right] node[midway,below] {$C_2$} (g);
+			% mechanical
+			\draw[branch] (n9) to[out=180,in=90] ($(n9)+(-1,-1)$) node[left] {$2$} to[out=-90,in=180] (g2);
+			\draw[branch] (n9) to[bend right=45] node[midway,left] {$J$} (g2);
+			\draw[branch] (n9) to[bend left=45] node[midway,left] {$B$} (g2);
+			\draw[branch] (n9) to[out=0,in=90] ($(n9)+(1,-1)$) node[right] {$3$} to[out=-90,in=0] (g2);
+			% electrical
+			\draw[branch] (n10) to[bend right] node[midway,left,yshift=1.25pt] {$4$} (g3);
+			\draw[branch] (n10) to[bend left] node[midway,above] {$R_3$} (n11);
+			\draw[branch] (n11) to[bend left] node[midway,above] {$L_2$} (n12);
+			\draw[branch] (n12) to[bend right] node[midway,left] {$C_3$} (g4);
+			\draw[branch] (n12) to[bend left] node[midway,right] {$R_4$} (g4);
+		\end{tikzpicture}%
+	\else
+		\begin{tikzpicture}[]
+			\coordinate (g) at (-2,0);
+			\draw (g) pic {groundnode};
+			\node[graphnode] (n2) at (-2,2) {};
+			\node[graphnode] (n3) at (0,2) {};
+			\node[graphnode] (n4) at (2,2) {};
+			\node[graphnode] (n5) at (4,2) {};
+			\node[graphnode] (n6) at (4,0) {};
+			\node[graphnode] (n7) at (2,0) {};
+			\node[graphnode] (n8) at (0,0) {};
+			\node[graphnode] (n9) at (6,2) {};
+			\coordinate (g2) at (6,0);
+			\draw (g2) pic {groundnode};
+			\coordinate (g3) at (8,0);
+			\draw (g3) pic {groundnode};
+			\coordinate (g4) at (12,0);
+			\draw (g4) pic {groundnode};
+			\node[graphnode] (n10) at (8,2) {};
+			\node[graphnode] (n11) at (10,2) {};
+			\node[graphnode] (n12) at (12,2) {};
+			% fluid
+			\draw[sourcebranch] (g) to[bend left] node[midway,below=7pt,left=7pt,anchor=north east] {$Q_s$} (n2);
+			\draw[branch,normaltree] (n2) to[bend left] node[midway,above right] {$C_1$} (g);
+			\draw[branch,normaltree] (n2) to[bend left] node[midway,above] {$R_1$} (n3);
+			\draw[branch] (n3) to[bend left] node[midway,above] {$L_1$} (n4);
+			\draw[sourcebranch,normaltree] (n5) to[bend right] node[midway,above=8pt] {$P_{s1}$} (n4);
+			\draw[branch,normaltree] (n5) to[bend left] node[midway,right] {$1$} (n6);
+			\draw[sourcebranch,normaltree] (n7) to[bend right] node[midway,below=7pt] {$P_{s2}$} (n6);
+			\draw[branch,normaltree] (n7) to[bend left] node[midway,below] {$R_2$} (n8);
+			\draw[branch,normaltree] (n8) to[bend right] node[midway,below] {$C_2$} (g);
+			% mechanical
+			\draw[branch] (n9) to[out=180,in=90] ($(n9)+(-1,-1)$) node[left] {$2$} to[out=-90,in=180] (g2);
+			\draw[branch,normaltree] (n9) to[bend right=45] node[midway,left] {$J$} (g2);
+			\draw[branch] (n9) to[bend left=45] node[midway,left] {$B$} (g2);
+			\draw[branch] (n9) to[out=0,in=90] ($(n9)+(1,-1)$) node[right] {$3$} to[out=-90,in=0] (g2);
+			% electrical
+			\draw[branch,normaltree] (n10) to[bend right] node[midway,left,yshift=1.25pt] {$4$} (g3);
+			\draw[branch,normaltree] (n10) to[bend left] node[midway,above] {$R_3$} (n11);
+			\draw[branch] (n11) to[bend left] node[midway,above] {$L_2$} (n12);
+			\draw[branch,normaltree] (n12) to[bend right] node[midway,left] {$C_3$} (g4);
+			\draw[branch] (n12) to[bend left] node[midway,right] {$R_4$} (g4);
+		\end{tikzpicture}%
+	\fi
+\end{adjustbox}
+\caption{a linear graph for a microhydroelectric dam.}
+\label{fig:dam_linear_graph}
+\end{figure}
+
+\subsection{Normal tree, order, and variables}
+\tags{}
+
+Now, we define a \keyword{normal tree} by overlaying it on the system graph in \cref{fig:dam_linear_graph}.
+There are six independent energy storage elements, making it a sixth-order ($n=6$) system.
+We define the state vector to be
+\tags{}
+\begin{align}
+	\bm{x} = \begin{bmatrix}
+		P_{C_1} &
+		P_{C_2} &
+		Q_{L_1} &
+		\Omega_J &
+		i_{L_2} &
+		v_{C_3}
+	\end{bmatrix}^\top.
+\end{align}
+The input vector is defined as $\bm{u} = \begin{bmatrix} Q_s & P_{s1} & P_{s2} \end{bmatrix}^\top$.
+
+\subsection{Elemental equations}
+\tags{}
+
+Yet to be encountered is a turbine's transduction.
+A simple model is that the torque $T_2$ is proportional to the flowrate $Q_1$, which are both through-variables, making it a \keyword{transformer}, so
+\tags{}
+\begin{align}
+	T_2 = -\alpha Q_1 \quad {and} \quad
+	\Omega_2 = \frac{1}{\alpha} P_1,
+\end{align}
+where $\alpha$ is the \keyword{transformer ratio}.
+
+The other elemental equations have been previously encountered and are listed, below.
+\tags{}
+
+\begingroup
+\renewcommand*{\arraystretch}{2}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & elemental eq. \\ \hline
+$C_1$ & 
+	$\dfrac{d P_{C_1}}{d t} = \dfrac{1}{C_1} Q_{C_1}$ \\
+$C_2$ & 
+	$\dfrac{d P_{C_2}}{d t} = \dfrac{1}{C_2} Q_{C_2}$ \\
+$L_1$ & 
+	$\dfrac{d Q_{L_1}}{d t} = \dfrac{1}{L_1} P_{L_1}$ \\
+$J$ & 
+	$\dfrac{d \Omega_J}{d t} = \dfrac{1}{J} T_J$ \\
+$L_2$ &
+	$\dfrac{d i_{L_2}}{d t} = \dfrac{1}{L_2} v_{L_2}$
+\end{tabular}
+}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & elemental eq.\\ \hline
+$C_3$ &
+	$\dfrac{d v_{C_3}}{d t} = \dfrac{1}{C_3} i_{C_3}$ \\
+$R_1$ & $P_{R_1} = Q_{R_1} R_1$ \\
+$R_2$ & $P_{R_2} = Q_{R_2} R_2$ \\
+$1$ & $T_2 = -\alpha Q_1$ \\
+$2$ & $\Omega_2 = \dfrac{1}{\alpha} P_1$
+\end{tabular}
+}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & elemental eq.\\ \hline
+$B$ & $\Omega_B = \dfrac{1}{B} T_B$\\
+$3$ & $i_4 = \dfrac{-1}{k_m} T_3$\\
+$4$ & $v_4 = k_m \Omega_3$\\
+$R_3$ & $v_{R_3} = i_{R_3} R_3$\\
+$R_4$ & $i_{R_4} = \dfrac{1}{R_4} v_{R_4}$ 
+\end{tabular}
+}
+\endgroup
+
+\subsection{Continuity and compatibility equations}
+
+Continuity and compatibility equations can be found in the usual way---by drawing contours and temporarily creating loops by including links in the normal tree.
+We proceed by drawing a table of all elements and writing a continuity equation for each branch of the normal tree and a compatibility equation for each link.
+\tags{}
+
+\begingroup
+\begin{adjustbox}{center}
+\renewcommand*{\arraystretch}{1.5}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & eq. \\ \hline
+$C_1$ & 
+	$Q_{C_1} = Q_s - Q_{L_1}$ \\
+$C_2$ & 
+	$Q_{C_2} = Q_{L_1}$ \\
+$L_1$ & 
+	$P_{L_1} = -P_{R_1} + P_{C_1} - P_{C_2} +$ \\
+	& $- P_{R_2} + P_{s2} - P_1 + P_{s1}$ \\
+$J$ & 
+	$T_J = -T_2 - T_B - T_3$ \\
+$L_2$ &
+	$v_{L_2} = -v_{R_3} + v_4 - v_{C_3}$
+\end{tabular}
+}
+\hspace{0pt}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & eq.\\ \hline
+$C_3$ &
+	$i_{C_3} = i_{L_2} - i_{R_4}$ \\
+$R_1$ & $Q_{R_1} = Q_{L_1}$ \\
+$R_2$ & $Q_{R_2} = Q_{L_1}$ \\
+$1$ & $Q_1 = Q_{L_1}$ \\
+$2$ & $\Omega_2 = \Omega_J$
+\end{tabular}
+}
+\hspace{0pt}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & eq.\\ \hline
+$B$ & $\Omega_B = \Omega_J$\\
+$3$ & $\Omega_3 = \Omega_J$\\
+$4$ & $i_4 = -i_{L_2}$\\
+$R_3$ & $i_{R_3} = i_{L_2}$\\
+$R_4$ & $v_{R_4} = v_{C_3}$ 
+\end{tabular}
+}
+\end{adjustbox}
+\endgroup
+
+\subsection{State equation}
+\tags{}
+
+The system of equations composed of the elemental, continuity, and compatibility equations can be reduced to the state equation. 
+There is a substantial amount of algebra required to eliminate those variables that are neither state nor input variables.
+Therefore, we use the Mathematica package \emph{StateMint}~\citep{Picone2018}.
+The resulting system model is:
+\tags{}
+\begin{gather*}
+\frac{d \bm{x}}{d t} = A \bm{x} + B \bm{u}, \\
+A = 
+\begin{bmatrix}
+0 & 0 & -1/C_1 & 0 & 0 & 0 \\
+0 & 0 & 1/C_2 & 0 & 0 & 0 \\
+1/L_1 & -1/L_1 & -(R_1+R_2)/L_1 & -\alpha/L_1 & 0 & 0 \\
+0 & 0 & \alpha/J & -B/J & -k_m/J & 0 \\
+0 & 0 & 0 & k_m/L_2 & -R_3/L_2 & -1/L_2 \\
+0 & 0 & 0 & 0 & 1/C_3 & -1/(R_4 C_3)
+\end{bmatrix},
+\\
+B = 
+\begin{bmatrix}
+1/C_1 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 1/L_1 & 1/L_1 \\
+0 & 0 & 0 \\
+0 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}.
+\end{gather*}
+
+The rub is estimating all these parameters.
+\tags{}
+
+The Mathematica notebook use above can be found in the \href{http://ricopic.one/dynamic_systems/source/}{source repository} for this text.
+\tags{}
+
+\section*{Exercises}
+
+\input{ch08_exercises}
+
+
+% \begin{problems}
+
+% \subsection{a problem}
+
+% \end{problems}
+
+% \begin{solutions}
+
+% \subsection{a solution}
+
+% \end{solutions}
+
+\end{document}

@@ -1,0 +1,1372 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+\chapter{Electromechanical systems}
+\label{ch:electromechanical_systems}
+
+\section{Ideal transducers}
+\tags{}
+
+\keyword[two-port elements]{Two-port} system elements can model \keyword{transducers}---elements that transfer energy between two energy domains or change its form within an energy domain.
+The quintessential example, which we will consider in detail, is the \keyword{motor}, which converts electrical energy to mechanical energy.
+However, many other system elements can be considered transducers, and we'll consider a few in this lecture.
+\tags{}
+
+Each of the two ports has a through- and an across-variable.
+We use the convention that the power \emph{into} each port ($\mathcal{P}_1$ and $\mathcal{P}_2$) is positive, which has implications for the signs of the power flow variables $\mathcal{F}_1$, $\mathcal{F}_2$, $\mathcal{V}_1$, and $\mathcal{V}_2$.
+For an two-port element to transfer power, we have
+\tags{}
+\maybeeq{
+	\begin{align*}
+		\mathcal{P}_1 + \mathcal{P}_2 &= 0 \\
+		\mathcal{F}_1 \mathcal{V}_1 &= -\mathcal{F}_2 \mathcal{V}_2 \Rightarrow \\
+		\frac{\mathcal{V}_1}{\mathcal{V}_2} = -\frac{\mathcal{F}_2}{\mathcal{F}_1} \quad &\text{and} \quad
+		\frac{\mathcal{V}_1}{\mathcal{F}_2} = -\frac{\mathcal{V}_2}{\mathcal{F}_1}.
+	\end{align*}
+}
+We define the \keyword{transformer ratio} $TF$ to be
+\begin{align}
+TF \equiv \frac{\mathcal{V}_1}{\mathcal{V}_2} = -\frac{\mathcal{F}_2}{\mathcal{F}_1}.
+\end{align}
+Furthermore, we define the \keyword{gyrator modulus} $GY$ to be
+\begin{align}
+GY \equiv \frac{\mathcal{V}_1}{\mathcal{F}_2} = -\frac{\mathcal{V}_2}{\mathcal{F}_1}.
+\end{align}
+
+For an \keyword{ideal transducer}---one that is linear, time-invariant, and without power loss---we have only two nontrivial solutions:\footnote{For an explanation of \emph{why} that is the case, see \citet{Rowell1997}.}
+\tags{}
+
+\noindent\begin{minipage}[l]{.45\linewidth}
+\begin{align*}
+	\mathcal{V}_2 &= \mathcal{V}_1/TF \\
+	\mathcal{F}_2 &= -TF\, \mathcal{F}_1 
+\end{align*}
+\end{minipage}%
+\hfill or \hfill%
+\noindent\begin{minipage}[l]{.45\linewidth}
+\begin{align*}
+	\mathcal{V}_2 &= -GY\, \mathcal{F}_1 \\
+	\mathcal{F}_2 &= \mathcal{V}_1/GY.
+\end{align*}
+\end{minipage}%
+
+For a given element, if the solution with $TF$ is a good model, we call that element a \keyword{transformer}.
+If the $GY$ solution is a good model, we call it a \keyword{gyrator}.
+\tags{}
+
+\examplemaybe{%
+	DC motor
+}{%
+	Consider a DC motor with rotor radius $r$, number of coil turns $N$, background field $B$, and rotor length $\ell$.
+	The torque $T$ of a DC motor is related to its coil current $i$ by the relation
+	\begin{align*}
+		T = -2 r N B \ell i.
+	\end{align*}
+	\begin{enumerate}
+		\item Determine if DC motors are transformers or gyrators.
+		\item Find $TF$ or $GY$.
+		\item Derive the relation between the voltage $v$ and the angular velocity $\Omega$ across the motor using the assumption that it is an ideal transducer.
+	\end{enumerate} 
+}{%
+%TODO 
+\includegraphics[width=.7\linewidth]{figures/dc_motor_ex.jpg}
+}{%
+ex:dc_motor_01%
+}
+
+\examplemaybe{%
+	gears
+}{%
+	Consider two gears with radii $r_1$ and $r_2$ and number of teeth $n_1$ and $n_2$.
+	\begin{enumerate}
+		\item Determine the power flow variables for gears.
+		\item Write two independent equations relating the power flow variables.
+		\item Determine if gears are transformers or gyrators.
+		\item Find $TF$ or $GY$.
+	\end{enumerate} 
+}{%
+%TODO 
+
+for velocity, tangential velocity must be equal
+\tags{v, S}
+
+for torque, tangential force must be equal
+\tags{TO, S}
+
+the number of teeth ratio is equal because that's how we make gears ... the radius ratio is equal to the teeth ratio (has to be because the gears need to mesh)
+\tags{}
+
+\includegraphics[width=.7\linewidth]{figures/gear_ex.jpg}
+}{%
+ex:transducer_ex_02%
+}
+
+\section{Modeling with transducers}
+\tags{}
+\label{lec:modeling_with_transducers}
+
+\begin{wrapfigure}[10]{r}{0.4\textwidth}
+  \centering
+  \begin{tabular}{lr}
+	\begin{tikzpicture}
+		% \coordinate (g1) at (-.5,0);
+		% \draw (g1) pic {groundnode};
+		% \coordinate (g2) at (.5,0);
+		% \draw (g2) pic {groundnode};
+		\node[graphnode] (g1) at (-.5,0) {};
+		\node[graphnode] (g2) at (.5,0) {};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\draw[branch] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+	\end{tikzpicture}
+	\quad
+	&
+	\quad
+	\begin{tikzpicture}
+		% \coordinate (g1) at (-.5,0);
+		% \draw (g1) pic {groundnode};
+		% \node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		% \coordinate (g2) at (.5,0);
+		% \draw (g2) pic {groundnode};
+		\node[graphnode] (g1) at (-.5,0) {};
+		\node[graphnode] (g2) at (.5,0) {};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\draw[branch] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\gy{(0,1)}{2};
+	\end{tikzpicture}
+	\end{tabular}
+  \caption{\label{fig:transducer} two-port ideal linear graph elements of a transformer (left) and a gyrator (right).}%
+\end{wrapfigure}
+
+We now develop both linear graph and state-space models of systems that include transducers.
+Linear graphs of two-port ideal transducer elements are drawn as shown in \autoref{fig:transducer}.
+Once again, we use the sign convention that power into an element is positive.
+Often, the edges are drawn toward ground nodes, which are always different when the transducer acts between different energy domains.
+Transducers may or may not be sufficiently modeled by ideal transducers.
+For instance, we may need to consider the moment of inertia associated with a gear.
+When this is the case, additional elements can be connected in parallel and in series with the two-port element nodes.
+DC motors---another example---are typically not modeled with an ideal transducer, alone, because the windings have both resistance and inductance.
+\tags{R, L, D, T}
+
+\subsection{State-space modeling with transducers}
+\tags{}
+
+We present a method for constructing a state-space model of systems containing transducer elements.
+This procedure begins, as before, with the construction of the normal tree.
+The following rules must be respected.
+\tags{}
+\begin{enumerate}
+	\item[R1.] There can be no loops.
+	\item[R2.] Every node must be connected.
+	\item[R3.] Of a transformer's two edges, exactly one is included.
+	\item[R4.] Of a gyrator's two edges, either both are or neither is included.
+\end{enumerate}
+
+Form a normal tree with the following steps.
+\tags{}
+\begin{enumerate}
+	\item Include all nodes.
+	\item Include all across-variable sources.
+	\item Include as many as possible A-type elements.\footnote{Inclusion of an A-type at this step may result in a violation of R3 or R4 in the next, which implies the A-type is a \emph{dependent energy storage element} and that it should be excluded from the normal tree.}
+	\item Include transducer edges, minimizing the number of T-types in the tree. 
+	\item Include as many as possible D-type elements.
+	\item Include as many as possible T-type elements.
+\end{enumerate}
+
+The state and output equations can be derived as before, but with the following caveat: each two-port element requires two elemental equations.
+\tags{}
+
+
+\section{DC motors}
+\tags{}
+
+DC motors are commonly used in mechanical engineering designs as an actuator. Products such as pumps, fans, conveyors, and robots use DC motors to convert electrical energy to mechanical (rotational) energy.
+\tags{}
+
+DC motors first emerged in the mid-19th century as the first device to produce useful mechanical work from electrical power.\footnote{See a decent history \href{https://en.wikipedia.org/wiki/Electric_motor\#History}{here}.}
+One of fathers of the DC motor, the Benedictine priest \href{https://en.wikipedia.org/wiki/\%C3\%81nyos_Jedlik}{\'Anyos Jedlik}, invented the key facets of the motor: the \keyword{stator}, the \keyword{rotor}, and the \keyword{commutator}. Roughly speaking, for a typical brushed DC motor, current flowing through the wire windings of the stator produces a magnetic field that turns the rotor, which has windings of its own; the commutator mechanically switches the direction of current flow through the windings to yield continuous electromagnetic torque. 
+\tags{TO, I, S}
+
+We will begin our study of DC motors with a review of a key physical phenomenon: the mechanical force on a charged particle moving in a magnetic field.
+\tags{}
+
+\subsection{Lorentz force}
+\tags{}
+
+Consider a charged particle moving through a background magnetic field.
+The \keyword{Lorentz force} is the (mechanical!) force on the particle, which depends on the velocity of the particle, the background magnetic field, and the background electric field.
+Charge flowing through a straight, stationary\footnote{The equations here assume a stationary wire. In a DC motor, the wire is moving, which creates additional effects, but the Lorentz force is still present.} wire with current $i$ in a uniform background magnetic field $\bm{B}$ is subject to the cumulative effect of the Lorentz force on each charge.
+Let the straight wire's length and orientation in the $B$-field be described by the vector $\bm{\ell}$, which should be chosen to be in the direction of positive current flow.
+It can be shown that the resultant force $\bm{f}$ on the wire is
+\tags{I, S}
+
+\begin{align}
+	\bm{f} = i \bm{\ell} \times \bm{B}
+\end{align}
+as shown in \cref{fig:dc_motor_01}.
+
+\begin{figure}
+\centering
+\newcommand{\fw}{5}
+\newcommand{\fh}{5}
+\usetikzlibrary{shapes.misc}
+\tikzset{tail/.style={cross out, draw=black, minimum size=2*(#1-\pgflinewidth), inner sep=0pt, outer sep=0pt},
+tail/.default={1pt},%default radius will be 1pt.
+% head/.style={ out, draw=black, minimum size=2*(#1-\pgflinewidth), inner sep=0pt, outer sep=0pt},
+% head/.default={1pt},%default radius will be 1pt.
+}
+\begin{tikzpicture}[]
+	\coordinate (c0) at (0,0);
+	\coordinate (c1) at ($(c0)+(0,\fh)$);
+	\coordinate (c2) at ($(c0)+(\fw,0)$);
+	\coordinate (c3) at ($(c2)+(0,\fh)$);
+	% field lines
+	\begin{scope}[thick,black!40!white,line cap=round,decoration={
+    markings,
+    mark=at position 0.5 with {\arrow{<}}}
+    ]
+		\draw[postaction={decorate}] ($(c0)+(0,.5)+(0,\fh/5)$)
+			-- ++(\fw,0);
+		\draw[postaction={decorate}] ($(c0)+(0,.5)+(0,2*\fh/5)$)
+			-- ++(\fw,0);
+		\draw[postaction={decorate}] ($(c0)+(0,.5)+(0,3*\fh/5)$)
+			-- ++(\fw,0);
+		\draw[postaction={decorate}] ($(c0)+(0,.5)+(0,4*\fh/5)$)
+			-- ++(\fw,0);
+	\end{scope}
+	% wire into board
+	\node[circle,thick,draw,minimum size=14pt,inner sep=0pt,fill=black!20!white] (circ1) at ($(c0)+(\fw/4,\fh/2+0.5)$) {};
+	\node[tail,thick,minimum size=9pt,line cap=round] at ($(c0)+(\fw/4,\fh/2+0.5)$) {};
+	% wire out of board
+	\node[circle,thick,draw,minimum size=14pt,inner sep=0pt,fill=black!20!white] (circ2) at ($(c0)+(3*\fw/4,\fh/2+0.5)$) {};
+	\node[circle,fill=,inner sep=1pt] at ($(c0)+(3*\fw/4,\fh/2+0.5)$) {};
+	% forces
+	\draw[violet,->,thick] (circ1.north) -- ++(0,1)
+		node[above,right] {$\bm{f}$};
+	\draw[violet,->,thick] (circ2.south) -- ++(0,-1)
+		node[below,right] {$\bm{f}$};
+\end{tikzpicture}
+\caption{the forces $\bm{f}$ on two wires in a magnetic field $\bm{B}$. The wire on the left has current flowing \emph{into} the board, that on the right has current flowing \emph{out of} the board. The cross-product right-hand-rule applies.}
+\label{fig:dc_motor_01}
+\end{figure}
+
+With a curved wire, then, we could take infinitesimal sections $d\bm{\ell}$ and integrate along the wire's path:
+\tags{}
+\begin{align}
+	\bm{f} = i \int d\bm{\ell} \times \bm{B}.
+\end{align}
+
+DC motors take advantage of this electromechanical phenomenon by driving current through cleverly arranged wires to generate torque on a shaft.
+\tags{TO}
+
+\subsection{Permanent magnet DC motors}
+\tags{}
+
+In order to take advantage of the Lorentz force, first a uniform background magnetic field $\bm{B}$ is required.
+Some DC motors, called \keyword[PMDC motors]{permanent magnet DC motors} (PMDC motors) generate this field with two stationary permanent magnets arranged as shown in \cref{fig:dc_motor_02}.
+The magnets are affixed to the ``stationary'' part of the motor called the \keyword{stator}.
+\tags{}
+
+\begin{figure}
+\centering
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes.misc}
+\usetikzlibrary{pgfplots.fillbetween}
+\newcommand{\fw}{2.9} % fw and fh have to be the same for the vertical alignment of wire in config B
+\newcommand{\fh}{2.9} % fw and fh have to be the same for the vertical alignment of wire in config B
+\newcommand{\fhd}{\fh/10}
+\tikzset{tail/.style={cross out, draw=black, minimum size=2*(#1-\pgflinewidth), inner sep=0pt, outer sep=0pt},
+tail/.default={1pt},%default radius will be 1pt.
+}
+\pgfdeclarelayer{bg}    % declare background layer
+\pgfsetlayers{bg,main}  % set the order of the layers (main is the standard layer)
+\subbottom[Orientation A: horizontal.]{
+	\begin{tikzpicture}[line join=round,font=\sffamily]
+		\coordinate (c0) at (0,0);
+		\coordinate (c01) at ($(c0)+(0,\fhd)$);
+		\coordinate (c1) at ($(c0)+(0,\fh)$);
+		\coordinate (c2) at ($(c0)+(\fw,0)$);
+		\coordinate (c3) at ($(c2)+(0,\fh)$);
+		% magnets
+		\draw[thick,rounded corners=.8pt] (c0)
+			-- (c1)
+			-- ++(-.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\draw[thick,rounded corners=.8pt] (c2)
+			-- (c3)
+			-- ++(.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\node at (-.25,\fh/2) {S};
+		\node at ($(\fw,\fh/2)+(.25,0)$) {N};
+		% field lines
+		\begin{pgfonlayer}{bg} % select the background layer
+			\begin{scope}[thick,black!40!white,line cap=round,decoration={
+		    markings,
+		    mark=at position 0.5 with {\arrow{<}}}
+		    ]
+				\draw[postaction={decorate}] (c01)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,\fh/3-2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,2*\fh/3-2*2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,3*\fh/3-3*2*\fhd/3)$)
+					-- ++(\fw,0);
+			\end{scope}
+		\end{pgfonlayer}
+		% horizontal loop
+		% - wire into board
+		\coordinate (c4) at ($(c0)+(3*\fw/16,\fh/2)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ1) at (c4) {};
+		\node[tail,thick,minimum size=6pt,line cap=round] at (c4) {};
+		% - wire out of board
+		\coordinate (c5) at ($(c0)+(13*\fw/16,\fh/2)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ2) at (c5) {};
+		\node[circle,fill,inner sep=.5pt] at (c5) {};
+		% - phantom wire into board
+		\coordinate (c6) at ($(c0)+(8*\fw/16,13*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=white,opacity=0] (circ3) at (c6) {};
+		% - phantom wire out of board
+		\coordinate (c7) at ($(c0)+(8*\fw/16,3*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=white,opacity=0] (circ4) at (c7) {};
+		% - background wire
+		\begin{pgfonlayer}{bg} % select the background layer
+			\draw[thick,black!60!white,name path=one] ([yshift=-.4pt]circ1.north) -- ([yshift=-.4pt]circ2.north);
+			\draw[thick,black!60!white,name path=two] ([yshift=.4pt]circ1.south) -- ([yshift=.4pt]circ2.south);
+			\tikzfillbetween[of=one and two] {black!20!white};
+			% redraw lines as a hack so half doesn't get covered up
+			\draw[thick,black!100!white,name path=one] ([yshift=-.4pt]circ1.north) -- ([yshift=-.4pt]circ2.north);
+			\draw[thick,black!100!white,name path=two] ([yshift=.4pt]circ1.south) -- ([yshift=.4pt]circ2.south);
+	  \end{pgfonlayer}
+		% - forces
+		\draw[violet,->,thick] (circ1.north) -- ++(0,.75)
+			node[above,right] {$\bm{f}$};
+		\draw[violet,->,thick] (circ2.south) -- ++(0,-.75)
+			node[below,left] {$\bm{f}$};
+		% - phantom forces
+		\draw[violet,->,thick,opacity=0] (circ3.north) -- ++(0,.75)
+			node[right] {$\bm{f}$};
+		\draw[violet,->,thick,opacity=0] (circ4.south) -- ++(0,-.75)
+			node[left] {$\bm{f}$};
+	\end{tikzpicture}
+} % end subbottom
+\subbottom[Orientation B: vertical.]{
+	\begin{tikzpicture}[line join=round,font=\sffamily]
+		\coordinate (c0) at (0,0);
+		\coordinate (c01) at ($(c0)+(0,\fhd)$);
+		\coordinate (c1) at ($(c0)+(0,\fh)$);
+		\coordinate (c2) at ($(c0)+(\fw,0)$);
+		\coordinate (c3) at ($(c2)+(0,\fh)$);
+		% \draw[help lines] (c0) grid (c3);
+		% magnets
+		\draw[thick,rounded corners=.8pt] (c0)
+			-- (c1)
+			-- ++(-.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\draw[thick,rounded corners=.8pt] (c2)
+			-- (c3)
+			-- ++(.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\node at (-.25,\fh/2) {S};
+		\node at ($(\fw,\fh/2)+(.25,0)$) {N};
+		% field lines
+		\begin{pgfonlayer}{bg} % select the background layer
+			\begin{scope}[thick,black!40!white,line cap=round,decoration={
+		    markings,
+		    mark=at position 0.25 with {\arrow{<}}}
+		    ]
+				\draw[postaction={decorate}] (c01)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,\fh/3-2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,2*\fh/3-2*2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,3*\fh/3-3*2*\fhd/3)$)
+					-- ++(\fw,0);
+			\end{scope}
+		\end{pgfonlayer}
+		% vertical loop
+		% - wire into board
+		\coordinate (c4) at ($(c0)+(8*\fw/16,13*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ1) at (c4) {};
+		\node[tail,thick,minimum size=6pt,line cap=round] at (c4) {};
+		% - wire out of board
+		\coordinate (c5) at ($(c0)+(8*\fw/16,3*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ2) at (c5) {};
+		\node[circle,fill,inner sep=.5pt] at (c5) {};
+		% - background wire
+		\begin{pgfonlayer}{bg} % select the background layer
+			\draw[thick,black!60!white,name path=one] ([xshift=-.4pt]circ1.east) -- ([xshift=-.4pt]circ2.east);
+			\draw[thick,black!60!white,name path=two] ([xshift=.4pt]circ1.west) -- ([xshift=.4pt]circ2.west);
+			\tikzfillbetween[of=one and two] {black!20!white};
+			% redraw lines as a hack so half doesn't get covered up
+			\draw[thick,black!100!white,name path=one] ([xshift=-.4pt]circ1.east) -- ([xshift=-.4pt]circ2.east);
+			\draw[thick,black!100!white,name path=two] ([xshift=.4pt]circ1.west) -- ([xshift=.4pt]circ2.west);
+	  \end{pgfonlayer}
+		% - forces
+		\draw[violet,->,thick] (circ1.north) -- ++(0,.75)
+			node[right] {$\bm{f}$};
+		\draw[violet,->,thick] (circ2.south) -- ++(0,-.75)
+			node[left] {$\bm{f}$};
+	\end{tikzpicture}
+} % end subbottom
+\subbottom[Orientation C: mixed.]{
+	\begin{tikzpicture}[line join=round,font=\sffamily]
+		\coordinate (c0) at (0,0);
+		\coordinate (c01) at ($(c0)+(0,\fhd)$);
+		\coordinate (c1) at ($(c0)+(0,\fh)$);
+		\coordinate (c2) at ($(c0)+(\fw,0)$);
+		\coordinate (c3) at ($(c2)+(0,\fh)$);
+		% magnets 
+		\draw[thick,rounded corners=.8pt] (c0)
+			-- (c1)
+			-- ++(-.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\draw[thick,rounded corners=.8pt] (c2)
+			-- (c3)
+			-- ++(.5,0)
+			-- ++(0,-\fh)
+			-- cycle;
+		\node at (-.25,\fh/2) {S};
+		\node at ($(\fw,\fh/2)+(.25,0)$) {N};
+		% field lines
+		\begin{pgfonlayer}{bg} % select the background layer
+			\begin{scope}[thick,black!40!white,line cap=round,decoration={
+		    markings,
+		    mark=at position 0.5 with {\arrow{<}}}
+		    ]
+				\draw[postaction={decorate}] (c01)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,\fh/3-2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,2*\fh/3-2*2*\fhd/3)$)
+					-- ++(\fw,0);
+				\draw[postaction={decorate}] ($(c01)+(0,3*\fh/3-3*2*\fhd/3)$)
+					-- ++(\fw,0);
+			\end{scope}
+		\end{pgfonlayer}
+		% angle loop
+		% - wire into board 
+		\coordinate (c4) at ($(c0)+(8*\fw/16,\fh/2)+(0.2209708691*\fw,0.2209708691*\fw)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ1) at (c4) {};
+		\node[tail,thick,minimum size=6pt,line cap=round] at (c4) {};
+		% - wire out of board
+		\coordinate (c5) at ($(c0)+(8*\fw/16,\fh/2)-(0.2209708691*\fw,0.2209708691*\fw)$);;
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=black!20!white] (circ2) at (c5) {};
+		% - phantom wire into board
+		\coordinate (c6) at ($(c0)+(8*\fw/16,13*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=white,opacity=0] (circ3) at (c6) {};
+		% - phantom wire out of board
+		\coordinate (c7) at ($(c0)+(8*\fw/16,3*\fw/16)$);
+		\node[circle,thick,draw,minimum size=10pt,inner sep=0pt,fill=white,opacity=0] (circ4) at (c7) {};
+		\node[circle,fill,inner sep=.5pt] at (c5) {};
+		% - background wire 0.2828427125
+		\begin{pgfonlayer}{bg} % select the background layer
+			\draw[thick,black!100!white,name path=one] ([yshift=-0.2828427125pt,xshift=0.2828427125pt]circ1.north west) -- ([yshift=-0.2828427125pt,xshift=0.2828427125pt]circ2.north west);
+			\draw[thick,black!100!white,name path=two] ([yshift=0.2828427125pt,xshift=-0.2828427125pt]circ1.south east) -- ([yshift=0.2828427125pt,xshift=-0.2828427125pt]circ2.south east);
+			\tikzfillbetween[of=one and two] {black!20!white};
+			% redraw lines as a hack so half doesn't get covered up
+			\draw[thick,black!100!white,name path=one] ([yshift=-0.2828427125pt,xshift=0.2828427125pt]circ1.north west) -- ([yshift=-0.2828427125pt,xshift=0.2828427125pt]circ2.north west);
+			\draw[thick,black!100!white,name path=two] ([yshift=0.2828427125pt,xshift=-0.2828427125pt]circ1.south east) -- ([yshift=0.2828427125pt,xshift=-0.2828427125pt]circ2.south east);
+	  \end{pgfonlayer}
+		% - forces
+		\draw[violet,->,thick] (circ1.north) -- ++(0,.75)
+			node[above,right] {$\bm{f}$};
+		\draw[violet,->,thick] (circ2.south) -- ++(0,-.75)
+			node[below,left] {$\bm{f}$};
+		% - phantom forces
+		\draw[violet,->,thick,opacity=0] (circ3.north) -- ++(0,.75)
+			node[right] {$\bm{f}$};
+		\draw[violet,->,thick,opacity=0] (circ4.south) -- ++(0,-.75)
+			node[left] {$\bm{f}$};
+	\end{tikzpicture}
+} % end subbottom
+\caption{axial section view of a simple DC motor with permanent magnets.}
+\label{fig:dc_motor_02}
+\end{figure}
+  
+Now consider a rigidly supported wire with current $i$ passing through the field such that much of its length is perpendicular to the magnetic field.
+Consider the resultant forces on these perpendicular sections of wire for different wire configurations, as illustrated in \cref{fig:dc_motor_02}.
+We have torque!
+But note that it changes direction for different armature orientations, which will need to be addressed in a moment.
+Note that we can wind this wire---which we call the \keyword{armature}---multiple times around the loop to increase the torque.
+The rotating bit of the motor that supports the armature is called the \keyword{rotor}, which includes the shaft.
+\tags{TO, I, S}
+
+The trouble is, if we connect our armature up to a circuit---which is usually located alongside the stator, i.e.\ \emph{not rotating}---the wire will wrap about itself, which is \keyword{not \#winning}.
+But we're tricky af so let's consider just cutting that wire and rigidly connecting it to a disk---called a \keyword{commutator}---with two conductive regions, one for each terminal of the armature.
+The commutator will rotate with the armature, but it provides smooth contacts along the perimeter of the disk.
+\tags{}
+
+We can then connect the driving circuit to these contacts via \keyword{brushes}: conductive blocks pressed against the commutator on opposite sides such that they remain in contact (conducting current) yet allow the commutator to slide easily, as shown in \cref{fig:brushes_commutator_motor}.
+Brushes are typically made from carbon and wear out over time.
+This is partially mitigated by spring-loading, but eventually the brushes must be replaced, nonetheless.
+\tags{}
+
+\begin{figure}
+\centering
+\includegraphics[width=.6\linewidth]{figures/brushes_commutator_motor.pdf}
+\caption{illustration of brushes, commutator, and two armatures.}
+\label{fig:brushes_commutator_motor}
+\end{figure}
+
+So brushes solve the ``wire wrapping'' problem, but do they have an effect on the ``torque flipping'' issue?
+Yes!
+When the armature passes through its vertical orientation, \emph{current reverses direction through the armature}.
+So whenever the perpendicular section of wire is on the right, current flows in the same direction, regardless of to which side of the armature it belongs.
+\tags{TO, S}
+
+Finally, is there a way to overcome the limitation of torque variation with different armature angles?
+Yes: if there are several different armature windings at different angles and correspondingly the commutator is split into several conductive contact pairs (one for each armature winding), a relatively continuous torque results!
+Real PMDC motors use this technique.
+\tags{TO, S}
+
+\subsection{Wound stator DC motors}
+\tags{}
+
+\keyword[wound stator DC motors]{Wound stator DC motors} operate very similarly to PMDC motors, but generate their background field with two stationary coils in place of the permanent magnets, above.
+These electromagnets require a current of their own, which is usually provided through the same circuitry that supplies the armature current (DC motors typically have only two terminals).
+\tags{I, S}
+
+Three common configurations of the electrical connection of these are shown in \cref{fig:dc_motor_03}.
+These define the following three DC motor types.
+\begin{description}
+	\item[shunt] 
+	The \keyword[shunt DC motors]{shunt DC motor} has its stator and rotor windings connected in parallel.
+	These are the most common wound stator DC motors and their speeds can be easily controlled without feedback, but they have very low starting torque.
+	\item[series] The \keyword[series DC motors]{series DC motor} has stator and rotor windings connected in series.
+	These have high starting torque---so high, in fact, that it is not advisable to start these motors without a load---but their speeds are not as easily controlled without feedback.
+	\item[compound] The \keyword[compound DC motors]{compound DC motor} has stator and rotor windings connected in both series and parallel.
+	These can exhibit characteristics that mix advantages and disadvantages of shunt and series DC motors.
+\end{description}
+
+\begin{figure}
+\centering
+\subbottom[shunt motor]{%
+	\begin{circuitikz}[]
+		\node (Vs) at (0,0) {$V_S$};
+		\draw (Vs.south) 
+			-- ++(0,-.25)
+			coordinate (c1)
+			-- ++(-1.25,0)
+			to[european inductor,l_={stator coils}] ++(0,-2)
+			-- ++(1.25,0)
+			node[ground] (g) {};
+		\draw (c1)
+			to[Telmech=M,n=motor]
+			node[left=11pt,pos=.5,anchor=south,rotate=90,xshift=.5em] {armature} (g);
+		\draw (c1)
+			-- ++(1.25,0)
+			to[european inductor] ++(0,-2)
+			-- (g);
+	\end{circuitikz}
+}
+\hfill
+\subbottom[series motor]{%
+	\begin{circuitikz}[]
+		\node (Vs) at (0,0) {$V_S$};
+		\draw (Vs.south) 
+			-- ++(0,-.25)
+			coordinate (c1)
+			-- ++(-1.25,0)
+			to[european inductor] ++(0,-2)
+			-- ++(.6125,0)
+			|- ($(c1)-(0,.25)$)
+			coordinate (c2);
+		\draw (c2)
+			to[Telmech=M,n=motor] ++(0,-1.5)
+			-- ++(0,-.25) 
+			node[ground] (g) {};
+		\draw (c1)
+			-- ++(1.25,0)
+			to[european inductor] ++(0,-2)
+			-- ++(-.6125,0)
+			|- (c2);
+	\end{circuitikz}
+}
+\hfill
+\subbottom[compound motor]{%
+	\begin{circuitikz}[]
+		\node (Vs) at (0,0) {$V_S$};
+		\draw (Vs.south) 
+			-- ++(0,-.25)
+			coordinate (c1)
+			-- ++(1.25,0)
+			to[european inductor] ++(0,-2)
+			-- ++(-.6125,0)
+			|- ($(c1)-(0,.25)$)
+			coordinate (c2);
+		\draw (c2)
+			to[Telmech=M,n=motor] ++(0,-1.5)
+			-- ++(0,-.25) 
+			node[ground] (g) {};
+		\draw (c1)
+			-- ++(-1.25,0)
+			to[european inductor] ++(0,-2)
+			-- (g);
+	\end{circuitikz}
+}
+\caption{connections for shunt, series, and compound DC motors.}
+\label{fig:dc_motor_03}
+\end{figure}
+
+\subsection{Brushless DC motors}
+\tags{}
+
+There is yet another type of DC motor: \keyword[brushless (BLDC) motors]{brushless} (BLDC).
+Brushless DC motors work on principles more similar to AC motors, but require complex solid-state switching that must be precisely timed.
+As their name implies, these motors do not require brushes.
+A brushless DC motor mathematical model is not presented here, but a nice introduction is given by \citet{Baldursson2005}. 
+\tags{}
+
+The brushed DC motor is still widely used, despite its limitations, which include relatively frequent maintenance to replace brushes that wear out or clean/replace commutators. 
+Other disadvantages of brushed DC motors include their relatively large size, relatively large rotor inertia, heat generated by the windings of the stator and/or rotor, and arcing that creates electronic interference for nearby electronics. 
+Reasons they are still widely used include that they are inexpensive (about half the cost of brushless DC motors), don't require (but often still use) complex driving circuits, are easy to model, and are easily driven at different speeds; for these reasons, an additional reason emerges: they're relatively easy to design with!
+\tags{}
+
+\subsection{A PMDC motor model}
+\tags{}
+
+\begin{wrapfigure}[10]{r}{0.4\textwidth}
+  \centering
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B$} (g2);
+		\draw[branch] (n2) to[out=-10,in=90] ++(.85,-1) node[right] {$J$} to[out=-90,in=10] (g2);
+	\end{tikzpicture}
+  \caption{\label{fig:real_motor_graph} a better brushed DC motor model.}%
+\end{wrapfigure}
+
+We have already explored a model for a PMDC motor in \autoref{ex:dc_motor_01}, which yielded elemental equations 
+\begin{align}
+	T_2 &= -TF i_1 \quad\text{and}\\
+	\Omega_2 &= v_1/TF,
+\end{align}
+where $TF$ is the motor constant.
+That model assumed neither armature resistance nor inductance were present---that is, it was an ideal transformer model.
+A linear graph of a much better model for a DC motor is shown in \autoref{fig:real_motor_graph}.
+This model includes a resistor $R$ and inductor $L$ in series with an ideal transducer.
+On the mechanical side, the rotor inertia $J$ and internal bearing damping $B$ are included.
+The tail ends of $R$ and $2$ should be connected to external electrical and mechanical subgraphs, respectively. 
+\tags{R, L, B, D, T}
+
+\subsection{Motor constants}
+\tags{}
+
+The \keyword{motor torque constant} $K_t$ and \keyword{back-emf voltage constant} $K_v$ are related to the transformer ratio $TF$ derived above to characterize a brushed DC motor's response.
+If expressed in a set of consistent units---say, SI units---$K_t$ and $K_v$ have the same numerical value and are equivalent to $TF$.
+Precisely, with consistent units, $TF = K_v = K_t$.
+\tags{TO, V, S}
+
+However, manufacturers usually use weird units like oz--in/A and V/krpm.
+If they are given in anything but SI units, we recommend converting to SI for analysis.
+\tags{}
+
+Once in SI, we will have something like (for $x\in\mathbb{R}$):
+\maybeeq{
+\begin{align*}
+	K_t &= x \ \text{N--m/A and} \\
+	K_v &= x \ \text{V/(rad/s)}.
+\end{align*}
+}
+
+So if we are given either $K_t$ or $K_v$, the unknown constant can be found (in SI units) by converting the known constant to SI.\footnote{One more note. When given a torque constant, the unit ``oz'' means ``ounce-force,'' which is the mass in regular (mass) ounces multiplied by the gravitational acceleration $g$.}
+\tags{TO, M, S, A}
+
+\subsection{Animations}
+\tags{}
+
+There are some great animations of DC motor operating principles and construction.
+I've included the url of my favorite, along with some bonus animations for other important types of motors we don't have time to discuss, here.
+\tags{}
+
+\begin{itemize}
+	\item Brushed DC motors: \href{https://youtu.be/LAtPHANEfQo}{\texttt{youtu.be/LAtPHANEfQo}}
+	\item Brushless DC motors: \href{https://youtu.be/bCEiOnuODac}{\texttt{youtu.be/bCEiOnuODac}}
+	\item AC (asynchronous) induction motors: \href{https://youtu.be/AQqyGNOP_3o}{\texttt{youtu.be/AQqyGNOP\_3o}}
+	\item AC synchronous motors: \href{https://youtu.be/Vk2jDXxZIhs}{\texttt{youtu.be/Vk2jDXxZIhs}}
+	\item Stepper motors: \href{https://youtu.be/eyqwLiowZiU}{\texttt{youtu.be/eyqwLiowZiU}}
+\end{itemize}
+
+
+\section[A real electromechanical system]{Modeling a real electromechanical system}
+\tags{}
+\label{lec:modeling_real_em_system}
+
+\begingroup
+\setlength\intextsep{0pt}
+\begin{wrapfigure}[13]{r}{0.5\textwidth}
+  \centering
+  \includegraphics[width=1\linewidth]{figures/electromechanical_embedded_computing_lab_apparatuses.jpg}
+  \caption{\label{fig:lab_electromechanical_stations} electromechanical systems from the lab.}%
+\end{wrapfigure}
+
+We now model the electromechanical systems from the laboratory, shown in \autoref{fig:lab_electromechanical_stations}.
+The system includes a brushed DC motor (\emph{Electrocraft 23SMDC-LCSS} servomotor from \href{http://servosystems.com/electrocraft_dcbrush_rdm103.html}{\emph{Servo Systems}}), two shafts, a shaft coupler, two bearings, and a flywheel.
+The motor's datasheet specifications are given in \autoref{tab:electrocraft_specs}.
+The mechanical subsystem's inertia is dominated by the stainless steel flywheel with $J_f = 0.324\cdot10^{-3}$ kg-m$^2$.
+The bearing damping $B_b$ is the most difficult parameter to determine.
+Let's begin with the assumption that the combined bearing damping is $B_b = 20\cdot10^{-6}$ N-m/(rad/s).
+\tags{}
+
+\endgroup
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+% \usepackage{multirow}
+\begin{table}[]
+\centering
+\caption{datasheet specifications for the \emph{Electrocraft 23SMDC-LCSS} servomotor from \href{http://servosystems.com/electrocraft_dcbrush_rdm103.html}{\emph{Servo Systems}}. This is the motor used in the lab.}
+\label{tab:electrocraft_specs}
+\centerline{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+& \textbf{parameter} & \textbf{specification} & \textbf{SI conversion}
+\\\cmidrule(l){2-4}
+\multirow{4}{*}{\rotatebox[origin=c]{90}{general}}    
+& continuous stall torque            
+& $55$ oz-in 
+& $0.388$ N-m             
+\\
+& peak torque $T_\text{max}$                       
+& $400$ oz-in 
+& $2.82$ N-m            
+\\
+& max terminal voltage              
+& $60\ \text{V}_\text{dc}$     
+& $60\ \text{V}_\text{dc}$           
+\\
+& max operating speed $\Omega_\text{max}$              
+& $6000$ rpm  
+& $628$ rad/s            
+\\\cmidrule(l){2-4}
+\multirow{7}{*}{\rotatebox[origin=c]{90}{mechanical}} 
+& rotor inertia $J_m$                     
+& $0.008$ oz-in/s$^2$  
+& $56.5\cdot10^{-6}$ N-m/s$^2$
+\\
+& damping constant $B_m$                  
+& $0.25$ oz-in/krpm 
+& $16.9 \cdot 10^{-6}$ N-m/(rad/s)     
+\\
+& thermal resistance                 
+& $4$ C/W         
+& $4$ K/W
+\\
+& max armature temp                 
+& $155$ C          
+& $428$ K  
+\\
+& max friction torque               
+& $3$ oz-in       
+& $0.0212$ N-m       
+\\
+& max radial load\footnotemark 
+& $10$ lb      
+& $44.5$ N         
+\\
+& weight (motor only)                             
+& $3.5$ lb 
+& $15.6$ N
+\\\cmidrule(l){2-4}
+\multirow{8}{*}{\rotatebox[origin=c]{90}{electrical}} 
+& torque constant $K_t$                   
+& $13.7$ oz-in/A       
+& $0.097$ N-m/A
+\\
+& voltage constant $K_v$                   
+& $10.2$ V/krpm      
+& $0.097$ V/(rad/s)    
+\\
+& terminal resistance                
+& $1.6\ \Omega$       
+& $1.6\ \Omega$       
+\\
+& electrical time constant           
+& $2.6$ ms    
+& $2.6\cdot10^{-3}$ s         
+\\
+& mechanical time constant           
+& $8.9$ ms      
+& $8.9\cdot10^{-3}$ s       
+\\
+& max continuous current            
+& $4$ A   
+& $4$ A             
+\\
+& armature inductance                
+& $4.1$ mH      
+& $4.1\cdot10^{-3}$ H         
+\\
+& max peak current                  
+& $34$ A        
+& $34$ A       
+\\ \bottomrule 
+\end{tabular}%
+}
+\end{table}
+
+\footnotetext{Load applied at one inch from bearing.} % for table, awkwardly ... not sure how to get numbered correctly and on same page
+
+\subsection{Linear graph model}
+\tags{}
+
+\begingroup
+\setlength\intextsep{0pt}
+\begin{wrapfigure}[10]{r}{0.48\textwidth}
+  \centering
+  \ifdefined\ispartial
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[sourcebranch] (n4) to[bend right] node[midway,left=7pt] {$V_S$} ++(0,-2)
+			coordinate (g3);
+		\draw (g3) pic {groundnode};
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B$} (g2);
+		\draw[branch] (n2) to[out=-10,in=90] ++(.85,-1) node[right] {$J$} to[out=-90,in=10] (g2);
+	\end{tikzpicture}
+	\else
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch,normaltree] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch,normaltree] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[sourcebranch,normaltree] (n4) to[bend right] node[midway,left=7pt] {$V_S$} ++(0,-2)
+			coordinate (g3);
+		\draw (g3) pic {groundnode};
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B$} (g2);
+		\draw[branch,normaltree] (n2) to[out=-10,in=90] ++(.85,-1) node[right] {$J$} to[out=-90,in=10] (g2);
+	\end{tikzpicture}
+	\fi
+  \caption{\label{fig:embedded_system_graph} a linear graph model of the electromechanical systems of \autoref{fig:lab_electromechanical_stations}.}
+\end{wrapfigure}
+
+A linear graph model is in order.
+An ideal voltage source drives the motor\footnote{Often we can model our motor-driving source as ideal within an operating range. See \autoref{lec:driving_motors} for more details.}---modeled as an ideal transducer with armature resistance $R$ and inductance $L$, given in \autoref{tab:electrocraft_specs}.
+The ideal transducer's rotational mechanical side ($2$) is connected to a moment of inertia
+$J = J_m + J_f = 0.381\cdot10^{-3}$ kg-m$^2$,
+dominated by the flywheel,\footnote{This is the sum of the inertia of the flywheel $J_f = 0.324\cdot 10^{-3}$ kg-m$^2$ and the rotor $J_m = 0.0565\cdot 10^{-3}$ kg-m$^2$. It might be worthwhile combining this with the inertia from the shaft and coupler to obtain a more accurate value, but the difference is likely negligible.}
+and damping $B$, which is the parallel combination of the internal motor damping of \autoref{tab:electrocraft_specs} and the bearing damping $B_d$, to yield $B = 26.9\cdot 10^{-6}$ N-m/s$^2$.
+We choose to ignore the flexibility of the coupler.
+Problem \ref{problem:motor_flexible_coupler} considers the same system but does not ignore the coupler's flexibility.
+In general, shaft couplers have significant flexibility and, depending on the application, this may require consideration in the dynamic model.
+\tags{V, R, L, J, B, S, D, T, A}
+\endgroup
+
+\subsection{State-space model}
+\tags{}
+
+The normal tree can be constructed by the procedure from \autoref{lec:modeling_with_transducers}.
+The voltage source $V_S$ is first included, followed by $J$.
+Then exactly one edge of the ideal transducer must be selected, minimizing the number of T-types in the tree.
+We don't really have a choice, in this case, because selecting edge $2$ would create a loop, so we must select edge $1$.
+Next, $R$ is included.
+No more elements can be included without creating a loop, so we are finished.
+\tags{V, J, R, S, A, D}
+
+We are now prepared to determine variables.
+The state variables are across variables of A-type tree branches and through variables of T-type links---so $\Omega_J$ and $i_L$, and the system is second-order ($n=2$).
+Clearly, the system's input is the voltage source $V_S$.
+We are interested in all the variables for the analysis in \autoref{lec:dc_motor_performance_steady}, so we choose them all for our outputs.
+In summary, then, the state, input, and output vectors are:
+\tags{V, S}
+
+\setcounter{MaxMatrixCols}{20}
+\begin{gather*}
+	\bm{x} = 
+	\begin{bmatrix} \Omega_J \\ i_L \end{bmatrix}, \
+	\bm{u} = 
+	\begin{bmatrix} V_s \end{bmatrix},\text{ and} \\
+	\bm{y} = 
+	\begin{bmatrix} 
+	\Omega_J & 
+	T_J & 
+	v_L & 
+	i_L & 
+	\Omega_B & 
+	T_B & 
+	v_R & 
+	i_R & 
+	v_1 & 
+	i_1 & 
+	\Omega_2 & 
+	T_2 & 
+	V_s & 
+	I_s 
+	\end{bmatrix}^\top.
+\end{gather*}
+
+Let's write some equations!
+Elemental are up first.
+\begin{center}
+\begingroup
+\renewcommand{\arraystretch}{2}
+\ifdefined\ispartial
+\begin{tabular}{l|l}
+	$J$ & \phantom{$\dfrac{d \Omega_J}{d t} = \dfrac{1}{J} T_J$}\\
+	$L$ & \phantom{$\dfrac{d i_L}{d t} = \dfrac{1}{L} v_L$}\\
+	$B$ & \phantom{$T_B = B \Omega_B$}
+\end{tabular}
+\qquad\qquad
+\begin{tabular}{l|l}
+	$R$ & \phantom{$v_R = i_R R$}\\
+	$1$ & \phantom{$\Omega_2 = v_1/TF$}\\
+	$2$ & \phantom{$T_2 = -TF\, i_1$}
+\end{tabular}
+\else
+\begin{tabular}{l|l}
+	$J$ & $\dfrac{d \Omega_J}{d t} = \dfrac{1}{J} T_J$\\
+	$L$ & $\dfrac{d i_L}{d t} = \dfrac{1}{L} v_L$\\
+	$B$ & $T_B = B \Omega_B$
+\end{tabular}
+\qquad\qquad
+\begin{tabular}{l|l}
+	$R$ & $v_R = i_R R$\\
+	$1$ & $\Omega_2 = v_1/TF$\\
+	$2$ & $T_2 = -TF\, i_1$
+\end{tabular}
+\fi
+\endgroup
+\end{center}
+
+\begingroup
+\setlength\intextsep{0pt}
+\begin{wrapfigure}[10]{r}{0.5\textwidth}
+  \centering
+  \ifdefined\ispartial
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[sourcebranch] (n4) to[bend right] node[midway,left=7pt] {$V_S$} ++(0,-2)
+			coordinate (g3);
+		\draw (g3) pic {groundnode};
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B$} (g2);
+		\draw[branch] (n2) to[out=-10,in=90] ++(.85,-1) node[right] {$J$} to[out=-90,in=10] (g2);
+	\end{tikzpicture}
+	\else
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch,normaltree] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch,normaltree] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[sourcebranch,normaltree] (n4) to[bend right] node[midway,left=7pt] {$V_S$} ++(0,-2)
+			coordinate (g3);
+		\draw (g3) pic {groundnode};
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B$} (g2);
+		\draw[branch,normaltree] (n2) to[out=-10,in=90] ++(.85,-1) node[right] {$J$} to[out=-90,in=10] (g2);
+		\draw [red,densely dashed,line cap=round,thick] (n3) circle (7pt);
+		\draw [red,densely dashed,line cap=round,thick] (n1) circle (7pt);
+		\draw [red,densely dashed,line cap=round,thick] (n2) circle (7pt);
+	\end{tikzpicture}
+	\fi
+  \caption{\label{fig:embedded_system_con_com} the linear graph model for drawing contours.}
+\end{wrapfigure}
+
+Now, continuity and compatibility equations are developed by summing through-variables into contours.
+The three required contours---one for each of $R$, $1$, and $J$---can be drawn on \autoref{fig:embedded_system_con_com}.
+The three compatibility equations---one for each of $L$, $2$, and $B$---are found by ``temporarily including'' those links in the tree and summing across-variables around the loops created.
+Let's write the equations.
+\tags{R, J, L, B, D, A, T}
+\begin{center}
+\begingroup
+\renewcommand{\arraystretch}{2}
+\ifdefined\ispartial
+\begin{tabular}{l|l}
+	branch & continuity equation \\
+	$R$ & \phantom{$i_R = i_L$} \\
+	$1$ & \phantom{$i_1 = i_L$} \\
+	$J$ & \phantom{$T_J = -T_2 - T_B$}
+\end{tabular}
+\qquad\quad
+\begin{tabular}{l|l}
+	link & compatibility equation \\
+	$L$ & \phantom{$v_L = -v_R+V_s-v_1$} \\
+	$2$ & \phantom{$\Omega_2 = \Omega_J$} \\
+	$B$ & \phantom{$\Omega_B = \Omega_J$}
+\end{tabular}
+\else
+\begin{tabular}{l|l}
+	branch & continuity equation \\
+	$R$ & $i_R = i_L$ \\
+	$1$ & $i_1 = i_L$ \\
+	$J$ & $T_J = -T_2 - T_B$
+\end{tabular}
+\qquad\quad
+\begin{tabular}{l|l}
+	link & compatibility equation \\
+	$L$ & $v_L = -v_R+V_s-v_1$ \\
+	$2$ & $\Omega_2 = \Omega_J$ \\
+	$B$ & $\Omega_B = \Omega_J$
+\end{tabular}
+\fi
+\endgroup
+\end{center}
+
+\endgroup
+
+All that remains to form the state-space model is to eliminate variables that are neither states nor inputs from the elemental, continuity, and compatibility equations.
+Eliminating secondary variables by substituting the continuity and compatibility equations into the elemental equations, the following results.
+\tags{}
+\begin{center}
+\begingroup
+\renewcommand{\arraystretch}{2}
+\ifdefined\ispartial
+\begin{tabular}{l|l}
+	$J$ & \phantom{$\dfrac{d \Omega_J}{d t} = \frac{1}{J} T_J$}\\
+	$L$ & \phantom{$\dfrac{d i_L}{d t} = \frac{1}{L} v_L$}\\
+	$B$ & \phantom{$T_B = B \Omega_B$}
+\end{tabular}
+\qquad\qquad
+\begin{tabular}{l|l}
+	$R$ & \phantom{$v_R = i_R R$}\\
+	$1$ & \phantom{$\Omega_2 = v_1/TF$}\\
+	$2$ & \phantom{$T_2 = -TF\, i_1$}
+\end{tabular}
+\else
+\begin{tabular}{l|l}
+	$J$ & $\dfrac{d \Omega_J}{d t} = -\frac{1}{J} (T_2 + T_B) $\\
+	$L$ & $\dfrac{d i_L}{d t} = \frac{1}{L} (-v_R + V_s - v_1)$\\
+	$B$ & $T_B = B \Omega_J$
+\end{tabular}
+\qquad\qquad
+\begin{tabular}{l|l}
+	$R$ & $v_R = i_L R$\\
+	$1$ & $v_1 = TF\, \Omega_J$\\
+	$2$ & $T_2 = -TF\, i_L$
+\end{tabular}
+\fi
+\endgroup
+\end{center}
+
+The last four equations allow us to eliminate the remaining undesirable variables to obtain the state model in the standard form\footnote{
+%Attached to the electronic version of this text, 
+%\textattachfile{figures/motor_model.rnd}{{\color{mygreen}\bfseries here}} (right-click \texttt{> Save Embedded File to Disk...}),
+Here is the \texttt{rnd} file for use with StateMint (\href{http://statemint.stmartin.edu/}{\texttt{statemint.stmartin.edu}}) to derive the state-space model from the elemental, continuity, and compatibility equations:
+\begin{center}
+\href{http://ricopic.one/dynamic_systems/source/motor_model.rnd}{\texttt{ricopic.one/dynamic\_systems/source/motor\_model.rnd}}
+\end{center} 
+Note that the ``constraint equations'' are the continuity and compatibility equations solved for primary variables.}
+\begin{subequations}
+\begin{align}
+	\frac{d \bm{x}}{d t} &= A \bm{x} + B \bm{u} \\
+	\bm{y} &= C \bm{x} + D \bm{u}
+\end{align}
+where
+\begin{align}
+	A &= \begin{bmatrix}-B/J & TF/J\\ -TF/L & - R/L\end{bmatrix},\\
+	B &= \begin{bmatrix}0\\ 1/L \end{bmatrix},\\
+	C &= \begin{bmatrix}\Transpose{1 & 0\\- B & TF\\- TF & - R\\0 & 1\\1 & 0\\B & 0\\0 & R\\0 & 1\\TF & 0\\0 & 1\\1 & 0\\0 & - TF\\0 & 0\\0 & 1}\end{bmatrix}^\top,\text{ and } \\
+	D &= \begin{bmatrix}\Transpose{0\\0\\1\\0\\0\\0\\0\\0\\0\\0\\0\\0\\1\\0}\end{bmatrix}^\top.
+\end{align}
+\end{subequations}
+
+
+
+\section[Steady DC motor performance]{DC motor performance in steady-state}
+\tags{}
+\label{lec:dc_motor_performance_steady}
+
+\begingroup
+\setlength\intextsep{0pt}
+\begin{wrapfigure}[11]{r}{0.55\textwidth}
+  \centering
+	\begin{tikzpicture}
+		\coordinate (g1) at (-.5,0);
+		\draw (g1) pic {groundnode};
+		\coordinate (g2) at (.5,0);
+		\draw (g2) pic {groundnode};
+		\node[graphnode] (n1) at ($(g1)+(0,2)$) {};
+		\node[graphnode] (n2) at ($(g2)+(0,2)$) {};
+		\node[graphnode] (n3) at ($(n1)+(-1,0)$) {};
+		\node[graphnode] (n4) at ($(n3)+(-1,0)$) {};
+		\draw[branch,normaltree] (n1) to[bend left] (g1);
+		\draw[branch] (n2) to[bend right] (g2);
+		\tf{(0,1)}{1};
+		\node[anchor=center] at (-.15,1.7) {$1$};
+		\node[anchor=center] at (.15,1.7) {$2$};
+		\draw[branch,normaltree] (n4) to[bend left] node[midway,above] {$R$} (n3);
+		\draw[branch] (n3) to[bend left] node[midway,above] {$L$} (n1);
+		\draw[sourcebranch,normaltree] (n4) to[bend right] node[midway,left=7pt] {$V_S$} ++(0,-2)
+			coordinate (g3);
+		\draw (g3) pic {groundnode};
+		\draw[branch] (n2) to[bend left] node[midway,right] {$B_m$} (g2);
+		\draw[branch,normaltree] (n2) to[out=-10,in=90] ++(1.05,-1) node[right] {$J_m$} to[out=-90,in=10] (g2);
+		\draw[sourcebranch] (n2) to[out=0,in=90] ++(2.00,-1) node[right=8pt] {$T_s$} to[out=-90,in=0] (g2);
+	\end{tikzpicture}
+  \caption{\label{fig:embedded_system_graph_test} a linear graph model of the motor from \autoref{lec:modeling_real_em_system} in a test-configuration with a brake modeled by $T_s$.}
+\end{wrapfigure}
+
+Brushed DC motor performance has several aspects, but most of them revolve around the so-called \keyword{motor curve}: for a given motor voltage, its steady-state speed versus a constant torque applied to the load.
+%This curve is typically quite linear and monotonically decreases to zero. % don't want to give it away, yet!
+The test setup for drawing such a curve requires a calibrated, controllable torque source applied to the motor shaft.
+A \keyword{brake} is typically used.
+A voltage-controlled \keyword[magnetic particle brake]{magnetic particle brake} is ideal.\footnote{See, for instance \href{https://en.wikipedia.org/wiki/Electromagnetic_brake\#Particle_brake}{here} or \href{http://www.warnerelectric.com/products/torque-control-products/magnetic-particle/magnetic-particle-clutches-and-brakes}{here}.}
+\tags{V, OM, TO, S}
+\endgroup
+
+We will gain a deep understanding of DC motor performance characteristics only by tarrying with this situation.
+Therefore, we begin by modeling it in \autoref{sec:modeling_test_system} and analyzing its performance in \autoref{sec:steady_state_test_system}.
+\tags{}
+
+\subsection{Modeling the test system}
+\tags{}
+\label{sec:modeling_test_system}
+
+Including a torque source $T_s$ on the load changes the model only slightly, as shown in \autoref{fig:embedded_system_graph_test}.
+Note that the mechanical subsystem is reduced to only the motor, since during such a test the load and bearings would be detrimental (it is a test for the \emph{motor}, after all).
+Invariant are the normal tree, state variables, and most of the derivation of the state equations.
+\tags{TO, B, S, D}
+
+The input vector becomes
+\begin{align}
+	\bm{u} = \begin{bmatrix} V_s \\ T_s \end{bmatrix}.
+\end{align}
+
+The continuity equation for the inertia becomes $T_{J_m} = -T_2 - T_{B_m} - T_s$ (the torque specifically \emph{opposes} motion, to which we assign the positive direction) and the state model's matrices $B$ and $D$ change, such that\footnote{
+%Attached to the electronic version of this text, \textattachfile{figures/motor_model_characteristics.rnd}{{\color{mygreen}\bfseries here}} (right-click \texttt{> Save Embedded File to Disk...}), 
+\href{http://ricopic.one/dynamic_systems/source/motor_model_characteristics.rnd}{Here} 
+is the \texttt{rnd} file for use with \href{http://statemodelrnd.camerondevine.me/}{statemodelrnd.camerondevine.me/} to derive the state-space model from the elemental, continuity, and compatibility equations.}
+\tags{B, TO, D, S}
+
+\begin{subequations}
+\tags{}
+\begin{align}
+	A &= \begin{bmatrix}-B_m/J_m & TF/J_m\\ -TF/L & - R/L\end{bmatrix},\\
+	B &= \begin{bmatrix}0 & -1/J_m\\ 1/L & 0 \end{bmatrix} \\
+	C &= \begin{bmatrix}\Transpose{1 & 0\\- B_m & TF\\- TF & - R\\0 & 1\\1 & 0\\B_m & 0\\0 & R\\0 & 1\\TF & 0\\0 & 1\\1 & 0\\0 & - TF\\0 & 0\\0 & 1}\end{bmatrix}^\top, \\
+	D &= \begin{bmatrix}\Transpose{0 & 0\\0 & -1\\1 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\0 & 0\\1 & 0\\0 & 0}\end{bmatrix}^\top.
+\end{align}
+\end{subequations}
+
+\subsection{Steady-state performance analysis}
+\tags{}
+\label{sec:steady_state_test_system}
+
+\input{source/embedded_motor_model}
+
+\section[Transient DC motor performance]{Transient DC motor performance}
+\tags{}
+\label{lec:transient_dc_motor_performance}
+
+\input{source/embedded_motor_model_dynamic}
+
+%TODO
+% \section{Linear motors}
+
+%TODO
+% \section{Stepper motors}
+
+%TODO
+% \section{AC and universal motors}
+
+\section{Driving motors} 
+\tags{}
+\label{lec:driving_motors}
+
+The DC motor requires DC electrical power provided by a circuit called
+the ``driving'' circuit. For industrial motors at least, these circuits
+must provide significant power, and for this reason a separate (from the
+control circuit) power supply is often used. There is a quick-and-dirty
+way to drive a DC motor at variable speed: since its angular velocity is
+reliably proportional to its voltage, place a potentiometer in series
+with the power supply and motor. However, this has disadvantages that
+include the power being limited and dissipated at high potentiometer
+resistance (low speed). For most applications, we will need either a
+current (or power) amplifier or---more likely---a microcontroller and an
+integrated circuit to produce a pulse-width modulation driving signal.
+\tags{OM, S}
+
+\subsubsection{Pulse-width modulation}\label{pulse-width-modulation}
+\tags{}
+
+\emph{Pulse-width modulation} (PWM) is a technique used to deliver an
+effectively variable signal to a load (in this case a motor) without a
+truly variable power source. A pulse of full source amplitude is
+repeated at a high frequency (e.g. \(20\) kHz), delivering a signal that
+is effectively averaged by the load dynamics such that its effects on
+the load are nearly continuous. The fraction of the period that the
+signal is high (on) is called the \emph{duty cycle} \(\delta\). The
+following figure shows a PWM signal \(v(t)\) and its average
+\(\overline{v}(t)\) with a few parameter definitions.
+\tags{}
+
+The mean of any periodic signal can be computed with the integral
+
+\[\overline{v}(t) = \frac{1}{T} \int_0^T v(t),\]
+
+which is easily evaluated for a PWM signal:
+
+\[\overline{v}(t) = \frac{A w}{T} = A \delta.\]
+
+This result shows that if a PWM signal is delivered to a load, such as a
+DC motor, that is relatively unaffected by high-frequency signals, the
+effective signal will be simply the product of the source amplitude
+\(A\) and the duty cycle \(\delta\). The duty cycle can have values from
+\(0\) to \(1\), so the effective DC signal produced varies linearly
+\(\delta\) from \(0\) to \(A\).
+\tags{}
+
+\subsubsection{PWM with a microcontroller and integrated
+\tags{}
+circuit}\label{pwm-with-a-microcontroller-and-integrated-circuit}
+
+A microcontroller such as the myRIO or Arduino can easily produce a PWM
+signal; however, this signal is typically \emph{low-power} and cannot
+drive even small DC motors. Therefore it is common to include a special
+kind of integrated circuit (IC) that uses the microcontroller's
+low-power PWM signal to gate a high-power DC source signal for delivery
+to the motor. We use a connectorized printed circuit board (PCB, e.g.~a
+PC motherboard)---the
+\href{../../resources/pololu_VNH5019_motor_driver_carrier.pdf}{Pololu
+motor driver carrier}---that includes on it a
+\href{../../resources/vnh5019.pdf}{STMicroelectronics VNH5019} H-bridge
+motor driver \emph{integrated circuit} (IC, i.e.~a microchip).
+\tags{}
+\paragraph{H-bridge circuits}\label{h-bridge-circuits}
+
+We want to drive DC motors at different effective voltages \emph{and}
+different directions. An H-bridge circuit allows us to reverse the
+direction of the PWM signal delivered to the motor. The following is a
+diagram of the H-bridge circuit.
+\tags{}
+
+The switches S1-S4 are typically instantiated with MOSFET transistors.
+As shown in the figure below, during the high duration of the PWM pulse,
+either S1 and S4 (a) or S2 and S3 (b) are closed and the others are
+open.
+\tags{}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+	\item
+  	motor driven one direction
+  \item
+    motor driven the opposite direction
+\end{enumerate}
+
+Recall that a DC motor can be modeled as a resistor and inductor in
+series with an electro-mechanical transformer. The inductance of the
+windings make it an ``inductive'' load, which presents the following
+challenge. We can't rapidly change the current flow through an inductor
+without a huge spike in voltage, and the switches do just that, leading
+to switch damage. Therefore, during the low or ``off'' duration of the
+PWM signal, S1-S4 cannot all be simply opened. There are actually a few
+options for switch positions that allow the current to continue to flow
+without inductive ``kickback.''
+\tags{R, L, D, T}
+
+What's up with the diodes? Technically, they could be used to deal with
+the kickback, but they typically are not because they dissipate power.
+However, they are used to do just that to ease the transition between
+switch flips, which are never quite simultaneous.
+\tags{}
+
+\hypertarget{motor-curves}{\subsection{Motor
+curves}\label{motor-curves}}
+
+Motors are often characterized by three \emph{steady-state} curves:
+\tags{}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  a torque \(T\) versus angular velocity \(\Omega\) curve;
+\item
+  an angular velocity \(\Omega\) versus voltage \(v\) curve, which has
+  slope \(1/k_m\); and
+\item
+  a torque \(T\) versus current \(i\) curve, which has slope \(-k_m\).
+\end{enumerate}
+
+We will develop our own motor curves for the DC motor in the lab by
+simultaneously measuring \(v\), \(i\), and \(\Omega\). Unfortunately, we
+will not be measuring \(T\) directly, and so we will be unable to
+measure all these curves directly; however, we will be able to infer
+them based on the (reasonable, but not perfect) assumption that the
+motor has no power losses. In the end, they should look something like
+the following (using our usual sign convention).
+\tags{V, I, OM, S}
+
+In order to construct such curves, we will measure \(v\), \(i\), and
+\(\Omega\). The following sections describe the measurement process.
+\tags{V, I, OM, S}
+
+\begin{exercises}
+\input{ch04_exercises}
+\end{exercises}
+
+
+
+\end{document}

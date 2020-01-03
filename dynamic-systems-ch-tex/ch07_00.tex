@@ -1,0 +1,462 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+\chapter[State-space response]{State-space response}
+\tags{}
+
+Recall that, for a state-space model, the state $\bm{x}$, input $\bm{u}$, and output $\bm{y}$ vectors interact through two equations:
+\tags{}
+\begin{subequations}
+\begin{align}
+	\frac{d\bm{x}}{d t} &= \bm{f}(\bm{x},\bm{u},t) \label{eq:state_nonlinear2} \\
+	\bm{y} &= \bm{g}(\bm{x},\bm{u},t)\label{eq:output_nonlinear2}
+\end{align}
+\end{subequations}
+
+where $\bm{f}$ and $\bm{g}$ are vector-valued functions that depend on the system.
+Together, they comprise what is called a \keyword{state-space model} of a system.
+\tags{}
+
+In accordance with the definition of a state-determined system, %from \autoref{lec:state_variable_system_representation}, 
+given an initial condition $\bm{x}(t_0)$ and input $\bm{u}$, the state $\bm{x}$ is determined for all $t\ge t_0$.
+Determining the state response requires the solution---analytic or numerical---of the vector differential equation \autoref{eq:state_nonlinear2}.
+\tags{}
+
+The second equation \eqref{eq:output_nonlinear2} is \emph{algebraic}.
+It expresses how the output $\bm{y}$ can be constructed from the state $\bm{x}$ and input $\bm{u}$.
+This means we must first solve the state equation \eqref{eq:state_nonlinear2} for $\bm{x}$, then the output $\bm{y}$ is given by \autoref{eq:output_nonlinear2}.
+\tags{}
+
+Just because we know that, for a state-determined system, there \emph{exists} a solution to \autoref{eq:state_nonlinear2}, doesn't mean we know how to find it.
+In general, $\bm{f}:\mathbb{R}^n \times \mathbb{R}^r \times \mathbb{R}\rightarrow\mathbb{R}^n$ and $\bm{g}:\mathbb{R}^n \times \mathbb{R}^r \times \mathbb{R}\rightarrow\mathbb{R}^m$ can be nonlinear functions.\footnote{Technically, since $\bm{x}$ and $\bm{u}$ are themselves functions, $\bm{f}$ and $\bm{g}$ are \emph{functionals}.}
+We don't know how to solve most nonlinear state equations analytically.
+An additional complication can arise when, in addition to states and inputs, system parameters are themselves time-varying (note the explicit time $t$ argument of $\bm{f}$ and $\bm{g}$).
+Fortunately, often a linear, time-invariant (LTI) model is sufficient.
+\tags{}
+
+Recall that an LTI state-space model is of the form
+\begin{subequations}
+\begin{align}
+	\frac{d\bm{x}}{d t} &= A \bm{x} + B \bm{u} \label{eq:state2} \\
+	\bm{y} &= C \bm{x} + D \bm{u},\label{eq:output2}
+\end{align}
+\end{subequations}
+
+where $A$, $B$, $C$, and $D$ are constant matrices containing system lumped-parameters such as mass or inductance.
+See \cref{ch:state_space_models} for details on the derivation of such models.
+\tags{L, M, T, A}
+
+In this chapter, we learn to solve \autoref{eq:state2} for the state response and substitute the result into \autoref{eq:output2} for the output response.
+First, we learn an analytic solution technique.
+Afterward, we learn simple software tools for numerical solution techniques.
+\tags{}
+
+\section{Solving for the state-space response}
+\tags{}
+
+In this lecture, we solve the state equation for the \keyword{state response} $\bm{x}(t)$ and substitute this into the output equation for the \keyword{output response} $\bm{y}(t)$.
+\tags{}
+
+\subsection{State response}
+\tags{}
+
+The state equation can be solved by a synthesis of familiar techniques, as follows.
+First, we rearrange:
+\begin{align} \label{eq:state-ready-for-integrating-factor}
+	\frac{d\bm{x}}{d t} - A \bm{x} = B \bm{u}.
+\end{align}
+An integrating factor would be clutch, but what should it be?
+It looks analogous to a scalar ODE that would use the natural exponential $\exp(-a t)$ (for positive constant $a$), but we have a vector ODE.
+We need a matrix-version of the exponential.
+Recall that a series definition of the scalar exponential function $\exp:\mathbb{C}\rightarrow\mathbb{C}$ is
+\tags{}
+\maybeeq{
+\begin{align*}
+	\exp z = \sum_{k=0}^\infty \frac{1}{k!} z^k.
+\end{align*}
+}
+We define the \keyword{matrix exponential} $\exp:\mathbb{C}^n\times\mathbb{C}^n \rightarrow \mathbb{C}^n \times \mathbb{C}^n$ (we use the same symbol) to be, for $n\times n$ complex matrix $Z$,
+\begin{align}\label{eq:matrix_exponential_def}
+	\exp Z = \sum_{k=0}^\infty \frac{1}{k!} Z^k.
+\end{align}
+because why not?
+For the hell of it, let's see if the matrix exponential
+\begin{align}
+	\exp(-A t)
+\end{align}
+
+works as an integrating factor, if for no other reason than it was constructed to be a sort of matrix-analog of $\exp(-a t)$, which would work for the scalar case.
+Premultiplying \eqref{eq:state-ready-for-integrating-factor} on both sides:
+\tags{}
+\maybeeq{
+	\begin{align*}
+		\exp(-A t) \frac{d \bm{x}}{d t} - \exp(-A t) A \bm{x} &= \exp(-A t) B \bm{u} \quad \Rightarrow \tag{exercise: prove $d\exp(-A t)/dt = -\exp(-A t) A$} \\
+		\frac{d}{d t} \left( \exp(-A t) \bm{x} \right) &=
+		\exp(-A t) B \bm{u}.
+	\end{align*}
+}
+Rearranging and integrating over the interval $(0,t)$,
+\maybeeq{
+	\begin{align*}
+		d\left( \exp(-A t) \bm{x} \right) &=
+		\exp(-A t) B \bm{u} dt \quad \Rightarrow \\
+		\int_0^t d\left( \exp(-A \tau) \bm{x}(\tau) \right) &=
+		\int_0^t \exp(-A \tau) B \bm{u}(\tau) d\tau \quad \Rightarrow \\
+		\exp(-A t) \bm{x} - \bm{x}(0) &= 
+		\int_0^t \exp(-A \tau) B \bm{u}(\tau) d\tau \tag{$\exp(0) = I$}.
+	\end{align*}
+}
+
+This last expression can be solved for $\bm{x}$, the \keyword{state response solution}.
+Before we do this, however, let's define the matrix function called the \keyword{state transition matrix} $\Phi$ to be the matrix-valued function
+\tags{}
+\begin{align}\label{eq:state_transition_matrix}
+	\Phi(t) = \exp(A t),
+\end{align}
+Substituting $\Phi$ and solving,
+\begin{subequations}\label{eq:state_response}
+\begin{align}
+	\bm{x} &= \Phi(t) \bm{x}(0) + \Phi(t) \int_0^t \Phi(-\tau) B \bm{u}(\tau) d\tau \\
+	&= \Phi(t) \bm{x}(0) + \int_0^t \Phi(t - \tau) B \bm{u}(\tau) d\tau.
+\end{align}
+\end{subequations}
+
+Note that the first term of each version of \autoref{eq:state_response} is the \keyword{free response} (due to initial conditions) and the second term is the \keyword{forced response} (due to inputs).
+\tags{}
+
+\subsection{State transition matrix}
+\tags{}
+\label{sec:state_transition_matrix}
+
+The state transition matrix $\Phi$ introduced in \autoref{eq:state_transition_matrix} wound up being a key aspect of the response, which is why we call it that.
+We used two of its properties (in matrix exponential form) during that derivation:
+the \keyword[initial-value property]{initial-value}
+\tags{}
+\begin{align}
+	\Phi(0) = I \tag{where $I$ is the identity matrix}
+\end{align}
+and the \keyword[inverse property]{inverse}
+\begin{align}
+	\Phi^{-1}(t) = \Phi(-t).
+\end{align}
+
+There is a third property that might be called the \keyword{bootstrapping property}:
+for time intervals $\Delta t_i$, 
+\begin{align}
+	\Phi(\Delta t_1 + \Delta t_2 + \cdots) = \Phi(\Delta t_1) \Phi(\Delta t_2) \cdots.
+\end{align}
+This allows one to compute the state transition matrix\footnote{As is common, we refer to it as the ``state transition matrix at a certain time,'' but, technically, it's the \emph{image} of the state transition matrix (which is actually a matrix-valued function) at a certain time. It is good to occasionally acknowledge the violence we do to math.} \emph{incrementally}, from one previously computed.
+\tags{}
+
+A final property we'll consider is the special-case of a \keyword[diagonal property]{diagonal} $A$ with diagonal elements $a_{11}, a_{22}, \cdots, a_{nn}$, which yields a diagonal state transition matrix
+\tags{}
+\maybeeq{
+\begin{align*}
+	\Phi(t) =
+	\begin{bmatrix}
+		e^{a_{11} t} & &  & 0 \\
+		 & e^{a_{22} t} &  &  \\
+		 & & \ddots & \\
+		0 & & & e^{a_{nn} t}
+	\end{bmatrix}.
+\end{align*}
+}
+
+The last property turns out to be quite convenient for \keyword{deriving $\Phi$} for a given system, as we will see in \autoref{lec:diagonalizing_matrix}.
+For now, we must rely on the definition of $\Phi$ from \autoref{eq:state_transition_matrix} and the series definition of the matrix exponential from \autoref{eq:matrix_exponential_def}.
+This requires us to derive the first several terms of the series solution and attempt to divine the corresponding scalar exponential series, a rather tedious task.
+Other than to familiarize ourselves with the definition through exercises, we prefer the derivation method of \autoref{lec:diagonalizing_matrix}.
+\tags{}
+
+\subsection{Output response}
+\tags{}
+
+The output response $\bm{y}(t)$ requires little additional solution: assuming we have solved for the state response $\bm{x}(t)$, the output is given in the output equation \autoref{eq:output2}.
+Through direct substitution, we find the \keyword{output response solution}
+\tags{}
+\begin{subequations}\label{eq:output_response}
+\begin{align}
+	\bm{y}(t) &= C \bm{x}(t) + D \bm{u}(t) \\
+	&= C \Phi(t) \bm{x}(0) + C \int_0^t \Phi(t - \tau) B \bm{u}(\tau) d\tau + D \bm{u}(t).
+\end{align}
+\end{subequations}
+
+\section{Linear algebraic eigenproblem}
+\tags{}
+
+The linear algebraic \keyword{eigenproblem} can be simply stated.
+For $n\times n$ real matrix $A$, $n\times 1$ complex vector $\bm{m}$, and $\lambda\in\mathbb{C}$, $\bm{m}$ is defined as an \keyword{eigenvector} of $A$ if and only if it is nonzero and 
+\begin{align}\label{eq:eigenproblem}
+A \bm{m} = \lambda \bm{m}
+\end{align}
+for some $\lambda$, which is called the corresponding \keyword{eigenvalue}.
+That is, $\bm{m}$ is an eigenvector of $A$ if its linear transformation by $A$ is equivalent to its scaling; i.e.\ an eigenvector of $A$ is a vector of which $A$ changes the length, but not the direction.
+\tags{}
+
+Since a matrix can have several eigenvectors and corresponding eigenvalues, we typically index them with a subscript; e.g.\ $\bm{m}_i$ pairs with $\lambda_i$.
+\tags{}
+
+\subsection{Solving for eigenvalues}
+\tags{}
+
+\autoref{eq:eigenproblem} can be rearranged:
+\begin{align}\label{eq:eigenproblem2}
+	(\lambda I - A) \bm{m} = \bm{0}.
+\end{align}
+For a nontrivial solution for $\bm{m}$,
+\begin{align}
+	\det(\lambda I - A) = 0,
+\end{align}
+
+which has as its left-hand-side a polynomial in $\lambda$ and is called the \keyword{characteristic equation}.
+We define \keyword{eigenvalues} to be the roots of the characteristic equation.
+\begin{infobox}[eigenvalues and roots of the characteristic equation]
+If $A$ is taken to be the linear state-space representation $A$, and the state-space model is converted to an input-output differential equation, the resulting ODE's ``characteristic equation'' would be identical to this matrix characteristic equation.
+Therefore, everything we already understand about the roots of the ``characteristic equation'' of an i/o ODE---especially that they govern the transient response and stability of a system---holds for a system's $A$-matrix eigenvalues.
+\end{infobox}
+
+
+Here we consider only the case of $n$ distinct eigenvalues.
+For eigenvalues of (algebraic) multiplicity greater than one (i.e.\ repeated roots), see the discussion of \autoref{sec:repeatedevals}.
+\tags{}
+
+\subsection{Solving for eigenvectors}
+\tags{}
+
+Each eigenvalue $\lambda_i$ has a corresponding eigenvector $\bm{m}_i$.
+Substituting each $\lambda_i$ into \autoref{eq:eigenproblem2}, one can solve for a corresponding eigenvector.
+It's important to note that an eigenvector is unique within a scaling factor.
+That is, if $\bm{m}_i$ is an eigenvector corresponding to $\lambda_i$, so is $3\bm{m}_i$.\footnote{Also of note is that $\lambda_i$ and $\bm{m}_i$ can be complex.}
+\tags{}
+
+\examplemaybe{%
+eigenproblem for a $2\times 2$ matrix
+}{%
+Let
+\begin{align*}
+A = \begin{bmatrix}
+	2 & -4 \\
+	-1 & -1
+\end{bmatrix}.
+\end{align*}
+Find the eigenvalues and eigenvectors of $A$.
+}{%
+\includegraphics[width=1\linewidth]{figures/ex_eigenproblem_01.jpg}
+}{%
+ex:eigenproblem_01
+}%
+
+\section{Diagonalizing basis}\label{lec:diagonalizing_matrix}
+\tags{}
+
+It is useful to transform a system's state vector $\bm{x}$ into a special basis that \keyword{diagonalizes}---leaves nonzero components along only the diagonal---the system's $A$-matrix.
+For systems with $n$ distinct eigenvalues, to which we limit ourselves in this discussion,\footnote{See \autoref{sec:repeatedevals} for general considerations.} this is always possible.
+In diagonalized form, it will be relatively easy to solve for the state transition matrix $\Phi$.
+\tags{}
+
+\subsection{Changing basis in the state equation}
+\tags{}
+
+As with all basis transformations, the basis transformation we seek can be written
+\begin{align}
+	\bm{x} = P \bm{x}' \quad \Rightarrow
+	\bm{x}' = P^{-1} \bm{x},
+\end{align}
+
+where $P$ is the \keyword{transformation matrix}, $\bm{x}$ is a representation of the state vector in the original basis, and $\bm{x}'$ is a representation of the state vector in the new basis.\footnote{We are being a bit fast-and-loose with terminology here: a vector is an object that does not change under basis transformation, only its components and basis vectors do. However, we use the common notational and terminological abuses.}
+\tags{}
+
+Substituting this transformation into the standard linear state-model equations yields the model
+\tags{}
+\begin{subequations}
+\begin{align}
+	\dot{\bm{x}}' &= 
+	\underbrace{P^{-1} A P}_{A'} \bm{x}' +
+	\underbrace{P^{-1} B}_{B'} \bm{u} \\
+	\bm{y} &=
+	\underbrace{C P}_{C'} \bm{x}' +
+	\underbrace{D}_{D'} \bm{u}.
+\end{align}
+\end{subequations}
+
+\subsection{Modal and eigenvalue matrices}
+\tags{}
+
+Let a state equation have matrix $A$ with $n$ distinct eigenvalues $(\lambda_i)$ and eigenvectors $(\bm{m}_i)$.
+Let the \keyword{eigenvalue matrix} $\Lambda$ be defined as
+\tags{}
+\maybeeq{
+\begin{align*}
+	\Lambda =
+	\begin{bmatrix}
+		\lambda_1 & &  & 0 \\
+		 & \lambda_2 &  &  \\
+		 & & \ddots & \\
+		0 & & & \lambda_n
+	\end{bmatrix}.
+\end{align*}
+}
+
+Furthermore, let the \keyword{modal matrix} $M$ be defined as
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+\begin{align}
+M = 
+\left[
+\begin{array}{cccc}
+  \vertbar & \vertbar &        & \vertbar \\
+  \bm{m}_{1}    & \bm{m}_{2}    & \cdots & \bm{m}_{n}    \\
+  \vertbar & \vertbar &        & \vertbar 
+\end{array}
+\right]
+\end{align}
+
+\subsection{Diagonalization of the state equation}
+\tags{}
+
+Let the modal matrix $M$ be the transformation matrix for our state-model.
+Then\footnote{As long as there are $n$ distinct eigenvalues, $M$ is invertible.} $\bm{x}' = M^{-1} \bm{x}$.
+\tags{}
+
+The state equation becomes
+\begin{align}
+	\dot{\bm{x}}' &= 
+	M^{-1} A M \bm{x}' +
+	M^{-1} B \bm{u}.
+\end{align}
+The eigenproblem implies that
+\maybeeq{
+\begin{align*}
+	A
+	\begin{bmatrix}
+		\bm{m}_1 & \bm{m}_2 & \cdots & \bm{m}_n
+	\end{bmatrix} &=
+	\begin{bmatrix}
+		\bm{m}_1 & \bm{m}_2 & \cdots & \bm{m}_n
+	\end{bmatrix}
+	\Lambda \quad\Rightarrow \\
+	A M &= M \Lambda \quad\Rightarrow \\
+	M^{-1} A M &= M^{-1} M \Lambda \\
+	&= \Lambda.
+\end{align*}
+}
+\tags{}
+That is, $A' = \Lambda$!
+Recall that $\Lambda$ is diagonal; therefore, we have \keyword{diagonalized} the state-space model.
+In full-form, the diagonalized model is
+\tags{}
+\begin{subequations}\label{eq:diagonalized_state_space}
+\begin{align}
+	\dot{\bm{x}}' &= 
+	\underbrace{\Lambda}_{A'} \bm{x}' +
+	\underbrace{M^{-1} B}_{B'} \bm{u} \\
+	\bm{y} &=
+	\underbrace{C M}_{C'} \bm{x}' +
+	\underbrace{D}_{D'} \bm{u}.
+\end{align}
+\end{subequations}
+
+\subsection{Computing the state transition matrix}
+\tags{}
+
+Recall our definition of the state transition matrix $\Phi(t) = e^{A t}$.
+Directly applying this to the diagonalized system of \autoref{eq:diagonalized_state_space},
+\begin{subequations}
+\begin{align}
+	\Phi'(t) &= e^{\Lambda t} \\
+	&= 
+	\begin{bmatrix}
+		e^{\lambda_1 t} & &  & 0 \\
+		 & e^{\lambda_2 t} &  &  \\
+		 & & \ddots & \\
+		0 & & & e^{\lambda_n t}
+	\end{bmatrix}.
+\end{align}
+\end{subequations}
+
+In this last equality, we have used the \keyword{diagonal property} of the state transition matrix, defined in \autoref{sec:state_transition_matrix}.
+\tags{}
+
+Recall that the free response solution to the state equation is given by the initial condition and state transition matrix, so
+\tags{}
+\begin{subequations}
+\begin{align}
+	\bm{x}_\text{fr}'(t) &= \Phi'(t) \bm{x}'(0) \\
+	&= x_1'(0) e^{\lambda_1 t} +
+	x_2'(0) e^{\lambda_2 t} +
+	\cdots +
+	x_n'(0) e^{\lambda_n t}
+\end{align}
+\end{subequations}
+
+where the initial conditions are $\bm{x}'(0) = M^{-1} \bm{x}(0)$.
+We have completely decoupled each state's free response, one of the remarkable qualities of the diagonalized system.
+\tags{}
+
+At this point, one could simply solve the diagonalized system for $\bm{x}'(t)$, then convert the solution to the original basis with $\bm{x}(t) = M \bm{x}'(t)$.
+\tags{}
+
+Sometimes, we might prefer to transform the diagonalized-basis state transition matrix into the original basis.
+The following is a derivation of that transformation.
+\tags{}
+
+Beginning with the free response solution in the diagonalized-basis and transforming the equation into the original basis, we find an expression for the original state transition matrix, as follows.
+\tags{}
+\maybeeq{
+\begin{align*}
+	\bm{x}_\text{fr}'(t) &= \Phi'(t) \bm{x}'(0) \quad\Rightarrow \\
+	M^{-1} \bm{x}_\text{fr}(t) &= \Phi'(t) M^{-1} \bm{x}(0) \quad\Rightarrow \\
+	\bm{x}_\text{fr}(t) &= 
+	\underbrace{M \Phi'(t) M^{-1}}_{\Phi(t)} \bm{x}(0).
+\end{align*}
+}
+\noindent This last expression is just the free response solution in the original basis, so we can identify
+\begin{align}\label{eq:state_transition_pref}
+	\Phi(t) = M \Phi'(t) M^{-1}.
+\end{align}
+This is a powerful result.
+\autoref{eq:state_transition_pref} is the preferred method of deriving the state transition matrix for a given system.
+The eigenvalues give $\Phi'$ and the eigenvectors give $M$.
+
+\examplemaybe{%
+state free response
+}{%
+For the state equation
+\begin{align*}
+	\dot{\bm{x}} = 
+	\begin{bmatrix}
+		-2 & 2 \\
+		2 & -3
+	\end{bmatrix}
+	\bm{x} +
+	\begin{bmatrix}
+		1 \\ -1
+	\end{bmatrix}
+	\bm{u}
+\end{align*}
+find the state's free response to initial condition $\bm{x}(0) = \begin{bmatrix} 2 & -1 \end{bmatrix}^{\top}$.
+}{%
+\includegraphics[width=1\linewidth]{figures/state_sol_ex.jpg}
+
+Then just use \autoref{eq:state_transition_pref} and
+\begin{align*}
+	\bm{x}_\text{fr}(t) = 
+	\Phi(t) \bm{x}(0).
+\end{align*}
+}{%
+ex:state_sol
+}%
+
+\section{Simulating state-space response}
+\tags{}
+
+Ahem.\footnote{The source of this lecture can be downloaded as a Matlab m-file at \url{http://ricopic.one/dynamic_systems/source/simulating_state_space_response.m}.}
+
+\input{source/simulating_state_space_response}
+
+
+
+\section*{Exercises}
+
+\input{ch07_exercises}
+
+\end{document}

@@ -1,0 +1,822 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+
+\chapter[Impedance-based modeling]{Impedance-based modeling}
+\tags{}
+
+\section{Input impedance and admittance}
+\tags{}
+
+We now introduce a generalization of the familiar impedance and admittance of electrical circuit analysis, in which system behavior can be expressed algebraically instead of differentially.
+We begin with generalized input impedance.
+\tags{}
+
+\begin{figure}[b]
+\centering
+\begin{tikzpicture}
+	\node[graphnode] (n1) at (0,0) {};
+	\coordinate (c2) at (0,2);
+	\node[graphnode] (n2) at (c2) {};
+	\coordinate (c3) at (2,2);
+	\draw[sourcebranchnoarrow] (n1) to[bend left]
+		node[midway,left,anchor=east,xshift=-8pt] {source} (n2);
+	\draw [thick] plot [smooth cycle] coordinates {(2,0) (c3) (6,2) (6,0)};
+	\node at (4,1) {system with $Y(s)$ and $Z(s)$};
+	\draw[thick] (n1) to[bend right] (2,0);
+	\draw[thick] (n2) to[bend left] (2,2);
+	\draw[violet,->,shorten >=4pt,shorten <=4pt] (n2) to[bend left]
+		node[midway,right] {$\mathcal{V}_\text{in}$} (n1);
+	\draw[violet,->,shorten >=7pt,shorten <=7pt] ([yshift=-7pt]c2) to[bend left]
+		node[midway,below] {$\mathcal{F}_\text{in}$} ([yshift=-7pt]c3);
+\end{tikzpicture}
+\caption{}
+\label{fig:system_impedance}
+\end{figure}
+
+Consider a system with a source, as shown in \cref{fig:system_impedance}.
+The source can be either an across- or a through-variable source.
+The ideal source specifies either $\mathcal{V}_\text{in}$ or $\mathcal{F}_\text{in}$, and the other variable depends on the system.
+\tags{}
+
+Let a source variables have Laplace transforms $\mathcal{V}_\text{in}(s)$ and $\mathcal{F}_\text{in}(s)$.
+We define the system's \keyword{input impedance} $Z$ and \keyword{input admittance} $Y$ to be the Laplace-domain ratios
+\begin{align}
+	Z(s) = \frac{\mathcal{V}_\text{in}(s)}{\mathcal{F}_\text{in}(s)}
+	\quad
+	\text{and}
+	\quad
+	Y(s) = \frac{\mathcal{F}_\text{in}(s)}{\mathcal{V}_\text{in}(s)}.
+\end{align}
+Clearly,
+\maybeeq{
+\begin{align*}
+	Y(s) = \frac{1}{Z(s)}.
+\end{align*}
+}
+
+Both $Z$ and $Y$ can be considered \keyword{transfer functions}: for a through-variable source $\mathcal{F}_\text{in}$, the impedance $Z$ is the transfer function to across-variable $\mathcal{V}_\text{in}$; for an across-variable source $\mathcal{V}_\text{in}$, the admittance $Y$ is the transfer function to through-variable $\mathcal{F}_\text{in}$.
+Often, however, we use the more common impedance $Z$ to characterize systems with either type of source.
+\tags{}
+
+Note that $Z$ and $Y$ are \keyword{system properties}, not properties of the source.
+An impedance or admittance can characterize a system of interconnected elements, or a system of a single element, as the next section explores.
+\tags{}
+
+\subsection{Impedance of ideal passive elements}
+\tags{}
+
+The impedance and admittance of a single, ideal, one-port element is defined from the Laplace transform of its elemental equation.
+\tags{}
+
+\begin{description}
+	\item[Generalized capacitors]
+	A \keyword{generalized capacitor} has elemental equation
+	\begin{align}
+		\frac{d \mathcal{V}_C(t)}{d t} = \frac{1}{C} \mathcal{F}_C(t),
+	\end{align}
+	the Laplace transform of which is
+	\begin{align}
+		s \mathcal{V}_C(s) = \frac{1}{C} \mathcal{F}_C(s),
+	\end{align}
+	which can be solved for impedance $Z_C = \mathcal{V}_C/\mathcal{F}_C$ and admittance $Y_C = \mathcal{F}_C/\mathcal{V}_C$:
+	\maybeeq{
+	\begin{align*}
+		Z_C(s) = \frac{1}{C s}
+		\quad
+		\text{and}
+		\quad
+		Y_C(s) = C s.
+	\end{align*}
+	}
+	\item[Generalized inductors]
+	A \keyword{generalized inductor} has elemental equation
+	\begin{align}
+		\frac{d \mathcal{F}_L(t)}{d t} = \frac{1}{L} \mathcal{F}_L(t),
+	\end{align}
+	the Laplace transform of which is
+	\begin{align}
+		s \mathcal{F}_L(s) = \frac{1}{L} \mathcal{V}_L(s),
+	\end{align}
+	which can be solved for impedance $Z_L = \mathcal{V}_L/\mathcal{F}_L$ and admittance $Y_L = \mathcal{F}_L/\mathcal{V}_L$:
+	\maybeeq{
+	\begin{align*}
+		Z_L(s) = L s
+		\quad
+		\text{and}
+		\quad
+		Y_C(s) = \frac{1}{L s}.
+	\end{align*}
+	}
+	\item[Generalized resistors]
+	A \keyword{generalized resistor} has elemental equation
+	\begin{align}
+		\mathcal{V}_R(t) = \mathcal{F}_R(t) R,
+	\end{align}
+	the Laplace transform of which is
+	\begin{align}
+		\mathcal{V}_R(s) = \mathcal{F}_R(s) R,
+	\end{align}
+	which can be solved for impedance $Z_R = \mathcal{V}_R/\mathcal{F}_R$ and admittance $Y_R = \mathcal{F}_R/\mathcal{V}_R$:
+	\maybeeq{
+	\begin{align*}
+		Z_R(s) = R
+		\quad
+		\text{and}
+		\quad
+		Y_R(s) = \frac{1}{R}.
+	\end{align*}
+	}
+\end{description}
+
+For a summary of the impedance of one-port elements, see \cref{tab:summary_one_port_elements}.
+\tags{}
+
+\subsection{Impedance of interconnected elements}
+\tags{}
+
+As with electrical circuits, impedances of linear graphs of interconnected elements can be combined in two primary ways: in parallel or in series.
+\tags{}
+
+Elements sharing the same through-variable are said to be in \keyword{series} connection.
+$N$ elements connected in series \tikz[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]{\node[graphnode] (n1) at (0,0) {};\node[graphnode] (n2) at (1,0) {};\node[graphnode] (n3) at (2,0) {};\draw[branch] (n1) to[bend left] node[midway,below] {$Z_1$} (n2);\draw[branch] (n2) to[bend left] node[midway,below] {$Z_2$} (n3) node[right,xshift=7pt] {$\cdots$};} have equivalent impedance $Z$ and admittance $Y$:
+\begin{align}
+	Z(s) = \sum_{i=1}^N Z_i(s)
+	\quad
+	\text{and}
+	\quad
+	Y(s) = \left. 1 \middle/ \sum_{i=1}^N 1/Y_i(s) \right.
+\end{align}
+
+Conversely, elements sharing the same across-variable are said to be in \keyword{parallel} connection.
+$N$ elements connected in parallel \tikz[baseline=-\the\dimexpr\fontdimen22\textfont2\relax]{\node[graphnode] (n1) at (0,0) {};\node[graphnode] (n2) at (1,0) {};\draw[branch] (n1) to[bend left] (n2);\draw[branch] (n1) to[bend right] node[midway,below] {$\cdots$} (n2);} have equivalent impedance $Z$ and admittance $Y$:
+\tags{}
+\begin{align}
+	Z(s) = \left. 1 \middle/ \sum_{i=1}^N 1/Z_i(s) \right.
+	\quad
+	\text{and}
+	\quad
+	Y(s) = \sum_{i=1}^N Y_i(s).
+\end{align}
+
+\examplemaybe{%
+input impedance of a simple circuit
+}{%
+\noindent\begin{minipage}[r]{.38\linewidth}
+	For the circuit shown, find the input impedance.
+\end{minipage}
+\hfill%
+\begin{minipage}[r]{.57\linewidth}
+  \begin{circuitikz}[]
+		\draw
+			(0,0) to[voltage source, v=$V_s$] (0,2)
+			to[R=$R_1$, i=$ $] (2,2)
+			to[C=$C$, i=$ $] (4,2)
+			coordinate (c1)
+			to[L=$L$, i=$ $] (4,0)
+			coordinate (c2)
+			-- (2.5,0) node[ground]{} -- (0,0);
+		\draw (c1) -- ($(c1)+(1,0)$)
+			to[R=$R_2$, i=$ $] ($(c2)+(1,0)$)
+			-- (c2);
+	\end{circuitikz}
+\end{minipage}
+}{%
+The input impedance is the equivalent impedance of the combination of parallel and series connections:
+\begin{align*}
+	Z(s) = Z_{R_1} + Z_C + \frac{Z_{R_2} Z_L}{Z_{R_2}+Z_L},
+\end{align*}
+where
+\begin{align*}
+	Z_{R_1} = R_1 \text{, }
+	Z_{R_2} = R_2 \text{, }
+	Z_C = 1/(C s) \text{, and }
+	Z_L = L s.
+\end{align*}
+}{%
+ex:input_impedance_example_01%
+}
+
+\section{Impedance with two-port elements}
+\tags{}
+
+The two types of energy transducing elements, \keyword{transformers} and \keyword{gyrators}, ``reflect'' or ``transmit'' impedance through themselves, such that they are ``felt'' on the other side.
+\tags{}
+
+For a \keyword{transformer}, the elemental equations are
+\begin{align}
+	\mathcal{V}_2(t) = \mathcal{V}_1(t)/TF
+	\quad
+	\text{and}
+	\quad
+	\mathcal{F}_2(t) = -TF \mathcal{F}_1(t),
+\end{align}
+the Laplace transforms of which are
+\begin{align} \label{eq:transformer_laplace}
+	\mathcal{V}_2(s) = \mathcal{V}_1(s)/TF
+	\quad
+	\text{and}
+	\quad
+	\mathcal{F}_2(s) = -TF \mathcal{F}_1(s).
+\end{align}
+
+\begin{wrapfigure}[7]{r}{0.2\textwidth}
+\centering
+\begin{tikzpicture}
+	\coordinate (c1) at (0,0);
+	\draw (c1) pic {groundnode};
+	\coordinate (c2) at (1,0);
+	\draw (c2) pic {groundnode};
+	\node[graphnode] (n1) at (0,2) {};
+	\node[graphnode] (n2) at (1,2) {};
+	% \draw[sourcebranchnoarrow] (c1) to[bend left]
+	% 	node[midway,left,xshift=-7pt] {source} (n1);
+	\draw[branch] (n1) to[bend left]
+		node[midway,above=17pt] {$1$} (c1);
+	\draw[branch] (n2) to[bend right]
+		node[midway,above=17pt] {$2$} (c2);
+	\tf{(.5,1)}{1}
+	\draw[branch] (n2) to[bend left]
+		node[midway,right] {$Z_3$} (c2);
+\end{tikzpicture}
+\caption{}
+\label{fig:transformer_impedance}
+\end{wrapfigure}
+
+If, on the $2$-side, the input impedance is $Z_3$, as in \cref{fig:transformer_impedance}, the equations of \cref{eq:transformer_laplace} are subject to the continuity and compatibility equations
+\tags{}
+\begin{align}
+	\mathcal{V}_2 = \mathcal{V}_3
+	\quad
+	\text{and}
+	\quad
+	\mathcal{F}_2 = -\mathcal{F}_3.
+\end{align}
+Substituting these into \cref{eq:transformer_laplace} and solving for $\mathcal{V}_1$ and $\mathcal{F}_1$,
+\begin{align}
+	\mathcal{V}_1 = TF \mathcal{V}_3
+	\quad
+	\text{and}
+	\quad
+	\mathcal{F}_1 = \mathcal{F}_3/TF.
+\end{align}
+The elemental equation for element $3$ is $\mathcal{V}_3 = \mathcal{F}_3 Z_3$, which can be substituted into the through-variable equation to yield
+\maybeeq{
+\begin{align*}
+	\mathcal{F}_1 = \frac{1}{Z_3 TF} \mathcal{V}_3.
+\end{align*}
+}
+Working our way back from $\mathcal{V}_3$ to $\mathcal{V}_1$, we apply the compatibility equation $\mathcal{V}_2 = \mathcal{V}_3$ and the elemental equation $\mathcal{V}_2 = \mathcal{V}_1/TF$, as follows:
+\maybeeq{
+\begin{align*}
+	\mathcal{F}_1 &= \frac{1}{Z_3 TF} \mathcal{V}_2 \\
+	&= \frac{1}{Z_3 TF^2} \mathcal{V}_1.
+\end{align*}
+}
+Solving for the \keyword{effective input impedance} $Z_1$,
+\begin{align}
+	Z_1 &\equiv \frac{\mathcal{V}_1(s)}{\mathcal{F}_1(s)} \\
+	&= TF^2 Z_3.
+\end{align}
+
+\begin{wrapfigure}[6]{r}{0.2\textwidth}
+\centering
+\begin{tikzpicture}
+	\coordinate (c1) at (0,0);
+	\draw (c1) pic {groundnode};
+	\coordinate (c2) at (1,0);
+	\draw (c2) pic {groundnode};
+	\node[graphnode] (n1) at (0,2) {};
+	\node[graphnode] (n2) at (1,2) {};
+	% \draw[sourcebranchnoarrow] (c1) to[bend left]
+	% 	node[midway,left,xshift=-7pt] {source} (n1);
+	\draw[branch] (n1) to[bend left]
+		node[midway,above=17pt] {$1$} (c1);
+	\draw[branch] (n2) to[bend right]
+		node[midway,above=17pt] {$2$} (c2);
+	\gy{(.5,1)}{2}
+	\draw[branch] (n2) to[bend left]
+		node[midway,right] {$Z_3$} (c2);
+\end{tikzpicture}
+\caption{}
+\label{fig:gyrator_impedance}
+\end{wrapfigure}
+For a \keyword{gyrator} with gyrator modulus $GY$, in the configuration shown in \cref{fig:gyrator_impedance}, a similar derivation yields the \keyword{effective input impedance} $Z_1$,
+\begin{align}
+	Z_1 &= GY^2/Z_3.
+\end{align}
+
+\vspace{1\baselineskip}
+\examplemaybe{%
+input impedance of fluid system with transducer
+}{%
+Draw a linear graph of the fluid system. What is the input impedance for an input force to the piston?
+\begin{center}
+\includegraphics[width=.75\linewidth]{figures/ex_input_impedance_with_transducer.pdf}
+\end{center}
+}{%
+The linear graph is as follows.
+\begin{center}
+\includegraphics[width=.6\linewidth]{figures/ex_input_impedance_with_transducer_linear_graph.pdf}
+\end{center}
+Using a one-liner approach:
+\begin{align*}
+	Z_1 &= GY^2/
+		\left(
+			R_1 +
+			\frac{
+				(R_2 + I s)/(C s)
+			}{
+				R_2 + I s + 1/(C s)
+			}
+		\right) \\
+	&= \frac{1}{A^2}
+	\cdot
+	\frac{
+		C I s^2 + C R_2 s + 1
+	}{
+		R_1 C s^2 + (R_1 R_2 C + I) s + R_1 + R_2
+	}.
+\end{align*}
+}{%
+ex:input_impedance_with_transducer%
+}
+
+\section{Transfer functions via impedance}
+\tags{}
+\label{lec:transfer_functions_via_impedance}
+
+Now the true power of impedance-based modeling is revealed: we can skip a time-domain model (e.g.\ state-space or io differential equation) and derive a transfer-function model, directly!
+Before we do, however, let's be sure to recall that a transfer-function model concerns itself with the \keyword{forced response} of a system, ignoring the free response.
+If we care to consider the free response, we can convert the transfer function model to an io differential equation and solve it.
+\tags{}
+
+There are two primary ways impedance-based modeling is used to derive transfer functions.
+The first and most general is described, here.
+The second is a shortcut most useful for relatively simple systems; it is described in \cref{lec:divider_method}.
+\tags{}
+
+In what follows, it is important to recognize that, in the Laplace-domain, every elemental equation is just\footnote{In electronics, this is sometimes called ``generalized Ohm's law.''}
+\begin{align}
+	\mathcal{V} = \mathcal{F} Z,
+\end{align}
+where the across-variable, through-variable, and impedance are all element-specific.
+\tags{}
+% The algorithm assumes a single-input, single-output system. It can be easily altered to handle multiple-input, multiple output systems, but we recommend, instead, constructing a state-space model and converting it to a transfer function matrix, as described in \cref{lec:transfer_functions_state_space}.
+
+This algorithm is very similar to that for state-space models from linear graph models, presented in \cref{lec:graphs2}.
+In the following, we consider a connected graph with $B$ branches, of which $S$ are sources (split between through-variable sources $S_T$ and across $S_A$).
+There are $2 B - S$ unknown across- and through-variables, so that's how many equations we need.
+We have $B-S$ elemental equations and for the rest we will write continuity and compatibility equations.
+$N$ is the number of nodes.
+\tags{}
+
+\begin{enumerate}
+	\item Derive $2 B-S$ independent Laplace-domain, algebraic equations from Laplace-domain elemental, continuity, and compatibility equations.
+	\begin{enumerate}
+		\item Draw a \keyword{normal tree}.
+		% \item Identify \keyword[primary variables]{primary} and \keyword{secondary variables}.
+		% \item Select the \keyword{state variables} to be\\ 
+		% \emph{across}-variables on A-type branches and \\
+		% \emph{through}-variables on T-type links.
+		% \item Define the \keyword{state vector} $\bm{x}$, \keyword{input vector} $\bm{u}$, and \keyword{output vector} $\bm{y}$.
+		\item Write a Laplace-domain \keyword{elemental equation} for each passive element.\footnote{There will be $B-S$ elemental equations.}
+		\item Write a \keyword{continuity equation} for each passive branch by drawing a contour intersecting that and no other branch.\footnote{There will be $N - 1 - S_A$ independent continuity equations.}
+		% Solve each for the secondary through-variable associated with that branch.
+		\item Write a \keyword{compatibility equation} for each passive link by temporarily ``including'' it in the tree and finding the compatibility equation for the resulting loop.\footnote{There will be $B-N+1-S_T$ independent compatibility equations.}
+		% Solve each for the secondary across-variable associated with that branch.
+	\end{enumerate}
+	\item Solve the \emph{algebraic} system of $2B$ equations and $2B$ unknowns for outputs in terms of inputs, only.
+	Sometimes, solving for \emph{all} unknowns via the usual methods is easier than trying to cherry-pick the desired outputs.
+	\item The solution for each output $Y_i$ depends on zero or more inputs $U_j$.
+	To solve for the transfer function $Y_i/U_j$, set $U_k=0$ for all $k\ne j$, then divide both sides of the equation by $U_j$.
+\end{enumerate}
+
+\examplemaybe{%
+fire hose
+}{%
+For the schematic of a fire hose connected to a fire truck's reservoir $C$ via pump input $P_s$, use impedance methods to find the transfer function from $P_s$ to the velocity of the spray. Assume the nozzle's cross-sectional area is $A$.
+\begin{center}
+\tikzset{
+   ragged border/.style={ decoration={random steps, segment length=2mm, amplitude=0.5mm},
+           decorate,rounded corners=1mm,thick
+   }
+}
+\begin{tikzpicture}[
+	my double line/.style={
+    preaction={
+      draw=black,
+      double,
+      double distance=\myDoubleDistance-.4pt,
+      shorten >=0pt,
+      shorten <=0pt,
+    },
+    draw=white,
+    loosely dashed,
+    double,
+    double distance=\myDoubleDistance-.2pt,
+    shorten >=-.1pt,
+    shorten <=-.1pt,
+    },
+]
+\node[draw,circle,minimum width=1cm] (p) at (0,0) {$P_s$}; 
+\draw (p.south) -| ++(1cm,0cm)
+	coordinate (n01) |- (p.-20);
+\coordinate (n02) at (n01 |- p.-20);
+\coordinate (n00) at ($(n01)!0.5!(n02)$);
+\draw (p.south) -| ++(-1cm,0cm)
+	coordinate (n1)
+	(p.200) -- (p.200 -| n1)
+	coordinate (n2);
+\draw (-3,3) coordinate (ul) 
+	-- (ul |- n1) coordinate (ll) 
+	-- (n1);
+\draw (ul -| n2) -- (n2);
+\calcLength(n01,n02){myDoubleDistance}
+\draw[double,double distance=\myDoubleDistance-.4pt] 
+	(n00) to ++(1,0)
+	coordinate (h1);
+\draw[my double line]
+	(h1) to ++(2,0)
+	coordinate (h2);
+\draw[double,double distance=\myDoubleDistance-.4pt]
+	(h2) to[out=0,in=-135] ++(2,1)
+	coordinate (h3);
+\draw[cyan!30,shorten >=.2pt,shorten <=.2pt]
+  decorate[ragged border]{
+	  ($(ul)+(0,-.3)$) coordinate (wul) 
+	  -- (wul -| n1) coordinate (wur)
+  };
+\draw[cyan!30,double distance=\myDoubleDistance-1.2pt]
+	(h3) to ++(.15,.15)
+	coordinate (h4);
+\coordinate (w1) at ($(h4)+(-.108,.108)$);
+\coordinate (w2) at ($(w1)+(.216,-.216)$);
+\pgfmathsetseed{1112533}
+\draw[cyan!30,line cap=round]
+	decorate[
+		decoration={random steps,segment length=.1mm,amplitude=2mm},
+  	decorate,
+  	rounded corners=.5mm,
+  ]{
+  	($(w1)+(.1,.1)$) -- ($(w2)+(.1,.1)$)
+  } 
+	-- (w2)
+	($(w1)+(.1,.1)$) -- (w1);
+\coordinate (tt) at ($(wul)!.5!(wur)$);
+\node at ($(tt)-(0,1)$) {$C$};
+\node at ($(n02)+(2,.2)$) {$L$, $R$};
+\end{tikzpicture}
+\end{center}
+}{%
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.\\
+.
+}{%
+ex:fire_hose%
+}
+
+\section[Norton and Thevenin theorems]{Norton and Th\'evenin theorems}
+\tags{}
+
+The following remarkable theorem has been proven.\footnote{This lecture is intentionally strongly paralleled in our \emph{Electronics} lecture on Norton's and Th\'evenin's theorems.}
+\tags{}
+
+\begin{Theorem}{generalized Th\'evenin's theorem}{th:thevenin}
+  Given a linear network of across-variable sources, through-variable sources, and impedances, the behavior at the network's output nodes can be reproduced exactly by a single \emph{across-variable source $\mathcal{V}_e$ in series with an impedance $Z_e$}.
+\end{Theorem}
+
+The equivalent linear network has two quantities to determine: $\mathcal{V}_e$ and $Z_e$.
+\tags{}
+
+\subsubsection{Determining $Z_e$}
+\tags{}
+
+The \keyword{equivalent impedance $Z_e$} of a network is the impedance between the output nodes with all inputs set to zero.
+Setting an across-variable source to zero means the across-variable on both its terminals are equal, which is equivalent to treating them as the same node.
+Setting a through-variable source to zero means the through-variable through it is zero, which is equivalent to treating its nodes as disconnected.
+\tags{}
+
+\subsubsection{Determining $\mathcal{V}_e$}
+\tags{}
+
+The \keyword{equivalent across-variable source $\mathcal{V}_e$} is the across-variable at the output nodes of the network when they are left open (disconnected from a load).
+Determining this value typically requires some analysis with the elemental, continuity, and compatibility equations (preferably via impedance methods).
+\tags{}
+
+\subsection{Norton's theorem}
+\tags{}
+
+Similarly, the following remarkable theorem has been proven.
+\tags{}
+
+\begin{Theorem}{generalized Norton's theorem}{th:norton}
+  Given a linear network of across-variable sources, through-variable sources, and impedances, the behavior at the network's output nodes can be reproduced exactly by a single \emph{through-variable source $\mathcal{F}_e$ in parallel with an impedance $Z_e$}.
+\end{Theorem}
+
+The equivalent network has two quantities to determine: $\mathcal{F}_e$ and $Z_e$.
+The equivalent impedance $Z_e$ is identical to that of Th\'evenin's theorem, which leaves the equivalent through-variable source $\mathcal{F}_e$ to be determined.
+\tags{}
+
+\subsubsection{Determining $\mathcal{F}_e$}
+\tags{}
+
+The \keyword{equivalent through-variable source $\mathcal{F}_e$} is the through-variable through the output terminals of the network when they are shorted (collapsed to a single node).
+Determining this value typically requires some analysis with elemental, continuity, and compatibility equations (preferably via impedance methods).
+\tags{}
+
+\subsection{Converting between Th\'evenin and Norton equivalents}
+\tags{}
+
+There is an equivalence between the two equivalent network models that allows one to convert from one to another with ease.
+The equivalent impedance $Z_e$ is identical in each and provides the following equation for converting between the two representations:
+\maybeeqn{converting between Th\'evenin and Norton equivalents}{eq:converting_thevenin_norton}{
+  \begin{align*}
+    \mathcal{V}_e = Z_e \mathcal{F}_e.
+  \end{align*}
+}
+
+\examplemaybe{
+  Th\'evenin and Norton equivalents
+  }{%
+  \begin{minipage}[c]{.4\linewidth}
+    For the circuit shown, find a Th\'evenin and a Norton equivalent.
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.5\linewidth}
+    \includegraphics[width=1\linewidth]{figures/ex_thevenin_norton.pdf}
+  \end{minipage}
+  }{
+  \noindent
+  \begin{minipage}[c]{.6\linewidth}
+    The Th\'evenin equivalent is shown. Now to find $Z_e$ and $\mathcal{V}_e$. Setting $V_s = 0$, $R_1$ and $R_2$ are in parallel, combining to give
+    \begin{align*}
+      Z_e = \frac{R_1 R_2}{R_1+R_2}.
+    \end{align*}
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.3\linewidth}
+    \includegraphics[width=1\linewidth]{figures/thevenin_equivalent.pdf}
+  \end{minipage}
+  \newline
+  Now to find $v_\text{out}$. It's a voltage divider:
+  \begin{align*}
+    \mathcal{V}_e = v_\text{out} = \frac{R_2}{R_1+R_2} V_s.
+  \end{align*}
+  \begin{minipage}[c]{.6\linewidth}
+    The Norton equivalent is shown. We know $Z_e$ from the Th\'evenin equivalent, which also yields
+    \begin{align*}
+      \mathcal{F}_e = \mathcal{V}_e/Z_e.
+    \end{align*}
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.3\linewidth}
+    \includegraphics[width=1\linewidth]{figures/norton_equivalent.pdf}
+  \end{minipage}
+}{%
+ex:equivalent_sources%
+}
+
+
+\section{The divider method}
+\tags{}
+\label{lec:divider_method}
+
+\setlength\intextsep{0pt}
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \centering
+	\begin{tikzpicture}
+		% \coordinate (c1) at (0,0);
+		% \draw (c1) pic {groundnode};
+		\node[graphnode] (n1) at (0,0) {};
+		\node[graphnode] (n2) at (0,2) {};
+		\node[graphnode] (n3) at (1.732,1) {};
+		\draw[sourcebranch]
+			(n2) to[bend right]
+			node[midway,left=7pt] {$\mathcal{V}_\text{in}$} (n1);
+		\draw[branch] (n2) to[bend left]
+			node[midway,above right=-2pt] {$Z_1$} (n3);
+		\draw[branch] (n3) to[bend left]
+			node[midway,below right] {$Z_2$} (n1);
+	\end{tikzpicture}
+  \caption{\label{fig:impedance_across_divider} the two-element across-variable divider.}%
+\end{wrapfigure}
+
+In \emph{Electronics}, we developed the useful voltage divider formula for quickly analyzing how voltage divides among series electronic impedances.
+This can be considered a special case of a more general \keyword{across-variable divider} equation for any elements described by an impedance.
+After developing the across-variable divider, we also introduce the through-variable divider, which divides an input through-variable among parallel elements.
+\tags{V, R, D, S}
+
+\subsection{Across-variable dividers}
+\tags{}
+
+First, we develop the solution for the two-element across-variable divider shown in \autoref{fig:impedance_across_divider}.
+We choose the across-variable across $Z_2$ as the output. 
+The analysis follows the impedance method of \autoref{lec:transfer_functions_via_impedance}, solving for $\mathcal{V}_2$.
+\tags{}
+\begin{enumerate}
+	\item Derive four independent equations.
+		\begin{enumerate}
+			\item The normal tree is chosen to consist of $\mathcal{V}_\text{in}$ and $Z_2$.
+			\item The elemental equations are
+			\maybeeq{
+				\begin{tabular}{l|r}
+					$\begin{aligned}[t]
+						Z_1 \\
+						Z_2
+					\end{aligned}$ &
+					$\begin{aligned}[t]
+					\mathcal{V}_1 &= \mathcal{F}_1 Z_1\\
+					\mathcal{V}_2 &= \mathcal{F}_2 Z_2
+					\end{aligned}$
+				\end{tabular}
+			}
+			\item The continuity equation is \mayb{$\mathcal{F}_2 = \mathcal{F}_1$.}
+			\item The compatibility equation is \mayb{$\mathcal{V}_1 = \mathcal{V}_\text{in} - \mathcal{V}_2$.}
+		\end{enumerate}
+	\item Solve for the output $\mathcal{V}_2$.
+	From the elemental equation for $Z_2$,
+	\maybeeq{
+	\begin{align*}
+		\mathcal{V}_2 &= \mathcal{F_1} Z_2 \\
+		&= \frac{\mathcal{V}_1}{Z_1} Z_2 \\
+		&= \frac{Z_2}{Z_1} (\mathcal{V}_\text{in} - \mathcal{V}_2) \quad \Rightarrow \\
+		\mathcal{V}_2 &= \frac{Z_2}{Z_1+Z_2} \mathcal{V}_\text{in}.
+	\end{align*}
+	}
+\end{enumerate}
+
+A similar analysis can be conducted for $n$ impedance elements.
+\tags{}
+
+\maybeeqn{general across-variable divider}{eq:across_divider_general_impedance}{%
+For the output across-variable across $Z_k$ in series with $n$ impedance elements with input $\mathcal{V}_\text{in}$ is
+\begin{align*}
+  \mathcal{V}_k &= \frac{Z_k}{Z_1+Z_2+\cdots+Z_k+\cdots+Z_n} \mathcal{V}_\text{in}.
+\end{align*}
+}
+
+\subsection{Through-variable dividers}
+\tags{}
+
+By a similar process, we can analyze a network that divides a through-variable into $n$ \emph{parallel} impedance elements.
+\maybeeqn{general through-variable divider}{eq:through_divider_general_impedance}{%
+For the output through-variable through $Z_k$ in parallel with $n$ impedance elements with input through-variable $\mathcal{F}_\text{in}$ is
+\begin{align*}
+  \mathcal{F}_k &= \frac{1/Z_k}{1/Z_1+1/Z_2+\cdots+1/Z_k+\cdots+1/Z_n} \mathcal{F}_\text{in}.
+\end{align*}
+}
+
+\subsection{Transfer functions using dividers}
+\tags{}
+
+An excellent shortcut to deriving a transfer function is to use the across- and through-variable divider rules instead of solving the system of algebraic equations, as in \cref{lec:transfer_functions_via_impedance}.
+An algorithm for this process is as follows.
+\begin{enumerate}
+	\item Identify the element associated with an output variable $Y_i$.
+	Call it the \emph{output element}.
+	\item Identify the source associated with an input variable $U_j$.
+	Set all other sources to zero.
+	\item Transform the network to be an across- or through-variable divider that includes the ``bare'' (uncombined) output element's output variable.\footnote{In other words, if the across-variable of the output element is the output, do not combine it in series; if the through-variable is the output, do not combine it in parallel.}
+	\begin{enumerate}
+		\item If necessary, form equivalent impedances of portions of the network, being sure to leave the output element's output variable alone.
+		\item If necessary, transform the source \emph{\`a la} Norton or Th\'evenin.
+	\end{enumerate}
+	\item Apply the across- or through-variable divider equation.
+	\item If necessary, use the elemental equation of the output element to trade output across- and through-variables.
+	\item If necessary, use the source transformation equation of the input to trade input across- and through-variables.
+	\item Divide both sides by the input variable.
+\end{enumerate}
+
+It turns out that, despite its many ``if necessary'' clauses, very often this ``shortcut'' is easier than the method of \autoref{lec:transfer_functions_via_impedance} for low-order systems if only a few transfer functions are of interest.
+\tags{}
+
+\examplemaybe{%
+	a circuit transfer function using a divider
+}{%
+	\begin{minipage}[c]{.57\linewidth}
+    Given the circuit shown with voltage source $V_s$ and output $v_L$, 
+    \begin{enumerate}[label={\alph*.}]
+    	\item what is the transfer function $\dfrac{V_L}{V_s}$?
+    	\item Without transforming the source, find the transfer function $\dfrac{I_L}{V_s}$.
+    	\item Transforming the source, find $\dfrac{I_L}{V_s}$.
+    \end{enumerate}
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.4\linewidth}
+    \begin{circuitikz}[]
+			\draw
+				(0,0) to[voltage source, v=$V_s$] (0,2)
+				to[R=$R$, i=$i_{R}$] (2,2)
+				to[C=$C$, i=$i_{C}$] (2,0)
+				-- (0,0);
+			\draw
+				(2,2) -- (3.5,2)
+				to[L=$L$, i=$i_L$] (3.5,0)
+				-- (2,0);
+		\end{circuitikz}
+  \end{minipage}
+}{%
+	\begin{enumerate}[label={\alph*.}]
+		\item
+			We'll use impedance methods, but with a voltage divider.
+			The inductor is the output element, but we can combine the parallel capacitor and inductor without losing the output variable $V_L$.
+			This leaves us with a straightforward voltage divider!
+			We can do this in one line:
+			\begin{align*}
+				V_L &= \frac{\frac{Z_L Z_C}{Z_L + Z_C}}{Z_R + \frac{Z_L Z_C}{Z_L + Z_C}} V_s\quad \Rightarrow \\
+				\frac{V_L}{V_s} &= \frac{Z_L Z_C}{Z_R Z_L + Z_R Z_C + Z_L Z_C} \\
+				&= \frac{L/C}{R L s + R/(C s) + L/C} \\
+				&= \frac{L s}{R L C s^2 + L s + R}.
+			\end{align*}
+		\item
+			If we use the previous result and the inductor impedance (elemental equation),
+			\begin{align*}
+				\frac{I_L Z_L}{V_s} &= \frac{L s}{R L C s^2 + L s + R} \quad \Rightarrow \\
+				\frac{I_L}{V_s} &= \frac{1}{R L C s^2 + L s + R}
+			\end{align*}
+		\item
+			Transforming the source puts $R$, $C$, and $L$ in \emph{parallel} with the new source $I_s$, which is a straightforward through-variable divider:
+			\begin{align*}
+				I_L &= \frac{1/Z_L}{1/Z_L + 1/Z_C + 1/Z_R} I_s \quad \Rightarrow \\
+				\frac{I_L}{I_s} &= \frac{1}{1+ L C s^2 + L s/R} \\
+				&= \frac{R}{R L C s^2 + L s + R}.
+			\end{align*}
+			Trade $I_s$ for $V_s$ via the Norton/Th\'evenin transformation:
+			\begin{align*}
+				\frac{I_L}{V_s/R} &= \frac{R}{R L C s^2 + L s + R} \quad \Rightarrow \\
+				\frac{I_L}{V_s} &= \frac{1}{R L C s^2 + L s + R},
+			\end{align*}
+			which is the same result as in (b).
+\end{enumerate}
+}{%
+ex:voltage_divider_impedance%
+}
+
+
+
+\section*{Exercises}
+
+\input{ch10_exercises}
+
+% \begin{problems}
+
+% \subsection{a problem}
+
+% \end{problems}
+
+% \begin{solutions}
+
+% \subsection{a solution}
+
+% \end{solutions}
+
+\end{document}

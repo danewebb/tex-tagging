@@ -1,0 +1,635 @@
+\documentclass[dynamic_systems.tex]{subfiles}
+\begin{document}
+
+\chapter[Steady frequency domain]{Frequency domain, steady response}
+
+\section{Fourier series}
+\tags{}
+
+\input{common-text/fourier_series}
+
+\section{Fourier transform}
+\tags{}
+
+% only really need for frequency response derivation
+\input{common-text/source/fourier_series_to_transform}
+
+\section[Frequency and impulse response]{Frequency and impulse response}
+\tags{}
+
+This lecture proceeds in three parts.
+First, the Fourier transform is used to derive the \emph{frequency response function}.
+Second, this is used to derive the \emph{frequency response}.
+Third, the frequency response for an impulse input is explored.
+\tags{}
+
+\subsection{Frequency response functions}
+\tags{}
+\input{../_common/io_to_frf}
+
+Note that a frequency response function can be converted to a transfer function via the substitution $j\omega \mapsto s$ and, conversely, a transfer function can be converted to a frequency response function via the substitution $s \mapsto j\omega$, as in
+\tags{}
+\maybeeq{
+	\begin{align*}
+		H(j\omega) = H(s)|_{s\rightarrow j\omega}.
+	\end{align*}
+}
+\noindent It is often easiest to first derive a transfer function---using any of the methods described, previously---then convert this to a frequency response function.
+
+\subsection{Frequency response}
+\tags{}
+
+From above, we can solve for the output response $y$ from the frequency response function by taking the inverse Fourier transform:
+\tags{}
+\begin{align}
+	y(t) &= \mathcal{F}^{-1}Y(\omega).
+\end{align}
+From the definition of the frequency response function \eqref{eq:frf_definition}, 
+\begin{align}
+	y(t) &= \mathcal{F}^{-1}(H(j\omega) U(\omega)).
+\end{align}
+
+The \keyword[convolution theorem]{\href{https://en.wikipedia.org/wiki/Convolution_theorem}{convolution theorem}} states that, for two functions of time $h$ and $u$,
+\tags{}
+\begin{subequations}
+\begin{align}
+	\mathcal{F}(h*u) &= \mathcal{F}(h) \mathcal{F}(u)\\
+	&= H(j\omega) U(\omega), \label{eq:conv_01}
+\end{align}
+\end{subequations}
+where the \keyword[convolution operator $*$]{convolution operator $*$} is defined by
+\begin{align}
+	\label{eq:conv_02}
+	(h*u)(t) &\equiv \int_{-\infty}^\infty h(\tau) u(t-\tau)\, d\tau.
+\end{align}
+Therefore,
+\maybeeq{
+\begin{align*}
+	y(t) &= \mathcal{F}^{-1}(H(j\omega) U(\omega)) \\
+	&= (h*u)(t) \tag{from \eqref{eq:conv_01}} \\
+	&= \int_{-\infty}^\infty h(\tau) u(t-\tau)\, d\tau. \tag{from \eqref{eq:conv_02}}
+\end{align*}
+}
+This is the \keyword{frequency response} in terms of all time-domain functions.
+
+\subsection{Impulse response}
+\tags{}
+
+The frequency response result includes an interesting object: $h(t)$. What is the physical significance of $h$, other than its definition, as the inverse Fourier transform of $H(j\omega)$?
+\tags{}
+
+Consider the singularity input $u(t) = \delta(t)$, an impulse.
+The frequency response is
+\tags{}
+\begin{align}
+	y(t) &= \int_{-\infty}^\infty h(\tau) \delta(t-\tau)\, d\tau.
+\end{align}
+The so-called \keyword[sifting property]{\href{http://mathworld.wolfram.com/SiftingProperty.html}{sifting property}} of $\delta$ yields
+\begin{align}
+	y(t) &= h(t).
+\end{align}
+That is, $h$ is the \keyword{impulse response}.
+
+A very interesting aspect of this result is that 
+\begin{align}
+	H(j\omega) = \mathcal{F}(h).
+\end{align}
+
+That is, the Fourier transform of the impulse response is the frequency response function.
+A way to estimate, via measurement, the frequency response function (and transfer function) of a system is to input an impulse, measure and fit the response, then Fourier transform it.
+Of course, putting in an actual impulse and fitting the response, perfectly are impossible; however, estimates using approximations remain useful.
+\tags{}
+
+It is worth noting that frequency response/transfer function estimation is a significant topic of study, and many techniques exist.
+Another method is described in \cref{lec:sinusoidal_response}.
+\tags{}
+
+\section[Sinusoidal frequency response]{Sinusoidal input, frequency response}
+\tags{}
+\label{lec:sinusoidal_response}
+
+In this lecture, we explore the relationship---which turns out to be pretty chummy---between a system's frequency response function $H(j\omega)$ and its sinusoidal forced response.
+\tags{}
+
+Let's build from the frequency response function $H(j\omega)$ definition:
+\begin{subequations}
+\begin{align}
+	y(t) &= \mathcal{F}^{-1}Y(\omega) \\
+	&= \mathcal{F}^{-1}(H(j\omega)U(\omega)).
+	\label{eq:sinusoidal_response_sol_01}
+\end{align}
+\end{subequations}
+We take the input to be sinusoidal, with amplitude $A\in\mathbb{R}$, angular frequency $\omega_0$, and phase $\psi$:
+\begin{align}
+	u(t) = A \cos(\omega_0 t + \psi).
+\end{align}
+The Fourier transform of the input, $U(\omega)$, can be constructed via transform identities from \cref{tab:fourier_transforms}.
+This takes a little finagling.
+Let
+\begin{subequations}
+\begin{align}
+	p(t) &= A q(t), \\
+	q(t) &= r(t - t_0),\ \text{and} \\
+	r(t) &= \cos\omega_0 t,\ \text{where} \\
+	t_0 &= -\psi/\omega_0.
+\end{align}
+\end{subequations}
+The corresponding Fourier transforms, from \cref{tab:fourier_transforms}, are 
+\begin{subequations}
+\begin{align}
+	P(\omega) &= A Q(\omega), \\
+	Q(\omega) &= e^{-j\omega t_0} R(\omega),\ \text{and} \\
+	R(\omega) &= \pi \delta(\omega-\omega_0) + \pi \delta(\omega+\omega_0).
+\end{align}
+\end{subequations}
+Putting these together,
+\maybeeq{
+	\begin{align*}
+		U(\omega) &= 
+		A \pi 
+		\left(
+			e^{j\psi \omega/\omega_0}
+			\delta(\omega-\omega_0) +
+			e^{j\psi \omega/\omega_0}
+			\delta(\omega+\omega_0)
+		\right) \\
+		&=
+		A \pi 
+		\left(
+			e^{j\psi}
+			\delta(\omega-\omega_0) +
+			e^{-j\psi}
+			\delta(\omega+\omega_0)
+		\right).
+		\tag{because $\delta$s}
+	\end{align*}
+}
+
+And now we are ready to substitute into \cref{eq:sinusoidal_response_sol_01}; also applying the ``linearity'' property of the Fourier transform:
+\begin{align}
+y(t) &= A \pi\left(
+	e^{j\psi}
+	\mathcal{F}^{-1}(
+		H(j\omega) 
+		\delta(\omega-\omega_0)
+	) 
+	+
+	e^{-j\psi}
+	\mathcal{F}^{-1}(
+		H(j\omega) 
+		\delta(\omega+\omega_0)
+	)
+\right).
+\end{align}
+The definition of the inverse Fourier transform gives
+\begin{alignat}{3}
+y(t) = \dfrac{A}{2}\Bigg(
+	&e^{j\psi}
+	&&\int_{-\infty}^\infty
+		e^{j\omega t}
+		H(j\omega) 
+		\delta(\omega-\omega_0)
+	d\omega
+	{}+{} \nonumber \\
+	{}+{}
+	&e^{-j\psi}
+	&&\int_{-\infty}^\infty
+		e^{j\omega t}
+		H(j\omega) 
+		\delta(\omega+\omega_0)
+	d\omega
+\Bigg).
+\end{alignat}
+Recognizing that $\delta$ is an even distribution ($\delta(t) = \delta(-t)$) and applying the sifting property of $\delta$ allows us to evaluate each integral:
+\begin{align}
+	y(t) &= \frac{A}{2}
+	\left(
+		e^{j\psi} e^{j\omega_0 t} H(j\omega_0) +
+		e^{-j\psi} e^{-j\omega_0 t} H(-j\omega_0)
+	\right).
+\end{align}
+Writing $H$ in polar form,
+\maybeeq{
+\begin{alignat}{4}
+	y(t) = \frac{A}{2}
+	\Big(
+		&e^{j(\omega_0 t + \psi)} 
+		&&|H(j\omega_0)| 
+		&&e^{j\angle H(j\omega_0)} 
+		{}+{} \nonumber\\
+		{}+{}
+		&e^{-j(\omega_0 t + \psi)} 
+		&&|H(-j\omega_0)| 
+		&&e^{j\angle H(-j\omega_0)}
+	\Big).
+\end{alignat}
+}
+The Fourier transform is \href{https://ocw.mit.edu/resources/res-6-007-signals-and-systems-spring-2011/lecture-notes/MITRES_6_007S11_lec09.pdf}{conjugate symmetric}---that is, $F(-\omega) = F^*(\omega)$---which allows us to further simply:
+\begin{subequations}
+\begin{align}
+	y(t) &= \frac{A |H(j\omega_0)|}{2}
+	\Big(
+		e^{j(\omega_0 t + \psi)}  
+		e^{j\angle H(j\omega_0)} 
+		+
+		e^{-j(\omega_0 t + \psi)} 
+		e^{-j\angle H(j\omega_0)}
+	\Big) \\
+	&= A |H(j\omega_0)|
+	\dfrac{
+		e^{j(\omega_0 t + \psi + \angle H(j\omega_0))} 
+		+
+		e^{-j(\omega_0 t + \psi + \angle H(j\omega_0))}
+	}{2}.
+\end{align}
+\end{subequations}
+Finally, Euler's formula yields something that deserves a box.
+\maybeeqn{sinusoidal response in terms of $H(j\omega)$}{eq:sinusoidal_response_H}{
+For input $A \cos(\omega_0 t + \psi)$ to system $H(j\omega)$, the forced response is
+\begin{align*}
+	y(t) 
+	&= A |H(j\omega_0)|
+	\cos(\omega_0 t + \psi + \angle H(j\omega_0)).
+\end{align*}
+}
+
+This is a remarkable result.
+For an input sinusoid, a linear system has a forced response that
+\begin{itemize}
+	\item is also a sinusoid,
+	\item is at the same frequency as the input,
+	\item differs only in amplitude and phase,
+	\item differs in amplitude by a factor of $|H(j\omega)|$, and
+	\item differs in phase by a shift of $\angle H(j\omega)$.
+\end{itemize}
+
+Now we see one of the key facets of the frequency response function: it governs how a sinusoid transforms through a system.
+And just think how powerful it will be once we combine it with the powerful principle of superposition and the mighty Fourier series representation of a function---as a ``superposition'' of sinusoids! 
+\tags{}
+
+\section{Bode plots} 
+\tags{}
+\label{sec:bodeplots}
+
+This lecture also appears in \href{http://ricopic.one/control/}{\emph{Control: an introduction}}.
+
+\input{common-text/bode_plots}
+
+\clearpage
+
+\section[Periodic frequency response]{Periodic input, frequency response}
+\tags{}
+
+Let a system $H$ have a periodic input $u$ represented by a Fourier series.
+For reals $a_0$, $\omega_1$ (fundamental frequency), $\mathcal{A}_n$, and $\phi_n$, let
+\tags{}
+\begin{align}
+	u(t) = \frac{a_0}{2} + \sum_{n=1}^\infty \mathcal{A}_n \sin(n\omega_1 t + \phi_n).
+\end{align}
+The $n$th harmonic is
+\maybeeq{
+\begin{align*}
+	u_n(t) = \mathcal{A}_n \sin(n\omega_1 t + \phi_n),
+\end{align*}
+}
+which, from \autoref{eq:sinusoidal_response_H} yields forced response
+\maybeeq{ 
+\begin{align*}
+	y_n(t) = \mathcal{A}_n |H(j n \omega_1)| \sin(n\omega_1 t + \phi_n + \angle H(j n \omega_1)).
+\end{align*}
+}
+
+Applying the principle of superposition, the forced response of the system to periodic input $u$ is
+\begin{align} \label{eq:periodic_response_trig}
+	y(t) = \frac{a_0}{2} H(j 0) + 
+		\sum_{n=1}^\infty \mathcal{A}_n |H(j n \omega_1)| \sin(n\omega_1 t + \phi_n + \angle H(j n \omega_1)).
+\end{align}
+
+Similarly, for inputs expressed as a complex Fourier series with components
+\begin{align}
+	u_n(t) = c_n e^{j n \omega_1 t},
+\end{align}
+each of which has output
+\begin{align}
+	y_n(t) = c_n H(j n \omega_1) e^{j n \omega_1 t},
+\end{align}
+the principle of superposition yields
+\begin{align}\label{eq:periodic_response_exp}
+	y(t) = 
+		\sum_{n=-\infty}^\infty c_n H(j n \omega_1) e^{j n \omega_1 t}.
+\end{align}
+
+\cref{eq:periodic_response_trig,eq:periodic_response_exp} tell us that, for a periodic input, we obtain a periodic output with each harmonic $\omega_n$ amplitude scaled by $|H(j\omega_n)|$ and phase offset by $\angle H(j\omega_n)$.
+As a result, the response will usually undergo significant \emph{distortion}, called \keyword{phase distortion}.
+The system $H$ can be considered to \keyword{filter} the input by amplifying and suppressing different harmonics.
+This is why systems not intended to be used as such are still sometimes called ``filters.''
+This way of thinking about systems is very useful to the study of vibrations, acoustics, measurement, and electronics.
+\tags{}
+
+All this can be visualized via a Bode plot, which is a significant aspect of its analytic power.
+An example of such a visualization is illustrated in \autoref{fig:periodic_input_response}.
+\tags{}
+
+\begin{figure}
+\centering
+\includegraphics[width=.85\linewidth,trim={.75in .65in .5in 1.2in},clip]{figures/PeriodicInputResponse.pdf}
+\caption{response $y$ of a system $H$ to periodic input $u$.}
+\label{fig:periodic_input_response}
+\end{figure}
+
+% TODO
+% \section[Phase distortion]{Phase linearity and distortion}
+
+\section[Design problem]{Design problem: rainwater catchment and irrigation system}
+\tags{}
+
+Design a home rainwater catchment system and sprinkler distribution system.
+Most places, a surprising amount of water falls on a house's roof throughout a year.
+Capturing it for irrigation can save water costs and reduce the environmental impact of watering lawns, plants, and gardens.
+\tags{}
+
+Design a home rainwater catchment and irrigation system.
+The design constraints are as follows.
+\tags{}
+\begin{enumerate}
+  \item It should be designed for Olympia, Washington rainfall, as described in \autoref{tab:oly_rainfall}.
+  \item For a house, large tanks are unsightly. Instead, use a series of connected barrels.
+\end{enumerate}
+
+After discussions with the customer, the following design requirements for the system are identified.
+\tags{}
+\begin{enumerate}
+  \item It should be capable of distributing one inch of water per unit area June through September, even during drought conditions, during which there is half the average rainfall in the months March through September (see \autoref{tab:oly_rainfall}.
+  \item The roof area for collection is $400$ square ft.
+  \item The lawn area for distribution is $600$ square ft.
+  \item It should be low-maintenance.
+  \item The distribution system should be capable of being ``blown out'' during winter months \emph{or} it must be designed to handle sudden dips from $33$ down to $22$ deg F for up to two days.\footnote{A potential way to mitigate freezing is keeping the water in motion. Care must be taken not to create inadvertent ice skating rinks.}
+  \item When tanks are full, it should be able to gracefully dump excess water. If possible, designing it to refresh itself by dumping old water for new water is desired.
+  \item It should be able to handle a heavy rain of $1$ inch per hour via an overflow mechanism, but be able to handle a moderate rain of $0.2$ inches per hour without requiring overflow (unless the tanks are full).
+  \item It should be designed to be fed from typical house rain gutter downspouts.
+  \item Distribution should be automated.
+  \item Energy efficiency is desired. If possible, using tanks' potential energy for distribution is desired. In this case, unconventional distribution networks are allowable (e.g.\ ``drip'' systems without conventional sprinkler heads that require high pressure). However, the distribution hardware should not be custom-designed.
+  \item Commercially available parts are desired. Minimize the number of custom parts (zero is best).
+\end{enumerate}
+
+The focus of the design problem is the sizing of the pipes, barrels, and mechanisms based on a dynamic system analysis.\footnote{A design that is not informed by a thoroughly presented system model will receive no credit.}
+\tags{}
+
+\begin{table}
+\centering
+\caption{mean monthly rainfall data and corresponding ``drought conditions'' for Olympia, Washington, USA \citep{thurston_noaa2017}.}
+\label{tab:oly_rainfall}
+\begin{tabular}{lll}
+\toprule
+month & mean precip.\ (in) & drought precip.\ (in) \\
+\midrule
+January & $8.51$  & $8.51$ \\
+February & $5.82$ & $5.82$ \\
+March & $4.85$ & $2.43$ \\
+April & $3.11$ & $1.55$ \\
+May & $1.84$ & $0.92$ \\
+June & $1.42$ & $0.71$ \\
+July & $0.67$ & $0.34$ \\
+August & $1.31$ & $0.65$ \\
+September & $2.36$ & $1.18$ \\
+October & $4.66$ & $4.66$ \\
+November & $7.66$ & $7.66$ \\
+December & $8.52$ & $8.52$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+It is highly recommended that you use the following Fourier Series fit to the Olympia drought rainfall data, presented as trigonometric series coefficient vectors \mintinline{matlab}{a} and \mintinline{matlab}{b} for easy definition in Matlab.\footnote{The fit is an $8$-term Fourier series fit performed via Matlab's \mintinline{matlab}{fit} function.}
+\begin{minted}{matlab}
+w = 0.5236; % fundamental frequency
+a0 = 3.579; % dc offset
+a(1) = 4.144;
+b(1) = 0.6244;
+a(2) = 1.332;
+b(2) = 0.07578;
+a(3) = -0.07667;
+b(3) = 0.03167;
+a(4) = -0.2469;
+b(4) = 0.0004836;
+a(5) = -0.09448;
+b(5) = 0.01735;
+a(6) = 0.07417;
+b(6) = -2.131e-06;
+a(7) = -0.06748;
+b(7) = -0.0124;
+a(8) = -0.1235;
+b(8) = -0.0002381;
+\end{minted}
+
+A system model response to this input can be used to determine the system parameters, such as the number of barrels required.
+Do not forget to include the effect of distribution, which can be modeled as a \emph{negative} source.
+Although we have the tools to perform the analysis analytically, it is highly recommended that a Matlab simulation is developed using \mintinline{matlab}{ss} to define the system and \mintinline{matlab}{lsim} to simulate the response.
+A frequency response analysis using \mintinline{matlab}{bode} may also prove useful.
+It may be possible to simply iteratively tweak design parameters until the simulation meets the requirements.
+\tags{}
+
+A thorough report is required.
+It is highly recommended that LaTeX is used.
+Thorough analysis, results, and design is required.
+All sizing and specific parts are required.
+Either an analytic or a numerical (simulation) demonstration of the design's fulfillment of the requirements is required.
+\tags{}
+
+\section{Nonlinear fluid system example}
+\tags{}
+
+Consider a fluid system with an input volumeric flowrate $Q_s$ into a capacitance $C$ that is drained by only a single pipe of \emph{nonlinear} resistance $R$ and $L$, as shown in the linear graph of \autoref{fig:nonlinear_fluid_linear_graph}.
+The nonlinearity of $R$ is a good way to model an overflow.
+In this lecture, we will derive a \keyword{nonlinear state-space model} for the system---specifically, a state equation---and solve it, numerically using Matlab.
+\tags{Q, FC, FR, FL, S, A, D, T}
+
+\begin{figure}[b]
+\centering
+\begin{tikzpicture}[]
+  \coordinate (g) at (0,0);
+  \draw (g) pic {groundnode};
+  \node[graphnode] (n2) at (-1,2) {};
+  \node[graphnode] (n3) at (1,2) {};
+  % fluid
+  \draw[sourcebranch] (g) to[bend left] node[midway,below=7pt,left=7pt,anchor=north east] {$Q_s$} (n2);
+  \draw[branch,normaltree] (n2) to[bend left] node[midway,above right] {$C$} (g);
+  \draw[branch,normaltree] (n2) to[bend left] node[midway,above=2pt] {$R$} (n3);
+  \draw[branch] (n3) to[bend left] node[midway,right=4pt] {$L$} (g);
+\end{tikzpicture}%
+\caption{a linear graph and normal tree (green) for a nonlinear fluid system.}
+\label{fig:nonlinear_fluid_linear_graph}
+\end{figure}
+
+\subsection{Normal tree, order, and variables}
+\tags{}
+
+\cref{fig:nonlinear_fluid_linear_graph} already shows the normal tree.
+There are two independent energy storage elements, making it a second-order ($n=2$) system.
+We define the state vector to be
+\tags{}
+\begin{align}
+  \bm{x} = \begin{bmatrix}
+    P_{C} &
+    Q_{L}
+  \end{bmatrix}^\top.
+\end{align}
+The input vector is defined as $\bm{u} = \begin{bmatrix} Q_s \end{bmatrix}$.
+
+\subsection{Elemental, continuity, and compatibility equations}
+\tags{}
+
+Before turning to our familiar elemental equations, we'll consider the nonlinear resistor.
+\tags{FR, D}
+
+\subsubsection{Nonlinear elemental equation}
+\tags{}
+
+Suppose we are trying to model an overflow with the pipe $R$--$L$ to ground.
+An overflow would have no flow until the fluid capcitor fills to a certain height, then it would transition to flowing quite rapidly.
+This process seems to be inherently nonlinear because we cannot write an element that depends linearly on the height of the fluid in the capacitor (even if height was one of our state variables, which it is not).
+\tags{FR, FL, FC, D, T, A}
+
+The volume in the tank can be found by integrating in flow ($Q_s$) minus out flow ($Q_R$), but this is not accessible within a simulation, since it must be integrated, so it's not an ideal variable for our model.
+However, the pressure $P_C$---a state variable---is proportional to the fluid height in the capacitor, which we'll call $h$:
+\tags{Q, P, FC, S, A}
+\begin{align}
+  P_C = \rho g h,
+\end{align}
+
+where $\rho$ is the density of the fluid and $g$ is the gravitational acceleration.
+Since the height of the capacitor is presumably known, we can use $P_C$ to be our fluid height metric.
+\tags{}
+
+When the height $h$ reaches a certain level, probably near the capacitor's max, which we'll denote $h_m$, we want our overflow pipe $R$-$L$ to start flowing.
+Since $P_C$ is our height metric, we want to define a resistance as a function of it, $R(P_C)$.
+\tags{P, FR, FC, S, D, A}
+% We can define an equivalent function of height $\tilde{R}(h)$ such that
+% \begin{align}
+%   \tilde{R}(h) = R(P_C) = R(\rho g h),
+% \end{align}
+% which is easier to think about but mathematically less convenient, since $P_C$ is a state variable.
+
+Now we must determine the form of $R(P_C)$.
+Clearly, when $h \sim P_C$ is small, we want as little as possible flow through $R$-$L$, so $R(P_C)$ should be large.
+If $R$ was infinitely large, divisions by zero would likely arise in a simulation, so we choose to set our low-pressure $R$ to some finite value:
+\tags{P, FR, FL, S, D, T}
+\begin{align}
+  R(P_C)|_{P_C\rightarrow 0} = R_0.
+\end{align}
+Conversely, when $h \sim P_C$ is large (near max), we want maximum flow through $R$-$L$, so $R(P_C)$ should be some finite value, say, that of the pipe:
+\begin{align}
+  R(P_C)|_{P_C\rightarrow\infty} = R_\infty.
+\end{align}
+Clearly, this model requires $R_\infty \ll R_0$.
+
+The transition from $R_0$ to $R_\infty$ should be smooth in order to minimize numerical solver difficulties.
+Furthermore, a smooth transition is consistent with, say, a float opening a valve at the bottom of the capacitor,\footnote{Note that this model might be said to assume the overflow pipe is attached to the bottom of the capacitor since the pressure driving fluid through this pipe is supposed to be $P_C$. However, no matter the overflow valve's inlet height, if its outlet is at the height of the bottom of the capacitor, this model is still valid.}
+since the valve would transition continuously from closed to open.
+Many functions could be used to model this transition, especially if piecewise functions are considered.
+However, the $\tanh$ function has the merit of enabling us to easily define a single non-piecewise function for the entire domain.
+Let $\overline{P}_C$ be the transition pressure and $\Delta P_C$ be the transition width.
+A convenient nonlinear resistor, then, is
+\tags{FC, FR, P, S, A, D}
+\begin{align}\label{eq:nonlinear_fluid_system_R}
+  R(P_C) = 
+  R_\infty +
+  \frac{R_0-R_\infty}{2}
+  \left(
+    1-
+    \tanh{%\hspace{-2pt}\left(
+      \frac{5(P_C - \overline{P}_C)}{\Delta P_C}
+    % \right)
+    }
+  \right).
+\end{align}
+
+Note that this function only approximately satisfies $R(P_C)|_{P_C\rightarrow 0} = R_0$, but the small deviation from this constraint is worth it for the convenience it provides.
+Another noteworthy aspect of \autoref{eq:nonlinear_fluid_system_R} is the factor of $5$, which arises from the $\tanh$ function's natural transition width, which we alter via $\Delta P_C$.
+\tags{}
+
+\subsubsection{Other elemental equations and the continuity and compatibility equations}
+\tags{}
+
+The other elemental equations have been previously encountered and are listed in the table, below. 
+Furthermore, continuity and compatibility equations can be found in the usual way---by drawing contours and temporarily creating loops by including links in the normal tree.
+We proceed by drawing a table of all elements and writing an elemental equation for each element, a continuity equation for each branch of the normal tree, and a compatibility equation for each link.
+\tags{}
+
+\begingroup
+\renewcommand*{\arraystretch}{2}
+\begin{center}
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & elemental eq. \\ \hline
+$C$ & 
+  $\dfrac{d P_{C}}{d t} = \dfrac{1}{C} Q_{C}$ \\
+$L$ & 
+  $\dfrac{d Q_{L}}{d t} = \dfrac{1}{L} P_{L}$ \\
+$R$ & 
+  $P_R = Q_R R(P_C)$
+\end{tabular}
+}
+\qquad\qquad
+\adjustbox{valign=t}{%
+\begin{tabular}{l|l}
+el. & cont/comp.\ eq.\\ \hline
+$C$ &
+  $Q_C = Q_s - Q_L$ \\
+$L$ & $P_L = P_C - P_R$ \\
+$R$ & $Q_R = Q_L$ 
+\end{tabular}
+}
+\end{center}
+\endgroup
+
+\subsection{State equation}
+\tags{}
+
+The system of equations composed of the elemental, continuity, and compatibility equations can be reduced to the state equation. 
+This equation \emph{nonlinear}, so it cannot be written in the linear for with $A$ and $B$ matrices.
+However, it can still be written as a system of first-order ordinary differential equations, as follows:
+\tags{}
+\begin{align}
+\frac{d \bm{x}}{d t} &= f(\bm{x},\bm{u}) \nonumber \\
+&= 
+\begin{bmatrix}
+  (Q_s - Q_L)/C \\
+  (P_C - Q_L R(P_C))/L
+\end{bmatrix}
+. \label{eq:nonlinear_fluid_example_state}
+\end{align}
+
+Although it appears simple, this nonlinear differential equation likely has no known analytic solution.
+Two other options are available:
+\tags{}
+\begin{enumerate}
+  \item linearize the model about an operating point and solve the linearized equation or
+  \item numerically solve the nonlinear equation.
+\end{enumerate}
+
+Both methods are widely useful, but let's assume we require the model to be accurate over a wide range of capacitor fullness.
+Therefore, we choose to investigate via numerical solution.
+\tags{FC, A}
+
+\subsection{Simulation}
+
+\input{source/nonlinear_tank_example}
+
+\section*{Exercises}
+
+\input{ch11_exercises}
+
+% \begin{problems}
+
+% \subsection{a problem}
+
+% \end{problems}
+
+% \begin{solutions}
+
+% \subsection{a solution}
+
+% \end{solutions}
+
+\end{document}
