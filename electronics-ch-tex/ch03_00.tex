@@ -1,0 +1,600 @@
+\documentclass[electronics.tex]{subfiles}
+\begin{document}
+\chapter{Steady-state circuit analysis}
+\tags{}
+\label{ch:steady_state}
+
+Steady-state circuit analysis does not require the, at times, lengthy process of solving differential equations.
+Impedance methods, presented in this chapter, are shortcuts to steady-state analysis.
+It is important to note that impedance methods do not give information about the transient response.
+\tags{}
+
+\section[Phasor voltage and current]{Complex or phasor representations of voltage and current}
+\tags{}
+
+It is common to represent voltage and current in circuits as complex exponentials, especially when they are sinusoidal.
+\keyword{Euler's formula} is our bridge back-and forth from trigonomentric form ($\cos\theta$ and $\sin\theta$) and exponential form ($e^{j\theta}$):
+\tags{}
+\maybeeq{%
+\begin{align*}
+	e^{j\theta} &= \cos\theta + j\sin\theta.
+\end{align*}
+}
+Here are a few useful identities implied by Euler's formula.
+\begin{subequations}
+\begin{align}
+	e^{-j\theta} &= \cos\theta - j\sin\theta \\
+	\cos\theta &= \Re{(e^{j\theta})} \\
+	&= \frac{1}{2}\left(e^{j\theta}+e^{-j\theta}\right) \\
+	\sin\theta &= \Im{(e^{j\theta})} \\
+	&= \frac{1}{2}\left(e^{j\theta}-e^{-j\theta}\right).
+\end{align}
+\end{subequations}
+
+These equations can be considered to be describing a vector in the \keyword{complex plane}, which is illustrated in \autoref{fig:complex_plane}.
+Note that a $e^{j\theta}$ has both a \emph{magnitude} and a \emph{phase}.
+\tags{}
+
+\begin{figure}[b]
+\centering
+{\small
+\begin{tikzpicture}
+\begin{axis}
+    [
+    clip mode=individual,
+    yticklabels = {},
+    xticklabels = {},
+    axis lines = center,
+    minor tick num=1,
+    ticks=both,
+    xlabel=$\Re$,
+    ylabel=$\Im$,
+    ymin=-2,
+    ymax=+5,
+    xmin=-2,
+    xmax=+5,
+    axis equal,
+    disabledatascaling
+    ]
+	  \draw[draw=gray,dashed] (axis cs:3,0) -- (axis cs:3,4);
+	  \draw[draw=gray,dashed] (axis cs:0,4) -- (axis cs:3,4);
+    \addplot [black, mark = *,thick,mark size=1] coordinates {(3,4)} {};
+    \addplot [blue,->,>={Latex[round]},line width=0.7pt] coordinates { (0,0) (3,4) };
+    \addplot [black,thick,mark size=3] coordinates {( 1, 0)} {};
+    \node at (axis cs:1.5,2) [anchor=south east] {$1$};
+    \node at (axis cs:3,4) [anchor=south west] {$e^{j\theta}$};
+    \node at (axis cs:3,0) [anchor=north,yshift=-2pt] {$\cos\theta$};
+    \node at (axis cs:0,4) [anchor=east,xshift=-2pt] {$\sin\theta$};
+    \draw[draw=gray,->,>={stealth}] (axis cs:1,0) arc [radius=1,start angle=0,end angle=53.13]
+	  node[midway,above right,inner sep=2pt]{$\theta$};
+\end{axis}
+\end{tikzpicture}
+}
+\caption{Euler's formula interpreted with a vector in the complex plane.}
+\label{fig:complex_plane}
+\end{figure}
+
+Consider a sinusoidal voltage signal $v(t) = v_0 \cos(\omega t + \phi)$ with amplitude $v_0$, angular frequency $\omega$, and phase $\phi$.
+We encountered in \autoref{lec:transient_steady} the fact that, for a linear system with a sinusoidal input in steady-state, the output is a sinusoid at the same frequency as the input.
+The only aspects of the sinusoid that the system changed from input to output were its \emph{magnitude} (amplitude) and \emph{phase}.
+Therefore, these are the two quantities of interest in a steady-state circuit analysis.
+Our notation simply ignores the frequency $\omega$ and represents $v(t)$ as
+\tags{V}
+
+\maybeeq{
+	\begin{align*}
+		v(t) = v_0 e^{j\phi}.
+	\end{align*}
+}
+We call this the \emph{complex} or \keyword{phasor form} of $v(t)$.
+
+This is meant to be shorthand notation and, if interpreted literally, can cause confusion.
+In fact, mathematically,
+\maybeeq{
+	\begin{align*}
+		v(t) &= v_0 \cos(\omega t + \phi) \\
+		&= v_0\, \Re(e^{j(\omega t + \phi)}).
+	\end{align*}
+}
+
+Technically, we can use this more complicated form in our analysis but we won't because, conveniently, if we just treat the signal \emph{as if it was equal to} $v_0 e^{j\phi}$, and at the end apply our ``implied'' $e^{j\omega t}$ term and $\Re()$ to the result, everything just works ... trust me, I'm a doctor \Winkey.
+\tags{}
+
+\begin{center}
+{\sffamily
+\begin{tikzpicture}
+  \matrix (m) [matrix of math nodes,row sep=3em,column sep=4em,minimum width=2em]
+  {
+     v(t) = v_0 \cos(\omega t + \phi) & 
+     v(t) = v_0' \cos(\omega t + \phi') \\
+     v(t) = v_0 e^{j\phi} & 
+     v'(t) = v_0' e^{j\phi'} \\};
+  \path[-stealth,mygreen]
+    (m-1-1) edge node [left] {phaze it!} (m-2-1)
+    (m-2-1.east|-m-2-2) edge node [above] {circuit operates} (m-2-2)
+    (m-2-2)	edge node [right] {$\Re(e^{j\omega t}\,\cdot\,)$} (m-1-2);
+\end{tikzpicture}
+}
+\end{center}
+
+The same process can be used to convert a sinusoidal current to and from phasor form.
+An alternative notation for a phasor $v_0 e^{j\phi}$ is
+\tags{}
+\maybeeq{
+	\begin{align*}
+		v_0 \angle \phi.
+	\end{align*}
+}
+
+\subsection{Traversing representations}
+\tags{}
+
+\cref{fig:trig_phasor_rectangular} shows transformations one might use to change signal representations.
+Often we begin with a trigonometric form and convert to phasor/polar form for analysis, which might require switching back and forth between phasor/polar and rectangular, depending on the operation:
+\tags{}
+\begin{itemize}
+  \item for \emph{multiplication or division}, phasor/polar form is best and
+  \item for \emph{addition or subtraction} rectangular form is best.
+\end{itemize}
+
+Finally, it is often desirable to convert the result to trigonometric form, i.e.\ ``dephaze'' it.
+\tags{}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+\node[align=center] (A) at (0,0) {\sffamily trigonometric\\ $A \cos(\omega t + \phi)$};
+\node[align=center] (B) at (4.5,0) {\sffamily phasor/polar\\$A e^{j\phi}$};
+\node[align=center] (C) at (9,0) {\sffamily rectangular\\$x + j y$};
+\draw[-stealth',mygreen] (A) to[bend left] node[above] {\sffamily phaze it} (B);
+\draw[-stealth',mygreen] (B) to[bend left] node[below] {\sffamily dephaze it} (A);
+\draw[-stealth',mygreen] (B) to[bend left] node[above] {
+  $\begin{aligned}
+    x&=A\cos\phi \\ 
+    y&=A\sin\phi 
+  \end{aligned}$
+  } (C);
+\draw[-stealth',mygreen] (C) to[bend left] node[below] {
+  $\begin{aligned}
+    A&=\sqrt{x^2+y^2} \\ 
+    \phi&=\arctan(y/x) 
+  \end{aligned}$
+  } (B);
+\end{tikzpicture}
+\caption{showing transformations among trigonometric, phasor or polar, and rectangular forms of representation.}
+\label{fig:trig_phasor_rectangular}
+\end{figure}
+
+\section{Impedance}
+\tags{}
+
+With complex representations for voltage and current, we can introduce the concept of \keyword{impedance}.
+\tags{V, I}
+\begin{Definition}{impedance}{impedance}
+	Impedance $Z$ is the complex ratio of voltage $v$ to current $i$ of a circuit element:
+	\begin{align*}
+		Z = \frac{v}{i}.
+	\end{align*}
+\end{Definition}
+The real part $\Re(Z)$ is called the \keyword{resistance} and the imaginary part $\Im(Z)$ is called the \keyword{reactance}.
+As with complex voltage and current, we can represent the impedance as a \emph{phasor}.
+\tags{R, D}
+
+Note that \autoref{def:impedance} is a generalization of Ohm's law.
+In fact, we call the following expression \keyword{generalized Ohm's law}:
+\tags{R, D}
+\begin{align}
+	v = i Z.
+\end{align}
+
+\subsection{Impedance of circuit elements}
+\tags{}
+
+The impedance of each of the three passive circuit elements we've considered thus far are listed, below.
+Wherever it appears, $\omega$ is the angular frequency of the element's voltage and current.
+\tags{V, I}
+\begin{description}
+	\item[resistor] For a resistor with resistance $R$, the impedance is all real:
+	\maybeeq{
+		\begin{align*}
+			Z_R = R e^{j0} = R.
+		\end{align*}
+	}
+	\item[capacitor] For a capacitor with capacitance $C$, the impedance is all imaginary:
+	\maybeeq{
+		\begin{align*}
+			Z_C = \frac{1}{\omega C} e^{-j\pi/2} = \frac{1}{j\omega C}.
+		\end{align*}
+	}
+	\item[inductor] For an inductor with inductance $L$, the impedance is all imaginary:
+	\maybeeq{
+		\begin{align*}
+			Z_L = \omega L e^{j\pi/2} = j\omega L.
+		\end{align*}
+	}
+\end{description}
+These are represented in the complex plane in \autoref{fig:complex_plane_impedance}.
+
+\begin{figure}[b]
+\centering
+{\small
+\begin{tikzpicture}
+\begin{axis}
+    [
+    clip mode=individual,
+    yticklabels = {},
+    xticklabels = {},
+    axis lines = center,
+    minor tick num=1,
+    ticks=both,
+    xlabel=$\Re$ (resistance),
+    ylabel=$\Im$ (reactance),
+    x label style={at={(axis cs:5,.1)},anchor=south west},
+    y label style={at={(axis cs:0,5)},anchor=south},
+    ymin=-5,
+    ymax=+5,
+    xmin=-5,
+    xmax=+5,
+    axis equal,
+    disabledatascaling
+    ]
+
+    \addplot [gray,->,>={Latex[round]},line width=2pt] coordinates { (0,0) (3,3) };
+    \draw[draw=gray,->,>={stealth},thick] (axis cs:1,0) 
+    	arc [radius=1,start angle=0,end angle=45] 
+    	node[midway,above right,inner sep=2pt]{$\angle Z$};
+    \node at (axis cs:1.8,1.5) [anchor=south east] {$|Z|$};
+    \node at (axis cs:3,3) [anchor=south west] {$Z$};
+
+    \addplot [blue,->,>={Latex[round]},line width=2pt] coordinates { (0,0) (4,0) };
+
+    \addplot [mygreen,->,>={Latex[round]},line width=2pt] coordinates { (0,0) (0,4) };
+
+    \addplot [red,->,>={Latex[round]},line width=2pt] coordinates { (0,0) (0,-4) };
+    \node at (axis cs:3,0) [anchor=north,yshift=-2pt] {$Z_R = R$};
+    \node at (axis cs:0,3) [anchor=east,xshift=-2pt] {$Z_L = j\omega L$};
+    \node at (axis cs:0,-3) [anchor=east,xshift=-2pt] {$Z_C = -j\frac{1}{\omega C}$};
+\end{axis}
+\end{tikzpicture}
+}
+\caption{the impedance of a resistor $Z_R$, a capacitor $Z_C$, and an inductor $Z_L$ in the complex plane.}
+\label{fig:complex_plane_impedance}
+\end{figure}
+
+\subsection{Combining the impedance of multiple elements}
+\tags{}
+
+As with resistance, the impedance of multiple elements may be combined to find an \keyword{effective impedance}.
+\tags{R, D}
+
+$K$ elements with impedances $Z_j$ connected in \emph{series} have equivalent impedance $Z_e$ given by the expression
+\tags{}
+\begin{align}
+  Z_e = \sum_{j=1}^K Z_j.
+\end{align}
+
+$K$ elements with impedances $Z_j$ connected in \emph{parallel} have equivalent impedance $Z_e$ given by the expression
+\tags{}
+\begin{align}
+  Z_e = 1/\sum_{j=1}^K 1/Z_j.
+\end{align}
+
+In the special case of two elements with impedances $Z_1$ and $Z_2$,
+\tags{}
+
+\maybeeq{%
+\begin{align}
+  Z_e
+  &= \frac{1}{1/Z_1+1/Z_2} \nonumber \\
+  &= \frac{Z_1 Z_2}{Z_1 + Z_2}.
+\end{align}
+}
+
+\examplemaybe{%
+	combining impedance and phasors
+}{%
+	\begin{minipage}[c]{.5\linewidth}
+    Given the circuit shown with voltage source $V_s(t) = A e^{j\phi}$, what is the total impedance at the source?.
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.4\linewidth}
+    \begin{circuitikz}[]
+			\draw
+				(0,0) to[voltage source, v=$V_s$] (0,2)
+				to[R=$R$, i=$i_{R}$] (2,2)
+				to[C=$C$, i=$i_{C}$] (2,0)
+				-- (0,0);
+			\draw
+				(2,2) -- (3.5,2)
+				to[L=$L$, i=$i_L$] (3.5,0)
+				-- (2,0);
+		\end{circuitikz}
+  \end{minipage}
+}{%
+	The total impedance is the combination of the series resistor impedance with the parallel capacitor and inductor impedances:
+	\begin{align*}
+		Z_e &= Z_R + \frac{Z_L Z_C}{Z_L + Z_C} \\
+		&= R + \left(\omega L e^{j\pi/2} \frac{1}{\omega C} e^{-j\pi/2}\right)\bigg/\left(j \omega L - j \frac{1}{\omega C}\right) \\
+		&= R + \frac{L/C}{j(L C \omega^2 - 1)/(\omega C)} \\
+		&= R + \frac{L\omega}{j(L C \omega^2 - 1)} \\
+		&= R - j\frac{L\omega}{L C \omega^2 - 1} \\
+		&= A' e^{j\phi'}
+	\end{align*}
+	where we can compute the magnitude $A'$ and phase $\phi'$ to be
+	\begin{align*}
+		A' &= \sqrt{R^2 + \left(-\frac{L\omega}{L C \omega^2 - 1}\right)^2} \\
+		\phi' &= \arctan\biggl(-\frac{L\omega}{LC\omega^2-1}\bigg/R\biggr).
+	\end{align*}
+	Note that we used the fact that it's easier to multiply and divide phasors and add and subtract rectangular representations.
+}{%
+ex:combining_impedance%
+}
+
+\section{Methodology for impedance-based circuit analysis}
+\tags{}
+
+It turns out we can follow essentially the same algorithm presented in \autoref{lec:methodology_for_analyzing_circuits} for analyzing circuits in steady-state with impedance. There are enough variations that we re-present it here.
+\tags{}
+
+Let $n$ be the number of passive circuit elements in a circuit, which gives $2n$ ($v$ and $i$ for each element) unknowns. The method is this.
+\tags{}
+
+\begin{enumerate}
+	\item Draw a \emph{circuit diagram}.
+	\item Label the circuit diagram with the \emph{sign convention} by labeling each element with the ``assumed'' direction of current flow.
+	\item Write \emph{generalized Ohm's law} for each circuit element and define the impedance of each element.
+	\item For every node not connected to a voltage source, write Kirchhoff's current law (KCL).
+	\item For each loop not containing a current source, write Kirchhoff's voltage law (KVL).
+	\item You probably have a linear system of $2 n$ \emph{algebraic} equations (and $2 n$ unknowns) to be solved simultaneously. If only certain variables are of interest, these can be found by eliminating other variables such that the remaining system is smaller. The following steps can facilitate this process.
+	\begin{enumerate}
+		\item Eliminate $n$ (half) of the unknowns by substitution into the elemental equations (generalized Ohm's law equations).
+		\item Try substition to eliminate to get down to only those variables of interest and inputs.
+		\item Solve the remaining system of linear algebraic equations for the unknowns of interest.
+	\end{enumerate}
+\end{enumerate}
+
+\examplemaybe{%
+	steady-state RL circuit analysis with a sinusoidal source
+}{%
+	\begin{minipage}[c]{.5\linewidth}
+    Given the RL circuit shown with current input $I_s(t) = A \sin \omega t$, what are $i_L(t)$ and $v_L(t)$ in steady-state?.
+    Note that this is very similar to \autoref{ex:rl_circuit_analysis_01}, but we will use impedance methods.
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.4\linewidth}
+    \begin{circuitikz}[]
+			\draw
+				(0,0) to[current source, i=$I_s$] (0,2)
+				-- (3,2)
+				to[L=$L$, i=$i_{L}$] (3,0)
+				-- (0,0);
+			\draw
+				(1.5,2) to[R=$R$, i=$i_{R}$] (1.5,0)
+				node[ground]{};
+		\end{circuitikz}
+  \end{minipage}
+}{%
+	\begin{enumerate}
+		\item The circuit diagram is given.
+		\item The signs are given.
+		\item The $n$ elemental equations are as follows
+			\begin{tabular}{l|r}
+				$\begin{aligned}[t]
+					L \\
+					R
+				\end{aligned}$ &
+				$\begin{aligned}[t]
+				v_L &= i_L Z_L\\
+				v_R &= i_R Z_R
+				\end{aligned}$ \\
+			\end{tabular}
+			where $Z_L = j\omega L$ and $Z_R = R$.
+		\item There are actually two nodes not connected to the voltage source, but they give the same KCL equation
+		\begin{equation*}
+			i_R = I_s - i_L.
+		\end{equation*}
+		\item There is one loop that doesn't have a current source in it, for which the KVL equation is
+		\begin{equation*}
+			v_L = v_R.
+		\end{equation*}
+		\item Solve.
+		\begin{enumerate}
+			\item Eliminate $v_L$ and $i_R$ using KCL and KVL to yield the following.
+				\begin{tabular}{l|r}
+					$\begin{aligned}[t]
+						L \\
+						R
+					\end{aligned}$ &
+					$\begin{aligned}[t]
+					i_L &= v_R/Z_L\\
+					v_R &= (I_s - i_L) Z_R
+					\end{aligned}$ \\
+				\end{tabular}
+			\item Substituting the $R$ equation into the $L$ equation, we eliminate $v_R$ to obtain
+				\begin{align*}
+					i_L &= \frac{Z_R}{Z_L} \left(I_s - i_L\right).
+				\end{align*}
+			\item Solving, 
+				\begin{align*}
+					i_L = \frac{Z_R}{Z_R + Z_L} I_s.
+				\end{align*}
+				All that remains is to substitute, noting that we're using the cosine form of the phasor,
+				\begin{align*}
+					i_L &= \frac{R}{R+j\omega L} A e^{-j\pi/2} \\
+					&= \frac{R e^{j0}}{M_1 e^{j\phi_1}}  A e^{-j\pi/2} \\
+					&= \frac{R}{M_1} A e^{-j\phi_1} e^{-j\pi/2}\\
+					&= \frac{R}{M_1} A e^{-j(\phi_1+\pi/2)}\\
+					&= \frac{R}{M_1} A \cos(\omega t - \phi_1 -\pi/2)\\
+					&= \frac{R}{M_1} A \sin(\omega t - \phi_1)
+				\end{align*}
+				where
+				\begin{align*}
+					M_1 &= \sqrt{R^2 + (L\omega)^2} \text{ and} \\
+					\phi_1 &= \arctan(L\omega/R).
+				\end{align*}
+				Note that we could have used the unconventional sine form of the phasor.
+				Also note that (i) this was somewhat easier than how we did it in \autoref{ex:rl_circuit_analysis_01} and (ii) the result simply scales the amplitude and shifts the phase, as expected.
+		\end{enumerate}		
+		\item Finally, we can find $v_L(t)$ from the inductor elemental equation (generalized Ohm's law):
+			\begin{align*}
+				v_L(t) &=
+				i_L Z_L \\
+				&= \omega L e^{j\pi/2} \frac{R}{M_1} A e^{-j(\phi_1+\pi/2)} \\
+				&= \frac{R L \omega}{M_1} A e^{-j\phi_1} \\
+				&= \frac{R L \omega}{M_1} A \cos(\omega t - \phi_1). 
+			\end{align*}
+	\end{enumerate}
+}{%
+ex:rl_circuit_analysis_02%
+}
+
+\section{Voltage and current dividers}
+\tags{}
+
+\setlength\intextsep{0pt}
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \centering
+	\begin{circuitikz}[]
+		\draw
+			(0,0) to[voltage source, v=$V_s$] (0,2)
+			to[generic,label=$Z_1$, i=$i_{1}$] (3,2)
+			to[generic,label=$Z_2$,i=$i_{2}$] (3,0)
+			-- (0,0);
+	\end{circuitikz}
+  \caption{\label{fig:impedance_voltage_divider} the two-element voltage divider.}%
+\end{wrapfigure}
+
+In \autoref{lec:voltage_dividers}, we developed the useful voltage divider formula for quickly analyzing how voltage divides among series resistors.
+This can be considered a special case of a more general voltage divider equation for any elements described by an impedance.
+After developing the voltage divider, we also introduce the current divider, which divides an input current among parallel elements.
+\tags{V, R, I, S, D}
+
+\subsection{Voltage dividers}
+\tags{V, S}
+
+First, we develop the solution for the two-element voltage divider shown in \autoref{fig:impedance_voltage_divider}.
+We choose the voltage across $Z_2$ as the output. 
+The analysis can follow our usual methodology of six steps, solving for $v_{2}$.
+\tags{}
+\begin{enumerate}
+	\item The circuit diagram is given in \autoref{fig:impedance_voltage_divider}.
+	\item The assumed directions of positive current flow are given in \autoref{fig:impedance_voltage_divider}.
+	\item The elemental equations are just generalized Ohm's law equations.%\\%[.5\baselineskip]
+		\maybeeq{
+		\begin{tabular}{l|r}
+			$\begin{aligned}[t]
+				Z_1 \\
+				Z_2
+			\end{aligned}$ &
+			$\begin{aligned}[t]
+			v_1 &= i_1 Z_1\\
+			v_2 &= i_2 Z_2
+			\end{aligned}$
+		\end{tabular}
+		}
+		% \vspace{.5\baselineskip}
+	\item The KCL equation is \mayb{$i_2 = i_1$.}
+	\item The KVL equation is \mayb{$v_1 = V_s - v_2$.}
+	\item Solve.
+	\begin{enumerate}
+		\item Eliminating $i_2$ and $v_1$ from KCL and KVL, our elemental equations become the following.%\\[.5\baselineskip]
+			\maybeeq{
+			\begin{tabular}{l|r}
+				$\begin{aligned}[t]
+					Z_1 \\
+					Z_2
+				\end{aligned}$ &
+				$\begin{aligned}[t]
+				i_1 &= v_1 / Z_1 = (V_s - v_2)/Z_1\\
+				v_2 &= i_1 Z_2
+				\end{aligned}$ \\
+			\end{tabular}
+			}
+			%\vspace{.5\baselineskip}
+		\item Eliminating $i_1$,
+			\maybeeq{
+			\begin{align*}
+				v_2 &= \frac{Z_2}{Z_1} (V_s - v_2).
+			\end{align*}
+			}
+		\item Solving for $v_2$,
+			\maybeeq{
+			\begin{align*}
+				v_2 &= \frac{Z_2}{Z_1+Z_2} V_s.
+			\end{align*}
+			}
+	\end{enumerate}
+\end{enumerate}
+
+A similar analysis can be conducted for $n$ impedance elements.
+
+\maybeeqn{general impedance voltage divider}{eq:voltage_divider_general_impedance}{%
+For the output voltage across impedance $Z_k$ in series with $n$ impedance elements with input $v_\text{in}$ is
+\begin{align*}
+  v_k &= \frac{Z_k}{Z_1+Z_2+\cdots+Z_k+\cdots+Z_n} v_\text{in}.
+\end{align*}
+}
+
+\subsection{Current dividers}
+\tags{I, S}
+
+By a similar process, we can analyze a circuit that divides current into $n$ \emph{parallel} impedance elements.
+\maybeeqn{general impedance current divider}{eq:current_divider_general_impedance}{%
+For the output current through impedance $Z_k$ in parallel with $n$ impedance elements with input current $i_\text{in}$ is
+\tags{}
+\begin{align*}
+  i_k &= \frac{1/Z_k}{1/Z_1+1/Z_2+\cdots+1/Z_k+\cdots+1/Z_n} i_\text{in}.
+\end{align*}
+}
+
+\examplemaybe{%
+	voltage divider with impedance
+}{%
+	\begin{minipage}[c]{.5\linewidth}
+    Given the circuit shown with voltage source $V_s(t) = A e^{j\phi}$ and output $v_L$, what is the ratio of output over input amplitude? What is the phase shift from input to output?
+  \end{minipage}
+  \hfill%
+  \begin{minipage}[c]{.4\linewidth}
+    \begin{circuitikz}[]
+			\draw
+				(0,0) to[voltage source, v=$V_s$] (0,2)
+				to[R=$R$, i=$i_{R}$] (2,2)
+				to[C=$C$, i=$i_{C}$] (2,0)
+				-- (0,0);
+			\draw
+				(2,2) -- (3.5,2)
+				to[L=$L$, i=$i_L$] (3.5,0)
+				-- (2,0);
+		\end{circuitikz}
+  \end{minipage}
+}{%
+	We'll use a voltage divider:
+	\begin{align*}
+		v_L &= \frac{\frac{Z_L Z_C}{Z_L + Z_C}}{Z_R + \frac{Z_L Z_C}{Z_L + Z_C}} V_s\quad \Rightarrow \\
+		\frac{v_L}{V_s} &= \frac{Z_L Z_C}{Z_R Z_L + Z_R Z_C + Z_L Z_C} \\
+		&= \frac{L/C}{j R L \omega - j R/(C \omega) + L/C} \\
+		&= \frac{L\omega}{j R L C \omega^2 - j R + L\omega} \\
+		&= \frac{L\omega}{L\omega + j R (L C \omega^2 - 1)} \\
+		&= \underbrace{\frac{L\omega}{
+			\sqrt{
+				(L\omega)^2 + R^2 (L C \omega^2 - 1)^2
+			}
+		}}_\text{magnitude ratio}
+		\exp{\underbrace{\left(-\arctan{\frac{R (L C \omega^2 - 1)}{L\omega}}\right)}_\text{phase difference}}.
+	\end{align*}
+	
+}{%
+ex:voltage_divider_impedance%
+}
+
+
+
+\begin{exercises}
+\input{ch03_exercises}
+\end{exercises}
+
+
+
+
+
+\end{document}
