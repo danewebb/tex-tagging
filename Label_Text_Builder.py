@@ -137,7 +137,7 @@ class Label_Text_Builder():
         self.codex = []
 
         for file in self.args:
-            self.chap_num += 1
+
             with open(file, 'r') as f:
 
                 self.build_codex(file)
@@ -146,7 +146,14 @@ class Label_Text_Builder():
 
                     ###########################################
                     ################ SECTION ##################
-                    if '\\section{' in line:
+                    if '\\chapter{' in line:
+                        heading = self.is_begin(line)
+                        if heading == 'ch':
+                            tagch = []
+                            self.chap_num += 1
+
+
+                    elif '\\section{' in line:
                         heading = self.is_begin(line) # check if \\section{ is at the beginning
                         if heading == 'sec': # confirm this is a true instance of \\section{}
                             tagsec = [] # open list for section tags
@@ -179,6 +186,10 @@ class Label_Text_Builder():
                             elif '\\subsection{' in self.codex[kk-1]:
                                 # is it a subsection tag?
                                 tagsub = self.grab_tagname(line)
+
+                            elif '\\chapter{' in self.codex[kk-1]:
+                                tagch = self.grab_tagname(line)
+
                             else:
                                 # assuming tags are the line right after a paragraph
                                 self.para_num += 1
@@ -198,7 +209,7 @@ class Label_Text_Builder():
                                 # grab the tag name for the paragraph
                                 tagpara = self.grab_tagname(line)
 
-                                tagsec, tagsub, tagpara = self.tag_clash(tagsec, tagsub, tagpara)
+                                tagch, tagsec, tagsub, tagpara = self.tag_clash(tagch, tagsec, tagsub, tagpara)
                                 tag = tagsec + tagsub + tagpara
 
                                 para_clean = []
@@ -335,24 +346,24 @@ class Label_Text_Builder():
         tagnum = 0
         tagchar = []
         tag = []
-        while line[pad] == ' ' or line[pad] == '\t':
+        while line[pad] == ' ':
             pad += 1
-        while line[ii+pad] != '}':
 
-
+        ii = 6+pad
+        while line[ii] != '}':
 
             # grab name of tags
-            if ii >= 6 + pad:
 
-                if line[ii+pad] == ',' and line[ii+pad + 1] != '}':
-                    # if there is multiple tags
-                    tag.append(''.join(tagchar))
-                    tagchar = []
-                    tagnum += 1
-                elif line[ii] == ' ':
-                    pass
-                else:
-                    tagchar.append(line[ii])
+
+            if line[ii] == ',' and line[ii + 1] != '}':
+                # if there is multiple tags
+                tag.append(''.join(tagchar))
+                tagchar = []
+                tagnum += 1
+            elif line[ii] == ' ':
+                pass
+            else:
+                tagchar.append(line[ii])
 
             ii += 1
         if tagchar == []:
@@ -394,8 +405,12 @@ class Label_Text_Builder():
                 heading = 'sec'
                 return heading
 
+        elif '\\chapter{' in line:
+            heading = 'ch'
+            return heading
 
-    def tag_clash(self, tagsec, tagsub, tagpara):
+
+    def tag_clash(self, tagch, tagsec, tagsub, tagpara):
         """
         check for same tags showing up more than once. Hierarchy is as follows.
         :param tagsec:
@@ -404,23 +419,44 @@ class Label_Text_Builder():
         :return:
         """
         # ignore empty tags in sections and subsections
+        if '' in tagch:
+            tagch.remove('')
+        if ' ' in tagch:
+            tagch.remove(' ')
         if '' in tagsec:
             tagsec.remove('')
+        if ' ' in tagsec:
+            tagsec.remove(' ')
         if '' in tagsub:
             tagsub.remove('')
+        if ' ' in tagsub:
+            tagsub.remove(' ')
 
+        # remove copied tags
+        for tsec in tagsec:
+            if tsec in tagch:
+                tagsec.remove(tsec)
         for tsub in tagsub:
             if tsub in tagsec:
                 tagsub.remove(tsub)
+            elif tsub in tagch:
+                tagsub.remove(tsub)
         for tpara in tagpara:
-            if tpara in tagsec:
+            if tpara in tagch:
+                tagpara.remove(tpara)
+            elif tpara in tagsec:
                 # tag_para = [ii for ii in tagpara if ii in tagsec]
                 tagpara.remove(tpara)
             elif tpara in tagsub:
                 tagpara.remove(tpara)
 
 
-        return tagsec, tagsub, tagpara
+        # remove null entries in tagpara if tagsec and/or tagsub has tags
+        if tagch != [] or tagsec != [] or tagsub != []:
+            if '' in tagpara:
+                tagpara.remove('')
+
+        return tagch, tagsec, tagsub, tagpara
 
 
     def clean_para(self, para):
@@ -576,6 +612,13 @@ class Label_Text_Builder():
         pickle_file.close()
 
 
+    def rank_vocab(self, vocab_file):
+        with open(vocab_file, 'rb') as vc:
+            voc_dict = pickle.load(vc)
+
+        for ii in sorted(voc_dict):
+            print(f'{ii}, {voc_dict[ii]}')
+
 
 if __name__ == '__main__':
     num_of_books = 1
@@ -584,7 +627,7 @@ if __name__ == '__main__':
     book_dict = dict()
 
     # need to loop through all the chapters and all of the books
-    LTB = Label_Text_Builder('ch01_00.tex')
+    LTB = Label_Text_Builder('dynamic_systems/ch01_00.tex')
     LTB.main(the_count=True)
     with open('doc_dict.pkl', 'rb') as pickle_file:
         data = pickle.load(pickle_file)
@@ -596,9 +639,24 @@ if __name__ == '__main__':
     for key, value in vocab.items():
         print(f'word: {key}\nusage: {value}')
 
+
+    # with open('training_dict.pkl', 'rb') as tra:
+    #     train = pickle.load(tra)
+
+    # tt_tr = []
+    # pp_tr = []
+    # tt_te = []
+    # pp_te = []
+    #
+    # for key, value in train.items():
+    #     for ele in value:
+    #         for k, v in ele.items():
+    #             tt_tr.append(k)
+    #             pp_tr.append(v)
+
+
+
     pickle_file.close()
     voc.close()
-
-
 
 
