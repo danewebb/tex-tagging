@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 import re
-from os import path
+import os
 import psycopg2 as psy
 import json
 
@@ -98,6 +98,16 @@ class Label_Text_Builder():
     - add book name/number to dictionary instead of adding extra layers of dictionaries
     - need to build a new class for PIMS filter
         - use arpack which is in scipy
+        
+        
+        
+    - Where I stand
+
+        - 'unk' low frequency words???
+        - need to find out the best way to process this data for the classifier
+        - need to start on the PIMS filter
+        - begin paper outline
+        
     
     """
 
@@ -136,117 +146,151 @@ class Label_Text_Builder():
         tagpara = []
         self.codex = []
 
-        for file in self.args:
 
-            with open(file, 'r') as f:
-
-                self.build_codex(file)
-
-                for kk, line in enumerate(f):
-
-                    ###########################################
-                    ################ SECTION ##################
-                    if '\\chapter{' in line:
-                        heading = self.is_begin(line)
-                        if heading == 'ch':
-                            tagch = []
-                            self.chap_num += 1
+        for book in self.args:
+            # might change this part, reinitailize chapter #, sec #, sub #
+            self.chap_num = 0
+            self.sec_num = 0
+            self.sub_num = 0
 
 
-                    elif '\\section{' in line:
-                        heading = self.is_begin(line) # check if \\section{ is at the beginning
-                        if heading == 'sec': # confirm this is a true instance of \\section{}
-                            tagsec = [] # open list for section tags
-                            self.sec_num += 1 # increment section number
-                            if '\\tags{' not in self.codex[kk+1]:
-                                print(f'Untagged section in line {kk+2} of {self.file}')
+            book_name = []
 
-                    ###########################################
-                    ############### SUBSECTION ################
-                    elif '\\subsection{' in line:
-                        heading = self.is_begin(line)
-                        if heading == 'sub':
-                            tagsub = []
-                            self.sub_num += 1
-                            if '\\tags{' not in self.codex[kk+1]:
-                                print(f'Untagged subsection in line {kk+2} of {file}')
+            # grab the name of the book which should be the text before the '\\' in any of the book values
+            # only need this section if we want to add the book name to the data dictionaries??
 
-                    ###########################################
-                    ################### TAG ###################
+            book_dir = book[1]
+            if '\\' not in book_dir:
+                ValueError('Need a directory with folder titled as the book and .tex files inside')
+            for lett in book_dir:
+                if lett == '\\':
+                    book_name = ''.join(book_name)
+                    break
+                else:
+                    book_name.append(lett)
 
-                    elif '\\tags{' in line: # if \tag{ is in line
-                        tagcheck = self.tag_begins_line(line)
+            # loop through each of the chapters in the book
+            for booknum, file in book.items():
 
-                        if tagcheck == True:
-                            if '\\section{' in self.codex[kk-1]:
-                                # it it a section tag???
-                                # assuming section/subsection tags are in the line directly below
-                                tagsec = self.grab_tagname(line)
+                with open(file, 'r') as f:
 
-                            elif '\\subsection{' in self.codex[kk-1]:
-                                # is it a subsection tag?
-                                tagsub = self.grab_tagname(line)
+                    self.build_codex(file)
 
-                            elif '\\chapter{' in self.codex[kk-1]:
-                                tagch = self.grab_tagname(line)
+                    for kk, line in enumerate(f):
 
-                            else:
-                                # assuming tags are the line right after a paragraph
-                                self.para_num += 1
-                                tag = [] # empty tag
-                                para = []  # empty para
-                                empty = False
-                                while empty == False: # reverse through lines until empty line
-                                    empty = self.slashn(self.codex[kk-1])
-                                    # grab paragraph above tag
-                                    if empty == True:
-                                        pass
-                                    elif empty == False:
-                                        para.append(self.codex[kk-1])
-                                        kk -= 1
+                        ###########################################
+                        ################ CHAPTER ##################
+                        ###########################################
+                        if '\\chapter{' in line or '\\chapter[' in line:
+                            heading = self.is_begin(line)
+                            if heading == 'ch':
+                                tagch = []
+                                self.chap_num += 1
+
+                        ###########################################
+                        ################ SECTION ##################
+                        ###########################################
+                        elif '\\section{' in line or '\\section[' in line:
+                            heading = self.is_begin(line) # check if \\section{ is at the beginning
+                            if heading == 'sec': # confirm this is a true instance of \\section{}
+                                tagsec = [] # open list for section tags
+                                self.sec_num += 1 # increment section number
+
+                                # originally had this check to double check if section/subsections were untagged
+                                # if '\\tags{' not in self.codex[kk+1]:
+                                #     print(f'Untagged section in line {kk+2} of {file}')
+
+                        ###########################################
+                        ############### SUBSECTION ################
+                        ###########################################
+                        elif '\\subsection{' in line or '\\subsection[' in line:
+                            heading = self.is_begin(line)
+                            if heading == 'sub':
+                                tagsub = []
+                                self.sub_num += 1
+
+                                # if '\\tags{' not in self.codex[kk+1]:
+                                #     print(f'Untagged subsection in line {kk+2} of {file}')
+
+                        ###########################################
+                        ################### TAG ###################
+                        ###########################################
+
+                        elif '\\tags{' in line: # if \tag{ is in line
+                            tagcheck = self.tag_begins_line(line)
+
+                            if tagcheck == True:
+                                if '\\section{' in self.codex[kk-1] or '\\section[' in self.codex[kk-1]:
+                                    # it it a section tag???
+                                    # assuming section/subsection tags are in the line directly below
+                                    tagsec = self.grab_tagname(line)
+
+                                elif '\\subsection{' in self.codex[kk-1] or '\\subsection[' in self.codex[kk-1]:
+                                    # is it a subsection tag?
+                                    tagsub = self.grab_tagname(line)
+
+                                elif '\\chapter{' in self.codex[kk-1] or '\\chapter[' in self.codex[kk-1]:
+                                    tagch = self.grab_tagname(line)
+
+                                else:
+                                    # assuming tags are the line right after a paragraph
+                                    self.para_num += 1
+                                    tag = [] # empty tag
+                                    para = []  # empty para
+                                    empty = False
+                                    while empty == False: # reverse through lines until empty line
+                                        empty = self.slashn(self.codex[kk-1])
+                                        # grab paragraph above tag
+                                        if empty == True:
+                                            pass
+                                        elif empty == False:
+                                            para.append(self.codex[kk-1])
+                                            kk -= 1
 
 
-                                # grab the tag name for the paragraph
-                                tagpara = self.grab_tagname(line)
+                                    # grab the tag name for the paragraph
+                                    tagpara = self.grab_tagname(line)
 
-                                tagch, tagsec, tagsub, tagpara = self.tag_clash(tagch, tagsec, tagsub, tagpara)
-                                tag = tagsec + tagsub + tagpara
+                                    tagch, tagsec, tagsub, tagpara = self.tag_clash(tagch, tagsec, tagsub, tagpara)
+                                    tag = tagch + tagsec + tagsub + tagpara
 
-                                para_clean = []
+                                    para_clean = []
 
-                                para_clean = self.clean_para(para)
+                                    para_clean = self.clean_para(para)
 
-                                # build vocab set
-                                self.chapter_vocab(para_clean)
+                                    # build vocab set
+                                    self.chapter_vocab(para_clean)
+
+                                    book_dict = dict()
+                                    chapter = dict()
+                                    section = dict()
+                                    subsection = dict()
+                                    tag_dict = dict()
+                                    para_dict = dict()
+
+                                    section['section'] = self.sec_num
+                                    subsection['subsection'] = self.sub_num
+                                    chapter['chapter'] = self.chap_num
+                                    tag_dict['tags'] = [tag]
+                                    para_dict['paragraph'] = [para_clean]
+                                    book_dict['book'] = book_name
+
+                                    # if para_clean != []:
+                                    self.master[self.para_num] = [book_dict, chapter, section, subsection, tag_dict, para_dict]
+                                    if the_count == True:
+                                        self.word_count(para)
+                                    tagpara = []
+
+                with open('doc_dict.pkl', 'wb') as pickle_file:
+                    pickle.dump(self.master, pickle_file)
 
 
-                                chapter = dict()
-                                section = dict()
-                                subsection = dict()
-                                tag_dict = dict()
-                                para_dict = dict()
+        self.partition()
+        self.dump()
 
-                                section['section'] = self.sec_num
-                                subsection['subsection'] = self.sub_num
-                                chapter['chapter'] = self.chap_num
-                                tag_dict['tags'] = [tag]
-                                para_dict['paragraph'] = [para_clean]
+        if the_count == True:
+            self.word_count([], the_count=True)
 
-
-
-                                self.master[self.para_num] = [chapter, section, subsection, tag_dict, para_dict]
-                                if the_count == True:
-                                    self.word_count(para)
-                                tagpara = []
-
-                    if '\\end{document}' in line:
-                        self.partition()
-                        self.dump()
-
-                        if the_count == True:
-                            self.word_count([], the_count=True)
-                        with open('doc_dict.pkl', 'wb') as pickle_file:
-                            pickle.dump(self.master, pickle_file)
 
 
     # build another partitioning function that takes two sequential paragraphs. these pairs should be random.
@@ -257,7 +301,6 @@ class Label_Text_Builder():
             randomizer = dict()
             train_dict = dict()
             test_dict = dict()
-            print(len(self.master))
 
             for key, value in self.master.items():
                 if np.random.random() <= train/100:
@@ -310,8 +353,6 @@ class Label_Text_Builder():
 
 
 
-
-
     def slashn(self, line):
         ii = 0
         while line[ii] == ' ' or line[ii] == '\t' or line[ii] == '\r' or line[ii] == '':
@@ -325,7 +366,7 @@ class Label_Text_Builder():
 
 
     def build_codex(self, file):
-        codex = []
+        self.codex = []
         with open(file, 'r') as f:
             for line in f:
                 self.codex.append(line)
@@ -391,7 +432,7 @@ class Label_Text_Builder():
 
         while line[ii] == ' ' or line[ii] == '\t':
             ii += 1
-        if '\\subsection{' in line:
+        if '\\subsection{' in line or '\\subsection[' in line:
             if line[ii+3] == 'b' and line[ii+4] == 's' and line[ii+5] == 'e':
                 # subsection
                 # if heading == 'sub':
@@ -399,13 +440,13 @@ class Label_Text_Builder():
                 heading = 'sub'
                 return heading
 
-        elif '\\section{' in line:
+        elif '\\section{' in line or '\\section[' in line:
             if line[ii+2] == 'e' and line[ii+3] == 'c' and line[ii+4] == 't':
                 # section
                 heading = 'sec'
                 return heading
 
-        elif '\\chapter{' in line:
+        elif '\\chapter{' in line or '\\chapter[' in line:
             heading = 'ch'
             return heading
 
@@ -524,14 +565,24 @@ class Label_Text_Builder():
             clean_para.append(''.join(clean_line))
 
         # clean_para = self.clean_inline(clean_para)
+        clean_para = self.remove_comments(clean_para)
+
         return clean_para
 
+    def remove_comments(self, para):
+        clean_para = []
+        for line in para:
+            ii = 0
+            while line[ii] == ' ' or line[ii] == '\t':
+                ii += 1
+            if line[ii] != '%':
+                clean_para.append(line)
+        return clean_para
 
     def chapter_vocab(self, para):
         space = False
         # need to check if a vocab file has been created yet
-
-        if path.exists('vocab.pkl'):
+        if os.path.exists('vocab.pkl'):
             with open('vocab.pkl', 'rb') as voc:
                 vocab = pickle.load(voc)
         else:
@@ -615,30 +666,57 @@ class Label_Text_Builder():
     def rank_vocab(self, vocab_file):
         with open(vocab_file, 'rb') as vc:
             voc_dict = pickle.load(vc)
+        voc_list = []
+        for key, value in voc_dict.items():
+            # print(f'{key}, {value}')
+            voc_list.append((key, value))
 
-        for ii in sorted(voc_dict):
-            print(f'{ii}, {voc_dict[ii]}')
+        voc_list.sort(key= lambda x: x[1])
+        print(voc_list)
+
+
+
+
 
 
 if __name__ == '__main__':
-    num_of_books = 1
 
-    chap_dict = dict()
-    book_dict = dict()
+    book_nam1 = 'electronics\\'
+    book_nam2 = 'dynamic_systems\\'
+
+    book1 = dict()
+    book2 = dict()
+    ii = 1
+
+
+    ######################### Change the directory in the for loops for your data #############################
+    # subsequent for loops are used to fill book dictionaries that will be fed into Label_Text_Builder ?loop?
+    for filename in os.listdir('C:\\Users\\liqui\\PycharmProjects\\THESIS\\venv\\Lib\\' + book_nam1):
+        book1[ii] = book_nam1 + filename
+        ii += 1
+
+    ii = 1
+    for filename in os.listdir('C:\\Users\\liqui\\PycharmProjects\\THESIS\\venv\\Lib\\' + book_nam2):
+        book2[ii] = book_nam2 + filename
+        ii += 1
 
     # need to loop through all the chapters and all of the books
-    LTB = Label_Text_Builder('dynamic_systems/ch01_00.tex')
-    LTB.main(the_count=True)
+
+    LTB = Label_Text_Builder(book1, book2)
+    LTB.main()
+
+
     with open('doc_dict.pkl', 'rb') as pickle_file:
         data = pickle.load(pickle_file)
     for key, value in data.items():
         print(f'key: {key}\nvalue: {value}')
 
-    with open('vocab.pkl', 'rb') as voc:
-        vocab = pickle.load(voc)
-    for key, value in vocab.items():
-        print(f'word: {key}\nusage: {value}')
+    # with open('vocab.pkl', 'rb') as voc:
+    #     vocab = pickle.load(voc)
+    # for key, value in vocab.items():
+    #     print(f'word: {key}\nusage: {value}')
 
+    # LTB.rank_vocab('vocab.pkl')
 
     # with open('training_dict.pkl', 'rb') as tra:
     #     train = pickle.load(tra)
@@ -656,7 +734,7 @@ if __name__ == '__main__':
 
 
 
-    pickle_file.close()
-    voc.close()
+    # pickle_file.close()
+    # voc.close()
 
 
