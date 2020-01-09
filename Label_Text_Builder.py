@@ -260,23 +260,29 @@ class Label_Text_Builder():
 
                                     # build vocab set
                                     self.chapter_vocab(para_clean)
+                                    #
+                                    # book_dict = dict()
+                                    # chapter = dict()
+                                    # section = dict()
+                                    # subsection = dict()
+                                    # tag_dict = dict()
+                                    # para_dict = dict()
 
-                                    book_dict = dict()
-                                    chapter = dict()
-                                    section = dict()
-                                    subsection = dict()
-                                    tag_dict = dict()
-                                    para_dict = dict()
-
-                                    section['section'] = self.sec_num
-                                    subsection['subsection'] = self.sub_num
-                                    chapter['chapter'] = self.chap_num
-                                    tag_dict['tags'] = [tag]
-                                    para_dict['paragraph'] = [para_clean]
-                                    book_dict['book'] = book_name
+                                    # section['section'] = self.sec_num
+                                    # subsection['subsection'] = self.sub_num
+                                    # chapter['chapter'] = self.chap_num
+                                    # tag_dict['tags'] = [tag]
+                                    # para_dict['paragraph'] = [para_clean]
+                                    # book_dict['book'] = book_name
 
                                     # if para_clean != []:
-                                    self.master[self.para_num] = [book_dict, chapter, section, subsection, tag_dict, para_dict]
+                                    self.master[self.para_num] = {'book_dict': {'book': book_name},
+                                                                  'chap_dict': {'chap_num': self.chap_num},
+                                                                  'sec_dict': {'sec_num': self.sec_num},
+                                                                  'sub_dict': {'sub_num': self.sub_num},
+                                                                  'tag_dict': {'tags': tag},
+                                                                  'para_dict': {'paragraph': para_clean}
+                                                                  }
                                     if the_count == True:
                                         self.word_count(para)
                                     tagpara = []
@@ -290,6 +296,8 @@ class Label_Text_Builder():
 
         if the_count == True:
             self.word_count([], the_count=True)
+
+
 
 
 
@@ -672,7 +680,11 @@ class Label_Text_Builder():
             voc_list.append((key, value))
 
         voc_list.sort(key= lambda x: x[1])
-        print(voc_list)
+
+        with open('rank_vocab.pkl', 'wb') as r:
+            pickle.dump(voc_list, r)
+        r.close()
+
 
 
 
@@ -716,7 +728,7 @@ if __name__ == '__main__':
     # for key, value in vocab.items():
     #     print(f'word: {key}\nusage: {value}')
 
-    # LTB.rank_vocab('vocab.pkl')
+    LTB.rank_vocab('vocab.pkl')
 
     # with open('training_dict.pkl', 'rb') as tra:
     #     train = pickle.load(tra)
@@ -736,5 +748,4 @@ if __name__ == '__main__':
 
     # pickle_file.close()
     # voc.close()
-
 
